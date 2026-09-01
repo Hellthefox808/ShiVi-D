@@ -1,0 +1,4 @@
+Human Protein Atlas (HPA) Database License Notification
+Timestamp: 2026-09-01T22:33:00Z
+URL: https://www.proteinatlas.org/about/licence
+Notice: Access and data retrieval from the Human Protein Atlas is subject to the HPA license and terms of use (Creative Commons Attribution-ShareAlike 4.0 International License, CC BY-SA 4.0).

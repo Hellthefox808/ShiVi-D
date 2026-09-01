@@ -1,0 +1,54 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "title": "Causal Sync Ingestion Rate (events/sec)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(shivi_sync_events_processed_total[1m])",
+          "legendFormat": "Processed Events/s"
+        },
+        {
+          "expr": "rate(shivi_sync_event_duplicates_total[1m])",
+          "legendFormat": "Duplicate Filtered/s"
+        }
+      ]
+    },
+    {
+      "title": "Active Life-Safety Conflict Cases",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "shivi_conflicts_open_total",
+          "legendFormat": "Open Conflicts"
+        }
+      ]
+    },
+    {
+      "title": "Frozen Operational Tasks (Safety Freeze)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        {
+          "expr": "shivi_conflict_frozen_dependencies",
+          "legendFormat": "Halted Tasks"
+        }
+      ]
+    }
+  ],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["shivi", "operations", "emergency"],
+  "time": { "from": "now-6h", "to": "now" },
+  "title": "ShiVi Operational Command Health & Telemetry",
+  "version": 1
+}
