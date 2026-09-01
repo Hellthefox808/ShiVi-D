@@ -1,0 +1,244 @@
+# ShiVi Ecosystem: Declarative GCP Data Pipeline Resource Provisioning Spec
+# Environments: dev, stage, prod
+
+environments:
+  dev:
+    project: shivi-ops-dev
+    region: asia-south1
+    variables:
+      ENV_NAME: dev
+      REPO_NAME: shivi-analytics-pipelines
+      SERVICE_ACCOUNT_EMAIL: "shivi-pipeline-sa@shivi-ops-dev.iam.gserviceaccount.com"
+      PROJECT_NUMBER: "102938475601"
+      COMMIT_SHA: "main"
+    secrets:
+      LAKEHOUSE_UNITY_TOKEN: "projects/shivi-ops-dev/secrets/lakehouse-unity-token/versions/latest"
+      SACHET_CAP_API_KEY: "projects/shivi-ops-dev/secrets/sachet-cap-api-key/versions/latest"
+    resources:
+      # --- BigQuery Raw Ingestion Dataset ---
+      - type: bigquery.dataset
+        name: shivi_analytics_raw
+        definition:
+          labels:
+            env: dev
+            datacloud: "antigravity"
+            application: shivi-ops
+
+      - type: bigquery.table
+        name: operational_events_raw
+        parent: shivi_analytics_raw
+        definition:
+          schema:
+            fields:
+              - name: event_id
+                type: STRING
+                mode: REQUIRED
+              - name: tenant_id
+                type: STRING
+                mode: REQUIRED
+              - name: entity_type
+                type: STRING
+                mode: REQUIRED
+              - name: entity_id
+                type: STRING
+                mode: REQUIRED
+              - name: event_type
+                type: STRING
+                mode: REQUIRED
+              - name: payload_json
+                type: JSON
+                mode: NULLABLE
+              - name: actor_id
+                type: STRING
+                mode: REQUIRED
+              - name: device_id
+                type: STRING
+                mode: REQUIRED
+              - name: occurred_at
+                type: TIMESTAMP
+                mode: REQUIRED
+              - name: received_at
+                type: TIMESTAMP
+                mode: REQUIRED
+              - name: integrity_hash
+                type: STRING
+                mode: REQUIRED
+          labels:
+            env: dev
+            datacloud: "antigravity"
+
+      # --- BigQuery Curated Analytics Dataset ---
+      - type: bigquery.dataset
+        name: shivi_analytics_curated
+        definition:
+          labels:
+            env: dev
+            datacloud: "antigravity"
+            application: shivi-ops
+
+      - type: bigquery.table
+        name: route_safety_observations
+        parent: shivi_analytics_curated
+        definition:
+          schema:
+            fields:
+              - name: route_identifier
+                type: STRING
+                mode: REQUIRED
+              - name: status
+                type: STRING
+                mode: REQUIRED
+              - name: is_frozen
+                type: BOOLEAN
+                mode: REQUIRED
+              - name: conflict_case_id
+                type: STRING
+                mode: NULLABLE
+              - name: observation_count
+                type: INTEGER
+                mode: REQUIRED
+              - name: last_updated_at
+                type: TIMESTAMP
+                mode: REQUIRED
+          labels:
+            env: dev
+            datacloud: "antigravity"
+
+      # --- BigQuery Data Transfer Service (DTS) ---
+      - type: bigquerydatatransfer.transferConfig
+        name: sachet_cap_dts_ingestion
+        metadata:
+          serviceAccountName: "{{ SERVICE_ACCOUNT_EMAIL }}"
+        definition:
+          displayName: "NDMA SACHET CAP Alerts Ingestion Stream"
+          dataSourceId: custom_scheduled_query
+          schedule: "every 15 minutes"
+          destinationDatasetId: shivi_analytics_raw
+          params:
+            api_key: "{{ SACHET_CAP_API_KEY }}"
+            feed_url: "https://sachet.ndma.gov.in/cap_v12/rss"
+
+      # --- Dataform Pipeline Repository ---
+      - type: dataform.repository
+        name: shivi-analytics-pipelines
+        definition:
+          labels:
+            env: dev
+            datacloud: "antigravity"
+
+      - type: dataform.repository.releaseConfig
+        name: dev-release
+        parent: shivi-analytics-pipelines
+        definition:
+          gitCommitish: "{{ COMMIT_SHA }}"
+          codeCompilationConfig:
+            defaultDatabase: "shivi-ops-dev"
+            defaultSchema: "shivi_analytics_curated"
+
+      - type: dataform.repository.workflowConfig
+        name: hourly-curation-workflow
+        parent: shivi-analytics-pipelines
+        definition:
+          releaseConfig: "dev-release"
+          invocationConfig:
+            includedTags: ["hourly"]
+            transitiveDependenciesIncluded: true
+            serviceAccount: "shivi-pipeline-sa@shivi-ops-dev.iam.gserviceaccount.com"
+          cronSchedule: "0 * * * *"
+          timeZone: "Asia/Kolkata"
+
+      - type: dataform.repository.workspace
+        name: dev-analyst-workspace
+        parent: shivi-analytics-pipelines
+        definition: {}
+
+      # --- Dataproc Cluster & Analytics ---
+      - type: dataproc.cluster
+        name: shivi-route-graph-cluster
+        definition:
+          config:
+            masterConfig:
+              numInstances: 1
+              machineTypeUri: e2-standard-4
+            workerConfig:
+              numInstances: 2
+              machineTypeUri: e2-standard-4
+
+      - type: dataproc.autoscalingPolicy
+        name: shivi-graph-autoscaling
+        definition:
+          workerConfig:
+            minInstances: 2
+            maxInstances: 8
+          basicAlgorithm:
+            yarnConfig:
+              gracefulDecommissionTimeout: 30s
+              scaleUpFactor: 1.0
+
+      - type: dataproc.workflowTemplate
+        name: shivi-route-topology-analytics
+        definition:
+          placement:
+            managedCluster:
+              clusterName: shivi-route-graph-cluster
+          jobs:
+            - stepId: route-topology-spark-step
+              sparkJob:
+                mainClass: io.shivi.analytics.RouteGraphTopologyAnalyzer
+                jarFileUris: ["gs://shivi-ops-dev-artifacts/jars/route-analytics.jar"]
+
+  stage:
+    project: shivi-ops-stage
+    region: asia-south1
+    variables:
+      ENV_NAME: stage
+      REPO_NAME: shivi-analytics-pipelines
+      SERVICE_ACCOUNT_EMAIL: "shivi-pipeline-sa@shivi-ops-stage.iam.gserviceaccount.com"
+      PROJECT_NUMBER: "203948576102"
+      COMMIT_SHA: "release-v1.0"
+    secrets:
+      LAKEHOUSE_UNITY_TOKEN: "projects/shivi-ops-stage/secrets/lakehouse-unity-token/versions/latest"
+      SACHET_CAP_API_KEY: "projects/shivi-ops-stage/secrets/sachet-cap-api-key/versions/latest"
+    resources:
+      - type: bigquery.dataset
+        name: shivi_analytics_raw
+        definition:
+          labels:
+            env: stage
+            datacloud: "antigravity"
+            application: shivi-ops
+      - type: bigquery.dataset
+        name: shivi_analytics_curated
+        definition:
+          labels:
+            env: stage
+            datacloud: "antigravity"
+            application: shivi-ops
+
+  prod:
+    project: shivi-ops-prod
+    region: asia-south1
+    variables:
+      ENV_NAME: prod
+      REPO_NAME: shivi-analytics-pipelines
+      SERVICE_ACCOUNT_EMAIL: "shivi-pipeline-sa@shivi-ops-prod.iam.gserviceaccount.com"
+      PROJECT_NUMBER: "304958671203"
+      COMMIT_SHA: "release-v1.0"
+    secrets:
+      LAKEHOUSE_UNITY_TOKEN: "projects/shivi-ops-prod/secrets/lakehouse-unity-token/versions/latest"
+      SACHET_CAP_API_KEY: "projects/shivi-ops-prod/secrets/sachet-cap-api-key/versions/latest"
+    resources:
+      - type: bigquery.dataset
+        name: shivi_analytics_raw
+        definition:
+          labels:
+            env: prod
+            datacloud: "antigravity"
+            application: shivi-ops
+      - type: bigquery.dataset
+        name: shivi_analytics_curated
+        definition:
+          labels:
+            env: prod
+            datacloud: "antigravity"
+            application: shivi-ops
