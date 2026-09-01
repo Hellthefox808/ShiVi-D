@@ -34,6 +34,9 @@ class EventEnvelopeIn(BaseModel):
     occurred_at: datetime
     version_vector: Dict[str, int] = {}
     evidence_ids: List[str] = []
+    relay_hops: int = 0
+    relayed_by_devices: List[str] = []
+    initial_bearer: Optional[str] = "DIRECT"
     schema_version: int = 1
     integrity_hash: str
 

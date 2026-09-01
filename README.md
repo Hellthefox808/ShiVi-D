@@ -119,7 +119,7 @@ ShiVi/
 │   ├── bicep/             # Azure Infrastructure as Code (Container Apps, PostgreSQL HA, Blob)
 │   ├── prometheus/        # Metrics scraping configuration
 │   └── dashboards/        # Grafana domain metrics dashboard
-├── docs/                  # 29 complete architecture, policy, and engineering specifications
+├── docs/                  # 30 complete architecture, policy, and engineering specifications
 ├── scripts/
 │   ├── seed_data.py       # Seed tenants, users, responders, and sample alert layers
 │   └── simulate_p0_demo.py# End-to-end multi-device concurrency simulation
