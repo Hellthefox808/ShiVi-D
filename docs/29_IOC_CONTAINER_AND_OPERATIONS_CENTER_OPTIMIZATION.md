@@ -75,10 +75,14 @@ Under disaster peak conditions (e.g. 500+ rescue teams synchronizing simultaneou
 ### 3.3 Resource Saturation & Priority Metrics
 
 - **Resource Saturation Index ($RSI$):**
-  $$RSI = \frac{\text{Active Tasks}}{\max(\text{Active Responders}, 1)}$$
+
+  $$
+  RSI = \frac{\text{Active Tasks}}{\max(\text{Active Responders}, 1)}
+  $$
   - $RSI \le 1.0$: Healthy operational capacity.
   - $1.0 < RSI \le 3.0$: High operational strain.
   - $RSI > 3.0$: Critical resource saturation (triggers regional mutual-aid mobilization).
+
 - **Critical Incident Tally:** Real-time count of unresolved incidents with priority score $\ge 75.0$ or severity = `CRITICAL`.
 - **Active Safety Freezes:** Instant visibility into life-safety conflicting routes requiring commander adjudication.
 
