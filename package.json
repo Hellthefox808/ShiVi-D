@@ -1,0 +1,16 @@
+{
+  "name": "shivi-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ShiVi (Smart Hybrid Intelligent Virtual Integration) - Local-First Disaster Coordination & Common Operational Picture Platform",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:backend": "cd backend && python server.py",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "test": "npm run test:backend",
+    "test:backend": "cd backend && python -m pytest tests",
+    "benchmark": "cd backend && python scripts/benchmark.py",
+    "simulate": "cd backend && python scripts/simulate_p0_demo.py",
+    "build": "npm --prefix frontend run build"
+  }
+}
