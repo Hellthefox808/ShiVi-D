@@ -9,10 +9,12 @@ import urllib.request
 import json
 
 if sys.platform == "win32":
-    try:
-        sys.stdout.reconfigure(encoding="utf-8")
-    except Exception:
-        pass
+    reconfig = getattr(sys.stdout, "reconfigure", None)
+    if callable(reconfig):
+        try:
+            reconfig(encoding="utf-8")
+        except Exception:
+            pass
 
 BASE_URL = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:8000"
 
@@ -21,10 +23,10 @@ ENDPOINTS = [
     ("/v1/dashboard/summary", "Incident Operations Center (IOC) Summary"),
     ("/v1/dashboard/geojson", "Geospatial Polygon Map Layer"),
     ("/v1/incidents", "Incident Catalog Feed"),
-    ("/v1/conflicts/status", "Causal Conflict Engine Status"),
-    ("/v1/assets/contention-status", "Physical Asset Contention State"),
+    ("/v1/conflicts", "Causal Conflict Engine Status"),
+    ("/v1/assets", "Physical Asset Contention State"),
     ("/v1/integrations/sms/logs", "Disaster SMS & Satellite Ledger"),
-    ("/v1/audit/ledger", "Cryptographic Audit Ledger Chain"),
+    ("/v1/audit/timeline", "Cryptographic Audit Ledger Chain"),
     ("/docs", "OpenAPI Swagger Interactive Documentation"),
 ]
 

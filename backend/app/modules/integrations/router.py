@@ -24,7 +24,7 @@ from app.modules.integrations.sms import (
     SMSLogEntry,
 )
 
-router = APIRouter(prefix="/v1/integrations", tags=["Integrations & SMS Gateway"])
+router = APIRouter(prefix="/integrations", tags=["Integrations & SMS Gateway"])
 
 
 # ---------------------------------------------------------------------------
