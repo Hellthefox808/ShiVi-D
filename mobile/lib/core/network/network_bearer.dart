@@ -6,6 +6,7 @@ enum NetworkBearerType {
   cellular4G5G,    // High-bandwidth LTE / 5G cellular network
   cellular2G3G,    // Low-bandwidth constrained 2G/EDGE or 3G cellular
   satelliteNTN,    // Ultra-low bandwidth satellite non-terrestrial network
+  smsRelay,        // Cellular SMS & Satellite 140B Burst Relay
   wifiDirectMesh,  // Peer-to-peer Wi-Fi Direct / Local ad-hoc hotspot (no internet required)
   bluetoothMesh,   // Bluetooth Low Energy (BLE) / Bluetooth Classic P2P mesh
   disconnected,    // Completely isolated (pure offline local storage)
@@ -65,6 +66,15 @@ class NetworkBearerProfile {
     humanReadableName: 'Satellite NTN (3GPP Rel-17)',
   );
 
+  static const NetworkBearerProfile smsRelay = NetworkBearerProfile(
+    type: NetworkBearerType.smsRelay,
+    maxPayloadBytes: 140,   // 140 B compact satellite burst / SMS segment
+    requiresInternet: false,
+    isPeerToPeer: false,
+    batteryCostLevel: 2,
+    humanReadableName: 'Emergency SMS / Satellite Burst (140B)',
+  );
+
   static const NetworkBearerProfile wifiDirectMesh = NetworkBearerProfile(
     type: NetworkBearerType.wifiDirectMesh,
     maxPayloadBytes: 16384, // 16 KB P2P socket frames
@@ -102,6 +112,8 @@ class NetworkBearerProfile {
         return cellular2G3G;
       case NetworkBearerType.satelliteNTN:
         return satelliteNTN;
+      case NetworkBearerType.smsRelay:
+        return smsRelay;
       case NetworkBearerType.wifiDirectMesh:
         return wifiDirectMesh;
       case NetworkBearerType.bluetoothMesh:

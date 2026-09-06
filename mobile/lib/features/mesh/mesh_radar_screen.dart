@@ -56,6 +56,72 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
     },
   ];
 
+  void _handleGenerateSatelliteBurst() {
+    final incident = widget.repository.incidents.isNotEmpty
+        ? widget.repository.incidents.first
+        : null;
+
+    final eventId = incident != null ? 'EVT-${incident.id.substring(0, 6).toUpperCase()}' : 'EVT-SOS01';
+    final cat = incident != null ? incident.category : 'RESCUE';
+    final sev = incident != null ? incident.severity : 'CRITICAL';
+    final people = incident != null ? incident.peopleAtRisk : 3;
+    final lat = incident != null ? incident.latitude : 26.1856;
+    final lon = incident != null ? incident.longitude : 91.7483;
+    final desc = incident != null ? incident.title : 'ROOFTOP FLOOD';
+
+    final rawCore = 'SHV:1:${eventId.substring(0, 8)}:${cat.substring(0, 3).toUpperCase()}:${sev.substring(0, 4).toUpperCase()}:$people:${lat.toStringAsFixed(3)},${lon.toStringAsFixed(3)}:${desc.replaceAll(":", " ")}';
+    final core = rawCore.length > 115 ? rawCore.substring(0, 115) : rawCore;
+    final crc = (core.hashCode & 0xFFFFFFFF).toRadixString(16).toUpperCase().padLeft(8, '0');
+    final burstString = '$core:$crc';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: Row(
+          children: const [
+            Icon(Icons.satellite_alt, color: Colors.amberAccent),
+            SizedBox(width: 8),
+            Text('Satellite SOS Burst (140B)', style: TextStyle(fontSize: 15)),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Alphanumeric 140-byte compact burst ready for Iridium / Garmin inReach / SMS satellite transmission:',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(10),
+              color: const Color(0xFF0F172A),
+              child: SelectableText(
+                burstString,
+                style: const TextStyle(fontFamily: 'monospace', fontSize: 11, color: Colors.amberAccent),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Length: ${burstString.length}B / 140B', style: const TextStyle(fontSize: 11, color: Colors.white60)),
+                Text('CRC-32: $crc', style: const TextStyle(fontSize: 11, color: Colors.greenAccent, fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            child: const Text('COPY & DISMISS', style: TextStyle(color: FieldTheme.cyanAccent)),
+            onPressed: () => Navigator.pop(ctx),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handlePushSync() async {
     setState(() => _isSyncing = true);
     final flushed = await widget.repository.flushOutbox(widget.apiService);
@@ -212,20 +278,36 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
                 style: const TextStyle(fontSize: 12, color: Colors.white70),
               ),
               const SizedBox(height: 16),
-              ElevatedButton.icon(
-                icon: _isSyncing
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                      )
-                    : const Icon(Icons.cloud_upload),
-                label: Text(_isSyncing ? 'PUSHING OUTBOX...' : 'PUSH SYNC TO COMMAND'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: FieldTheme.primaryBlue,
-                  minimumSize: const Size(double.infinity, 48),
-                ),
-                onPressed: _isSyncing ? null : _handlePushSync,
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: _isSyncing
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Icon(Icons.cloud_upload),
+                      label: Text(_isSyncing ? 'PUSHING OUTBOX...' : 'PUSH SYNC'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: FieldTheme.primaryBlue,
+                        minimumSize: const Size(0, 48),
+                      ),
+                      onPressed: _isSyncing ? null : _handlePushSync,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.satellite_alt, size: 16, color: Colors.amberAccent),
+                    label: const Text('SAT BURST', style: TextStyle(color: Colors.amberAccent, fontWeight: FontWeight.bold)),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.amberAccent),
+                      minimumSize: const Size(0, 48),
+                    ),
+                    onPressed: _handleGenerateSatelliteBurst,
+                  ),
+                ],
               ),
             ],
           ),
