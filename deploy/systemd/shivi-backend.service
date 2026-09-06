@@ -1,0 +1,24 @@
+[Unit]
+Description=ShiVi Disaster Coordination Core API Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/shivi/backend
+ExecStart=/opt/shivi/backend/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+Restart=always
+RestartSec=5s
+Environment=PORT=8000
+Environment=HOST=0.0.0.0
+Environment=DATABASE_URL=sqlite+aiosqlite:////opt/shivi/data/shivi_production.db
+Environment=ENVIRONMENT=production
+Environment=LOG_LEVEL=INFO
+
+# Sandboxing & Resource Protection
+LimitNOFILE=65536
+MemoryMax=2G
+CPUQuota=200%
+
+[Install]
+WantedBy=multi-user.target

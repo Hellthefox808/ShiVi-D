@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shivi-ingress
+  namespace: shivi-ops
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    nginx.ingress.kubernetes.io/limit-rps: "50"
+spec:
+  rules:
+    - http:
+        paths:
+          # Backend Core API routes
+          - path: /v1
+            pathType: Prefix
+            backend:
+              service:
+                name: shivi-backend-svc
+                port:
+                  number: 8000
+          - path: /health
+            pathType: Exact
+            backend:
+              service:
+                name: shivi-backend-svc
+                port:
+                  number: 8000
+          - path: /docs
+            pathType: Prefix
+            backend:
+              service:
+                name: shivi-backend-svc
+                port:
+                  number: 8000
+          - path: /openapi.json
+            pathType: Exact
+            backend:
+              service:
+                name: shivi-backend-svc
+                port:
+                  number: 8000
+          # Frontend Common Operational Picture
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: shivi-frontend-svc
+                port:
+                  number: 3000

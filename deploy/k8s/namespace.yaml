@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shivi-ops
+  labels:
+    app.kubernetes.io/name: shivi
+    app.kubernetes.io/part-of: disaster-coordination

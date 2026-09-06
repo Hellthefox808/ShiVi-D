@@ -1,0 +1,90 @@
+name: ShiVi CI & Multi-Tier Validation
+
+on:
+  push:
+    branches:
+      - main
+      - Ravi-Ranjan-Singh
+  pull_request:
+    branches:
+      - main
+      - Ravi-Ranjan-Singh
+
+jobs:
+  backend-test:
+    name: Backend Test Suite & Health Validation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev build-essential
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio anyio
+
+      - name: Run Pytest Suite (65 Unit & E2E Tests)
+        run: |
+          pytest tests/ -v
+
+      - name: Verify Incident Invariants & Priority Algorithms
+        run: |
+          python -c "from app.modules.incidents.priority import calculate_priority_score; print('Priority check:', calculate_priority_score('CRITICAL', 'RESCUE', 5))"
+
+  frontend-build:
+    name: Frontend Typecheck & Production Compilation
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install Node Dependencies
+        run: |
+          npm ci
+
+      - name: Build Next.js 14 Standalone Production Bundle
+        run: |
+          npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NODE_ENV: production
+
+  docker-lint:
+    name: Docker Configuration & Compose Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Validate Docker Compose Configuration
+        run: |
+          docker compose -f docker-compose.yml config > /dev/null
+          docker compose -f docker-compose.prod.yml config > /dev/null
+          echo "Docker compose manifests validated successfully."

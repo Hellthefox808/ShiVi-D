@@ -512,7 +512,7 @@ pip install -r requirements.txt
 # Run server (Swagger on http://localhost:8000/docs)
 python server.py
 
-# Run all 58 automated tests
+# Run all 65 automated tests
 pytest tests/ -v
 
 # Run performance benchmarks
@@ -533,14 +533,34 @@ npm run dev
 npm run build
 ```
 
-### Option C: Multi-Container Docker Compose
-```bash
-# Launch PostgreSQL, PostGIS, Backend API, and Frontend Web Center
-docker compose up -d --build
+### Option C: Production Docker & Nginx Deployment (Single Command)
+Deploys a hardened multi-container cluster with Nginx reverse proxy, 4 FastAPI uvicorn workers, and Next.js standalone runner:
 
-# View container logs
-docker compose logs -f
+```bash
+# Linux / macOS / Cloud VM:
+chmod +x scripts/deploy_production.sh
+./scripts/deploy_production.sh
+
+# Windows PowerShell:
+.\scripts\deploy_production.ps1
 ```
+
+All traffic is consolidated on **[http://localhost](http://localhost)** (Port 80) via Nginx.
+
+### Option D: Zero-Docker Bare-Metal Edge Deployment
+For frontline laptops and field command tents with no container runtime:
+```bash
+chmod +x scripts/deploy_baremetal.sh
+./scripts/deploy_baremetal.sh
+```
+
+### Option E: Automated Post-Deployment Diagnostic Healthcheck
+Validate the health, response latency, and operational readiness of all endpoints:
+```bash
+python scripts/healthcheck.py http://localhost:8000
+```
+
+> 📖 **Full Deployment & Infrastructure Runbook:** See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for Kubernetes (`deploy/k8s/`), Google Cloud Run (`deploy/cloud/`), Systemd services (`deploy/systemd/`), and [mobile/DEPLOYMENT.md](mobile/DEPLOYMENT.md) for Android release APK packaging and sideloading.
 
 ---
 
