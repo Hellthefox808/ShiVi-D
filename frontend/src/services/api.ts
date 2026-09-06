@@ -126,6 +126,29 @@ export interface SimulationResponse {
   };
 }
 
+export interface ContextLoopPhase {
+  phase_number: number;
+  code: string;
+  name: string;
+  stage: string;
+  status: string;
+  latency_ms: number;
+  throughput_events_sec: number;
+  invariant: string;
+  active_records: number;
+  details?: Record<string, any>;
+}
+
+export interface ContextLoopResponse {
+  loop_status: string;
+  total_phases: number;
+  loop_closure_verified: boolean;
+  active_cycle_id: string;
+  feedback_latency_ms: number;
+  phases: ContextLoopPhase[];
+  timestamp: string;
+}
+
 class ApiService {
   private baseUrl: string;
 
@@ -304,6 +327,10 @@ class ApiService {
 
   async getSmsLogs(): Promise<any[]> {
     return this.request("/v1/integrations/sms/logs");
+  }
+
+  async getContextLoopStatus(): Promise<ContextLoopResponse> {
+    return this.request("/v1/dashboard/context-loop");
   }
 }
 

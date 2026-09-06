@@ -41,11 +41,12 @@ import ConflictAdjudicator from "../components/ConflictAdjudicator";
 import AdvisoryDrawer from "../components/AdvisoryDrawer";
 import AssetContentionCard from "../components/AssetContentionCard";
 import AuditLedgerTimeline from "../components/AuditLedgerTimeline";
+import ContextLoopMonitor from "../components/ContextLoopMonitor";
 import ErrorBoundary from "../components/ErrorBoundary";
 
 export default function CommandCenter() {
   // Navigation & View State
-  const [activeTab, setActiveTab] = useState<"cop" | "conflicts" | "assets" | "audit">("cop");
+  const [activeTab, setActiveTab] = useState<"cop" | "pipeline" | "conflicts" | "assets" | "audit">("cop");
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [connectivityMode, setConnectivityMode] = useState<"cloud" | "mesh" | "offline">("cloud");
   const [backendConnected, setBackendConnected] = useState<boolean>(false);
@@ -441,6 +442,18 @@ export default function CommandCenter() {
               </button>
 
               <button
+                onClick={() => setActiveTab("pipeline")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  activeTab === "pipeline"
+                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                    : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                }`}
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span>14-Phase Context Loop</span>
+              </button>
+
+              <button
                 onClick={() => setActiveTab("conflicts")}
                 className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
                   activeTab === "conflicts"
@@ -699,6 +712,9 @@ export default function CommandCenter() {
 
           {/* TAB 4: Cryptographic Audit Ledger */}
           {activeTab === "audit" && <AuditLedgerTimeline logs={auditLogs} />}
+
+          {/* TAB 5: 14-Phase Continuous Operational Context Loop */}
+          {activeTab === "pipeline" && <ContextLoopMonitor />}
         </main>
 
         {/* Live Disaster Simulation Modal */}
