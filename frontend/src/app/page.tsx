@@ -38,7 +38,7 @@ import api, {
 import Navbar from "../components/Navbar";
 import SimulationModal from "../components/SimulationModal";
 import ConflictAdjudicator from "../components/ConflictAdjudicator";
-import AIAdvisoryDrawer from "../components/AIAdvisoryDrawer";
+import AdvisoryDrawer from "../components/AdvisoryDrawer";
 import AssetContentionCard from "../components/AssetContentionCard";
 import AuditLedgerTimeline from "../components/AuditLedgerTimeline";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -709,8 +709,8 @@ export default function CommandCenter() {
           loading={isSimulating}
         />
 
-        {/* Governed AI Advisory Drawer */}
-        <AIAdvisoryDrawer
+        {/* Governed Advisory Drawer */}
+        <AdvisoryDrawer
           isOpen={isAiDrawerOpen}
           onClose={() => setIsAiDrawerOpen(false)}
           onApplyExtraction={(extracted) => {

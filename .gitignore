@@ -45,3 +45,12 @@ logs/
 .env.test.local
 .env.production.local
 !.env.example
+
+# Agent Customizations & AI Artifacts
+.agents/
+.gemini/
+*.agent
+*.skill
+*ai*.md
+*AI*.md
+

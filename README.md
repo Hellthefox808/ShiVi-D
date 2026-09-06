@@ -557,8 +557,7 @@ docker compose logs -f
 9. [09_SYNC_AND_CONFLICT_RESOLUTION_SPEC.md](file:///d:/ShiVi,/docs/09_SYNC_AND_CONFLICT_RESOLUTION_SPEC.md): Causal Conflict Engine and automated life-safety freezes.
 10. [10_API_SPECIFICATION.md](file:///d:/ShiVi,/docs/10_API_SPECIFICATION.md): REST endpoints, OpenAPI schemas, and error codes.
 11. [11_SECURITY_PRIVACY_THREAT_MODEL.md](file:///d:/ShiVi,/docs/11_SECURITY_PRIVACY_THREAT_MODEL.md): STRIDE threat model, RBAC policies, and cryptographic controls.
-12. [12_AI_HYBRID_INTELLIGENCE_SPEC.md](file:///d:/ShiVi,/docs/12_AI_HYBRID_INTELLIGENCE_SPEC.md): Hybrid AI advisory gateway, prompt templates, and deterministic fallback.
-13. [13_UI_UX_ACCESSIBILITY_BLUEPRINT.md](file:///d:/ShiVi,/docs/13_UI_UX_ACCESSIBILITY_BLUEPRINT.md): WCAG 2.1 AAA high-contrast field design and low-literacy interfaces.
+12. [13_UI_UX_ACCESSIBILITY_BLUEPRINT.md](file:///d:/ShiVi,/docs/13_UI_UX_ACCESSIBILITY_BLUEPRINT.md): WCAG 2.1 AAA high-contrast field design and low-literacy interfaces.
 14. [14_ECOSYSTEM_INTEGRATION_ARCHITECTURE.md](file:///d:/ShiVi,/docs/14_ECOSYSTEM_INTEGRATION_ARCHITECTURE.md): NDMA SACHET CAP, IMD weather, and open-data connectors.
 15. [15_INFRASTRUCTURE_DEVOPS_RELIABILITY.md](file:///d:/ShiVi,/docs/15_INFRASTRUCTURE_DEVOPS_RELIABILITY.md): Multi-cloud infrastructure, Bicep templates, and HA topologies.
 16. [16_OBSERVABILITY_INCIDENT_RESPONSE.md](file:///d:/ShiVi,/docs/16_OBSERVABILITY_INCIDENT_RESPONSE.md): OpenTelemetry instrumentation, Prometheus metrics, and runbooks.
