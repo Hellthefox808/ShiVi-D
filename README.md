@@ -37,8 +37,8 @@
 
 ## 📖 Table of Contents
 
-1. [System Overview & Core Philosophy](#-system-overview--core-philosophy)
-2. [Operational Pipeline & 8-Phase Lifecycle](#-operational-pipeline--8-phase-lifecycle)
+1. [System Overview & Positioning](#-system-overview--positioning)
+2. [The Primary Operational Loop: 14-Phase Continuous Verified Context Loop](#-the-primary-operational-loop-14-phase-continuous-verified-context-loop)
 3. [The 5 Non-Negotiable System Invariants](#-the-5-non-negotiable-system-invariants)
 4. [Intelligence Layer: Governed Advisory AI](#-intelligence-layer-governed-advisory-ai)
 5. [Omni-Bearer Mesh Protocol & Packet Framing](#-omni-bearer-mesh-protocol--packet-framing)
@@ -52,9 +52,15 @@
 
 ---
 
-## 🎯 System Overview & Core Philosophy
+## 🎯 System Overview & Positioning
 
-### Problem Landscape at the Tactical Edge
+> **"ShiVi is the execution layer for distributed teams operating when connectivity and information cannot be trusted."**  
+> *Platform Principle: Do not build ShiVi as merely an AI disaster-management application. Build it as a resilient operational execution platform.*
+
+### Core Thesis
+Disasters do not wait for connectivity. Operational coordination cannot afford to either.
+
+### The Problem Landscape at the Tactical Edge
 - **Weak & Collapsed Connectivity:** Base Transceiver Stations lose power and backhaul; responders are completely cut off.
 - **Fragmented Field Reports:** Multiple agencies (SDRF, NDRF, local volunteers, police) report conflicting observations with zero mutual visibility.
 - **Duplicated Resource Dispatches:** Disconnected command centers send redundant rescue squads to the same sector while leaving neighboring zones abandoned.
@@ -62,61 +68,99 @@
 
 ### The ShiVi Solution
 ShiVi provides **local-first tactical continuity**:
-- **Report, Coordinate, and Execute Offline:** Mobile clients commit mutations locally with zero network reliance.
-- **Deterministic Synchronization:** Merges compatible updates and escalates contradictions to human commanders.
-- **Unified Team Connection:** Bridges Citizens, Field Responders, Tactical Team Leads, Incident Commanders, and Jurisdictional Auditors into a cohesive Common Operational Picture (COP).
+- **Offline Operational State:** Mobile edge clients commit mutations locally with zero network reliance.
+- **Event-Based Synchronization:** Causal vector clocks and transactional outbox queues exchange delta batches over any available bearer.
+- **Idempotent Processing:** Deterministic event hashing guarantees zero duplicate business effects from network retries.
+- **Domain-Aware Conflict Protection:** Escalates contradictory life-safety claims to human commanders via an automated Safety Freeze.
+- **Evidence & Provenance:** Cryptographically seals field observations (GPS, timestamps, SHA-256 photo proof).
+- **Human Authorization:** Restricts safety-critical dispatches and closures to permitted human authority (RBAC).
+- **Governed Advisory AI:** AI acts as an intake accelerator and decision-support tool, never the authority for life-safety actions.
 
 ---
 
-## 🔄 Operational Pipeline & 8-Phase Lifecycle
+## 🔄 The Primary Operational Loop: 14-Phase Continuous Verified Context Loop
+
+ShiVi does NOT model operations as isolated features or static CRUD tables. It executes a **Continuous Verified Operational Context Loop**:
 
 ```text
-CORE PIPELINE FLOW:
-Report ──► Prioritize ──► Assign ──► Execute ──► Sync ──► Reconcile ──► Verify ──► Audit
+SENSE ──► INGEST ──► NORMALIZE ──► VALIDATE ──► UNDERSTAND ──► ENRICH ──► PRIORITIZE
+  ▲                                                                           │
+  │                                                                           ▼
+UPDATED CONTEXT ◄── AUDIT ◄── RECONCILE ◄── SYNC ◄── VERIFY ◄── ACT ◄── AUTHORIZE ◄── PLAN
 ```
+
+> **Living Context Principle:** The output of one phase becomes the input for the next phase. Audit and reconciliation continuously feed the next operational context, creating an adaptive, living ground truth.
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
-│                                    THE 8 OPERATIONAL PHASES                                      │
-├──────────────────┬──────────────────┬──────────────────┬──────────────────┬──────────────────────┤
-│ 1. CAPTURE       │ 2. PERSIST       │ 3. SYNCHRONIZE   │ 4. RECONCILE     │ 5. PROTECT           │
-│ Local Incident   │ Atomic State     │ Offline Event    │ Idempotency &    │ Escalate Safety-     │
-│ Recording (GPS,  │ Storage (SQLite  │ Push & Pull      │ Compatible       │ Critical Contradic-  │
-│ Notes, Evidence) │ with Drift WAL)  │ Updates (Mesh)   │ Merges           │ tions (Safety Freeze)│
-├──────────────────┴──────────────────┴──────────────────┴──────────────────┴──────────────────────┤
-│ 6. DECIDE                           │ 7. VERIFY                           │ 8. AUDIT             │
-│ Authorized Supervisor               │ Evidence-Based Completion           │ Reconstructable      │
-│ Resolution (Human RBAC)             │ (Geofenced SHA-256 Photo Proof)     │ Actions & Decisions  │
+│                             THE 14-PHASE CONTINUOUS CONTEXT LIFECYCLE                            │
+├────────────────────┬────────────────────┬────────────────────┬───────────────────────────────────┤
+│ 1. SENSE           │ 2. INGEST          │ 3. NORMALIZE       │ 4. VALIDATE                       │
+│ Offline Field      │ Trust Boundary,    │ Canonical Units,   │ Deterministic Admissibility Gate  │
+│ Capture (GPS/Media)│ Auth, Replay Nonce │ EPSG:4326, Schema  │ (Classes A-E; Nonce/Boundary)     │
+├────────────────────┼────────────────────┼────────────────────┼───────────────────────────────────┤
+│ 5. UNDERSTAND      │ 6. ENRICH          │ 7. PRIORITIZE      │ 8. PLAN                           │
+│ Context Snapshot   │ Governed Advisory  │ Explainable Urgency│ Feasible Options & Constraint-    │
+│ (Ground Truth)     │ Intelligence (LLM) │ Scoring Formula    │ Aware Resource Matching           │
+├────────────────────┼────────────────────┼────────────────────┼───────────────────────────────────┤
+│ 9. AUTHORIZE       │ 10. ACT            │ 11. VERIFY         │ 12. SYNC                          │
+│ Human RBAC Gate    │ Offline SQLite WAL │ Two-Person Evidence│ Multi-Bearer Push/Pull Cursor     │
+│ Server Invariant   │ Field Execution    │ Closure (SHA-256)  │ (BLE / Wi-Fi / Cell / Sat)        │
+├────────────────────┴────────────────────┴────────────────────┴───────────────────────────────────┤
+│ 13. RECONCILE                           │ 14. AUDIT                           │ ↺ CONTEXT CLOSURE │
+│ Domain Conflicts (Class A/B/C)          │ Cryptographic Monotonic Hash Chain  │ Updated Context   │
+│ Causal Safety Freeze & Adjudication     │ Immutable Post-Event Reconstruction │ Feeds SENSE Again │
 └──────────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Phase Breakdown
+### Comprehensive Phase Breakdown
 
-1. **Capture (Local Incident Recording):**
-   - Responders record incident telemetry (GPS lat/lon, category, casualty count, voice distress, photo hashes) directly on mobile devices with zero network connectivity.
-   - Explainable priority scoring algorithm instantly assigns a deterministic urgency score ($P \in [0, 100]$).
-2. **Persist (Atomic State Storage):**
-   - Every mutation is wrapped in a canonical `EventEnvelope` and atomically committed to local SQLite via Drift ORM with Write-Ahead Logging (WAL).
-   - Zero in-memory loss; survives process crashes, low-battery shutdowns, and hard reboots.
-3. **Synchronize (Multi-Bearer Mesh Exchange):**
-   - Background sync orchestrator opportunistically pushes and pulls event batches across available bearers: **BLE 5.0 GATT Mesh**, **Wi-Fi Direct P2P**, **2G/3G/4G/5G Cellular**, and **Satellite NTN**.
-   - Responders crossing paths act as "data mules", exchanging Bloom filter digests to sync un-replicated records.
-4. **Reconcile (Idempotency & Compatible Merges):**
-   - Ingested events pass through an idempotent ingestion filter. Duplicate event IDs cause zero duplicate side-effects.
-   - Non-conflicting attribute updates (e.g., responder battery percentage, supply levels) merge automatically via vector clock causality.
-5. **Protect (Causal Safety Freeze):**
-   - If concurrent observations assert contradictory life-safety states (e.g., Scout reports *Route-88 Passable* vs Volunteer reports *Route-88 Blocked*), ShiVi **halts automation** and activates a **Safety Freeze**.
-   - The route is marked impassable, dependent rescue dispatches are locked, and tactical teams receive immediate audible/visual alerts.
-6. **Decide (Authorized Supervisor Resolution):**
-   - Escalated contradictions populate the Incident Commander's Adjudication Console with side-by-side claim timestamps, scout credentials, and drone reconnaissance notes.
-   - The human commander selects the authoritative reality, inputs justification, and cryptographically signs the resolution.
-7. **Verify (Evidence-Based Completion):**
-   - Prevents premature or fraudulent task closure. Field responders must submit verifiable proof (geofenced GPS, photo registered with cryptographic SHA-256 hash).
-   - Requires supervisor sign-off under the two-person rule before an incident is transitioned to `RESOLVED`.
-8. **Audit (Reconstructable Monotonic Ledger):**
-   - Every state transition appends to an immutable, monotonically chained audit ledger:
-     $$H_N = \text{SHA-256}(H_{N-1} \parallel \text{ActionType} \parallel \text{EntityID} \parallel \text{PayloadHash} \parallel \text{Timestamp})$$
-   - Enables complete chronological reconstruction during post-disaster judicial and legislative inquiries.
+1. **Phase 1 — SENSE (Offline Data Capture):**
+   - Captures raw operational reality without network connectivity across Community, Responder, and Official sources.
+   - Preserves three distinct temporal dimensions: `occurred_at`, `recorded_at`, and `received_at`.
+   - Generates a globally unique UUIDv5 client reference and attaches sensor telemetry (GPS accuracy, raw media bytes).
+2. **Phase 2 — INGEST (Trust Boundary Control):**
+   - Evaluates incoming events at the network perimeter: verifies HMAC-SHA256 signatures, checks tenant isolation, enforces rate limits, validates payload schema, and inspects replay nonces.
+   - Guarantees that **no accepted or rejected event silently disappears** (dead-letter queue preservation).
+3. **Phase 3 — NORMALIZE (Canonical Projection):**
+   - Normalizes heterogeneous inputs into the unified ShiVi operational domain model (UTC ISO-8601, WGS84 coordinates, SI units).
+   - Preserves original raw payload hash (`SHA-256(raw_bytes)`) to guarantee uncorrupted provenance.
+4. **Phase 4 — VALIDATE (Deterministic Admissibility):**
+   - Deterministic structural and operational validation classifying events into: Class A (Invalid), Class B (Incomplete), Class C (Low Confidence), Class D (Needs Confirmation), or Class E (Admissible).
+   - Strict rule: **AI models never bypass deterministic validation.**
+5. **Phase 5 — UNDERSTAND (Operational Context Synthesis):**
+   - Constructs a unified `OperationalContextSnapshot` synthesizing incident history, vulnerable populations, hazard zones, responder capacity, physical equipment custody, and existing contradictions.
+6. **Phase 6 — ENRICH (Governed Advisory Intelligence):**
+   - Adds advisory intelligence (Whisper audio transcription, Hindi/English translation, duplicate report clustering, SOP retrieval) **without corrupting factual ground truth**.
+   - Preserves model name, prompt hash, and confidence score. Models are strictly prohibited from mutating protected state or authorizing dispatches.
+7. **Phase 7 — PRIORITIZE (Urgency Scoring & Explanation):**
+   - Calculates deterministic urgency: $\text{Priority} = (S \times 0.35) + (P_{\text{risk}} \times 0.25) + (T_{\text{decay}} \times 0.20) + (H_{\text{escalate}} \times 0.20)$.
+   - Consequential changes are explainable; human overrides require logged operational justification.
+8. **Phase 8 — PLAN (Constraint-Aware Optimization):**
+   - Eliminates ineligible responders (fatigued, unqualified, hazards along transit corridor) before optimizing routes or assigning personnel.
+   - Safety constraints always take precedence over speed optimization.
+9. **Phase 9 — AUTHORIZE (Human-in-the-Loop Gate):**
+   - Server-side cryptographic authorization enforcing Role-Based and Attribute-Based Access Control (RBAC/ABAC).
+   - Citizen $\to$ Report; Responder $\to$ Execute assigned task; Supervisor $\to$ Dispatch, Adjudicate, and Verify.
+10. **Phase 10 — ACT (Field-First Execution):**
+    - Field responders execute dispatches under total radio silence.
+    - Local writes commit atomically across `(MaterializedEntity, OperationalEvent, SyncOutbox)` in SQLite via Drift with Write-Ahead Logging (WAL).
+    - Guarantees zero data loss upon battery death, process kill, or device restart.
+11. **Phase 11 — VERIFY (Evidence-Backed Closure):**
+    - "Task complete" does not equal "Task verified."
+    - High-impact emergency tasks require physical proof: $\text{Verified} = \text{Checklist} \land \text{Photo Evidence} \land \text{Geofence GPS} \land \text{Supervisor Sign-off}$.
+12. **Phase 12 — SYNC (Bidirectional Resilient Synchronization):**
+    - Exchanges delta events via transactional outbox push/pull when connectivity flickers.
+    - Uses UUIDv5 idempotency keys to prevent duplicate business side effects during connection retries.
+13. **Phase 13 — RECONCILE (Domain-Aware Conflict Adjudication):**
+    - Categorizes concurrent updates: Class A (Compatible merge), Class B (Deterministic policy merge), Class C (Protected Safety Conflict).
+    - If contradictory claims arise on protected attributes (e.g., `Route-88: PASSABLE` vs `Route-88: BLOCKED`), ShiVi halts automation, activates a **Causal Safety Freeze**, preserves both claims, and alerts the Incident Commander for human adjudication with full evidence comparison.
+14. **Phase 14 — AUDIT (Immutable Hash-Chained Ledger):**
+    - Every mutation, override, and verification appends to an immutable cryptographic hash chain:
+      $$H_N = \text{SHA-256}(H_{N-1} \parallel \text{ActionType} \parallel \text{EntityID} \parallel \text{PayloadHash} \parallel \text{ActorID} \parallel \text{Timestamp})$$
+    - Guarantees total legal and operational reconstructability for post-disaster judicial review.
+15. **↺ UPDATED CONTEXT (Loop Closure):**
+    - Reconciled outcomes and audit entries immediately update the global operational picture, streaming to edge devices as fresh context that feeds back into Phase 1 (SENSE).
 
 ---
 
