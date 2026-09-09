@@ -190,3 +190,29 @@ ENDPOINT                         STATUS     LATENCY      RESULT     DESCRIPTION
      ```bash
      curl -s http://localhost:8000/v1/audit/ledger/verify | jq .
      ```
+
+---
+
+## 8. Vercel Cloud Deployment (Command Center Web Frontend)
+
+The Next.js 14 Web Command Center can be deployed to **Vercel** with zero friction:
+
+### Option A: Standard Root Directory Setting (Recommended)
+1. In the Vercel Dashboard, click **Add New... $\to$ Project** and select `Hellthefox808/ShiVi-D`.
+2. Under **Project Settings $\to$ Root Directory**, click **Edit** and set it to:
+   ```text
+   frontend
+   ```
+3. Framework Preset: **Next.js** (auto-detected).
+4. Environment Variables:
+   - Add `NEXT_PUBLIC_API_URL` pointing to your deployed backend URL (e.g. `https://your-backend.railway.app` or Google Cloud Run URL).
+5. Click **Deploy**.
+
+### Option B: Monorepo Root Deployment (Automatic via `vercel.json`)
+If you leave the Root Directory as `./` (default):
+- Vercel will automatically read the root [vercel.json](file:///d:/HACKTHON/ShiVi%20-d/vercel.json) and root `package.json` workspaces:
+  - Install Command: `npm install --prefix frontend`
+  - Build Command: `npm run build --prefix frontend`
+  - Output Directory: `frontend/.next`
+- Add `NEXT_PUBLIC_API_URL` under Environment Variables and click **Deploy**.
+

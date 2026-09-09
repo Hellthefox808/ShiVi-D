@@ -492,6 +492,17 @@ All traffic is consolidated on **[http://localhost](http://localhost)** (Port 80
 
 ---
 
+### Option E: Vercel Cloud Deployment (Command Center Web Frontend)
+
+Deploy the Web Command Operations Center to **Vercel** with automatic monorepo resolution:
+- Connect the repository to Vercel.
+- **Root Directory:** Either leave as `./` (handled automatically by root `vercel.json`) or set to `frontend`.
+- **Environment Variables:** Set `NEXT_PUBLIC_API_URL` to your production FastAPI backend URL (e.g. `https://your-backend.railway.app` or Google Cloud Run). If omitted, the frontend runs with local offline simulated fallbacks.
+- **Framework Preset:** `Next.js` (auto-detected).
+
+
+---
+
 ## 🔍 Troubleshooting Guide & Diagnostic Wizard
 
 ShiVi includes an automated, 5-stage pre-flight diagnostic utility to test and self-heal deployment issues:

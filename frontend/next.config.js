@@ -2,7 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: "standalone",
+  ...(process.env.VERCEL ? {} : { output: "standalone" }),
   eslint: {
     ignoreDuringBuilds: true,
   },
