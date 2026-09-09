@@ -67,7 +67,8 @@ jobs:
 
       - name: Install Node Dependencies
         run: |
-          npm ci
+          npm ci || npm install
+
 
       - name: Build Next.js 14 Standalone Production Bundle
         run: |
