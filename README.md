@@ -231,6 +231,12 @@ UPDATED CONTEXT ◄── AUDIT ◄── RECONCILE ◄── SYNC ◄── VER
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
+<p align="center">
+  <img src="docs/images/shivi_conflict_safety_freeze.jpg" alt="ShiVi Causal Conflict Engine and Automated Safety Freeze Mechanism" width="100%" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <br/>
+  <em><strong>Figure 3:</strong> Causal Conflict Engine & Automated Safety Freeze — When concurrent field reports arrive with contradictory observations on protected attributes (e.g., Route-88 Passable vs. Culvert Washed Out), the engine triggers an automated red <strong>Safety Freeze</strong>, halts dependent rescue dispatches, and routes the case to the Incident Commander Adjudication Console for side-by-side photographic evidence review and cryptographic digital sign-off.</em>
+</p>
+
 ---
 
 ## 📡 Multi-Bearer Tactical Mesh & Load Balancing Architecture
@@ -351,10 +357,18 @@ The backend (`backend/app/modules/`) is architected as a modular monolith utiliz
 - **Structure:** Append-only ledger recording actor ID, device ID, exact timestamp, state diff, causal parent, and supervisor justification.
 
 ### 10. `integrations` — Official Disaster Warning & Citizen SOS SMS Gateway
+
 - **Role:** Connects with national early warning ecosystems, citizen cellular networks, and satellite transceivers.
 - **Citizen SOS SMS Gateway:** Ingests inbound plain-text emergency SMS in English, Hindi, or Assamese (`"बाढ़ में 3 लोग फंसे हैं सेक्टर 4"`), extracts casualties/locations/hazards via regex/NER, computes deterministic priority score ($P \in [0, 100]$), and dispatches automated life-safety SMS acknowledgments.
 - **Sector Emergency Broadcaster:** Dispatches geo-targeted 160-character GSM cell alerts to affected field sectors with automated character clamping and recipient tracking.
 - **140-Byte Satellite Burst Framing:** Compact encoding for Iridium SBD and Garmin inReach.
+
+<p align="center">
+  <img src="docs/images/shivi_sms_satellite_gateway.jpg" alt="ShiVi Citizen Emergency SOS & Satellite Burst Gateway Console" width="100%" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <br/>
+  <em><strong>Figure 4:</strong> Citizen Emergency SOS & Satellite Burst Gateway Console — Real-time operational interface showing multilingual citizen distress SMS intake (Hindi/Assamese/English), extracted casualty telemetry, priority scoring gauge (0–100), geo-targeted sector emergency broadcasting with 160-character GSM meter, and 140-byte compact satellite burst framing with IEEE CRC-32 checksum validation.</em>
+</p>
+
 
 ### 11. `intelligence` — Governed Hybrid AI Advisory Gateway
 - **Role:** AI-assisted summarization, optical field character recognition, and SOP recommendation.
@@ -379,10 +393,18 @@ The backend (`backend/app/modules/`) is architected as a modular monolith utiliz
 - **Citizen Emergency SMS Console (`/sms`):** Complete simulation hub for citizen distress SMS intake, multilingual parsing, and sector broadcast management.
 
 ### Field Mobile Client (`apps/field-mobile/`)
+
 - **Flutter 3.x Engine:** High-efficiency cross-platform field client built for rugged low-RAM Android devices.
 - **Drift SQLite WAL Outbox:** Local ACID persistence ensuring zero data loss during sudden battery termination.
 - **Hardware Tier Adaptability:** Automatically scales visual animations based on device RAM tier (Low $< 3\text{GB}$, Mid $3-6\text{GB}$, High $> 6\text{GB}$).
 - **BLE Mesh Gossip:** Opportunistic peer-to-peer exchange of chunked JSON outbox frames with CRC-32 integrity validation.
+
+<p align="center">
+  <img src="docs/images/shivi_field_mobile.jpg" alt="ShiVi Flutter Field Mobile Responder Client" width="100%" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <br/>
+  <em><strong>Figure 5:</strong> ShiVi Flutter Field Mobile Responder Client — <strong>Left:</strong> Offline Emergency SOS report with live GPS telemetry, disaster intensity, and trapped casualty status; <strong>Middle:</strong> Offline Sync Outbox displaying BLE Mesh peer propagation, Merkle tree sync state, and pending vector clock delta batches; <strong>Right:</strong> NFC/QR physical asset custody scanner with geotagged on-scene photographic evidence and cryptographic SHA-256 validation seal.</em>
+</p>
+
 
 ---
 
