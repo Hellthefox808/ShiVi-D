@@ -1,16 +1,42 @@
 # ShiVi (Smart Hybrid Intelligent Virtual Integration)
-### *शिवी: A Local-First, Safety-Critical Disaster Coordination & Common Operational Picture Platform*
+
+## *शिवी: A Local-First, Safety-Critical Disaster Coordination & Common Operational Picture Platform*
+
+<p align="center">
+  <img src="docs/images/shivi_hero_banner.jpg" alt="ShiVi Tactical Emergency Operations Center Hero Banner" width="100%" style="border-radius: 10px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);" />
+</p>
 
 > **"Disasters do not wait for connectivity. Neither should coordination."**  
-> An offline-first, safety-critical operational architecture engineered for emergency response in zero-connectivity, high-friction tactical disaster environments.
+> An offline-first, safety-critical operational architecture engineered for emergency response, field search-and-rescue, and unified command under zero-connectivity, high-friction tactical disaster environments.
 
-[![CI/CD Pipeline](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Automated Tests](https://img.shields.io/badge/pytest-65%20passed-success.svg)]()
-[![Architecture](https://img.shields.io/badge/architecture-local--first%20%7C%20decoupled-blue.svg)]()
-[![Mesh Bearers](https://img.shields.io/badge/mesh-BLE%205.0%20%7C%20Wi--Fi%20Direct%20%7C%20Cellular%20%7C%20Satellite%20%7C%20SMS-orange.svg)]()
-[![Security](https://img.shields.io/badge/crypto-Ed25519%20%7C%20SHA--256%20Hash%20Chains-red.svg)]()
-[![Research Paper](https://img.shields.io/badge/paper-IEEE%2FACM%20Format-purple.svg)](docs/RESEARCH_PAPER.md)
-[![License](https://img.shields.io/badge/license-MIT%20%2F%20CC%20BY--SA%204.0-lightgrey.svg)]()
+---
+
+<p align="center">
+  <a href="https://github.com/Hellthefox808/ShiVi-D/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/badge/CI%2FCD-passing-brightgreen.svg?style=flat-square&logo=githubactions&logoColor=white" alt="CI/CD Pipeline" />
+  </a>
+  <a href="https://github.com/Hellthefox808/ShiVi-D">
+    <img src="https://img.shields.io/badge/pytest-82%20passed-success.svg?style=flat-square&logo=pytest&logoColor=white" alt="Automated Tests Passing" />
+  </a>
+  <a href="docs/06_SYSTEM_ARCHITECTURE_DOCUMENT.md">
+    <img src="https://img.shields.io/badge/architecture-local--first%20%7C%20decoupled-blue.svg?style=flat-square" alt="Architecture" />
+  </a>
+  <a href="scripts/load_balancer.py">
+    <img src="https://img.shields.io/badge/Tactical%20LB-400k%2B%20req%2Fs-cyan.svg?style=flat-square" alt="Tactical Load Balancer" />
+  </a>
+  <a href="docs/30_MULTI_BEARER_BLUETOOTH_WIFI_CELLULAR_MESH_SPEC.md">
+    <img src="https://img.shields.io/badge/mesh-BLE%205.0%20%7C%20Wi--Fi%20Direct%20%7C%20Sat-orange.svg?style=flat-square" alt="Mesh Bearers" />
+  </a>
+  <a href="docs/28_OFFLINE_IDENTITY_SECURITY_AND_ANTI_REPLAY_SPEC.md">
+    <img src="https://img.shields.io/badge/crypto-Ed25519%20%7C%20SHA--256-red.svg?style=flat-square" alt="Security" />
+  </a>
+  <a href="docs/RESEARCH_PAPER.md">
+    <img src="https://img.shields.io/badge/paper-IEEE%2FACM%20Format-purple.svg?style=flat-square" alt="Research Paper" />
+  </a>
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT%20%2F%20CC%20BY--SA%204.0-lightgrey.svg?style=flat-square" alt="License" />
+  </a>
+</p>
 
 ---
 
@@ -30,57 +56,75 @@
 ```
 
 > **Executive Abstract:** During catastrophic natural disasters, central telecommunications infrastructure and power grids routinely experience total physical collapse, disabling conventional cloud-centric platforms. Existing solutions fail critically via: (1) client-side write freezes during radio silence, (2) destructive data overwrites caused by blind Last-Write-Wins (LWW) clock drift, and (3) fatal resource deadlocks caused by decoupled physical-vs-virtual asset claims.  
-> **ShiVi** introduces a mathematically grounded **8-Phase Operational Lifecycle** (*Capture $\to$ Persist $\to$ Synchronize $\to$ Reconcile $\to$ Protect $\to$ Decide $\to$ Verify $\to$ Audit*) enforced through five non-negotiable system invariants. Key innovations include an idempotent causal vector clock reconciliation engine with an emergency **Safety Freeze**, a **Governed Advisory AI** framework that restricts machine learning to advisory triage while enforcing cryptographic human authorization (RBAC), an omni-bearer opportunistic mesh synchronization protocol spanning BLE 5.0 GATT framing, Wi-Fi Direct, and ad-hoc cellular/satellite relays, and an immutable SHA-256 hash-chained audit ledger.  
+> **ShiVi** introduces a mathematically grounded **14-Phase Continuous Verified Context Loop** (*Sense $\to$ Ingest $\to$ Normalize $\to$ Validate $\to$ Understand $\to$ Enrich $\to$ Prioritize $\to$ Plan $\to$ Authorize $\to$ Act $\to$ Verify $\to$ Sync $\to$ Reconcile $\to$ Audit*) enforced through five non-negotiable system invariants. Key innovations include an idempotent causal vector clock reconciliation engine with an emergency **Safety Freeze**, a **Governed Advisory AI** framework that restricts machine learning to advisory triage while enforcing cryptographic human authorization (RBAC), an omni-bearer opportunistic mesh synchronization protocol spanning BLE 5.0 GATT framing, Wi-Fi Direct, and ad-hoc cellular/satellite relays, an intelligent tactical edge load balancer operating with sub-3 microsecond dispatch latency, and an immutable SHA-256 hash-chained audit ledger.  
 > 📄 **Full Manuscript:** [docs/RESEARCH_PAPER.md](docs/RESEARCH_PAPER.md)
 
 ---
 
 ## 📖 Table of Contents
 
-1. [System Overview & Positioning](#-system-overview--positioning)
-2. [The Primary Operational Loop: 14-Phase Continuous Verified Context Loop](#-the-primary-operational-loop-14-phase-continuous-verified-context-loop)
-3. [The 5 Non-Negotiable System Invariants](#-the-5-non-negotiable-system-invariants)
-4. [Intelligence Layer: Governed Advisory AI](#-intelligence-layer-governed-advisory-ai)
-5. [Omni-Bearer Mesh Protocol & Packet Framing](#-omni-bearer-mesh-protocol--packet-framing)
-6. [Resilient Technology Stack](#-resilient-technology-stack)
-7. [Decoupled Architecture & Workflows](#-decoupled-architecture--workflows)
-8. [Empirical Performance Benchmarks](#-empirical-performance-benchmarks)
-9. [Quickstart & Verification Instructions](#-quickstart--verification-instructions)
-10. [Troubleshooting Guide & Diagnostic Wizard](#-troubleshooting-guide--diagnostic-wizard)
-11. [Complete 31-Document Architectural Portfolio](#-complete-31-document-architectural-portfolio)
-12. [License & Attribution](#-license--attribution)
+1. [Executive Overview & Problem Space](#-executive-overview--problem-space)
+2. [Visual Command Center & Tactical Picture](#-visual-command-center--tactical-picture)
+3. [The Primary Operational Loop: 14-Phase Verified Context Loop](#-the-primary-operational-loop-14-phase-verified-context-loop)
+4. [The 5 Non-Negotiable System Invariants](#-the-5-non-negotiable-system-invariants)
+5. [Multi-Bearer Tactical Mesh & Load Balancing Architecture](#-multi-bearer-tactical-mesh--load-balancing-architecture)
+6. [Intelligence Layer: Governed Advisory AI](#-intelligence-layer-governed-advisory-ai)
+7. [Omni-Bearer Mesh Protocol & Binary Packet Framing](#-omni-bearer-mesh-protocol--binary-packet-framing)
+8. [Exhaustive Backend Core Module Directory (13 Engines)](#-exhaustive-backend-core-module-directory-13-engines)
+9. [Frontend Command Center & Field Mobile Architecture](#-frontend-command-center--field-mobile-architecture)
+10. [Empirical Performance Benchmarks](#-empirical-performance-benchmarks)
+11. [Quickstart & Deployment Runbook](#-quickstart--deployment-runbook)
+12. [Troubleshooting Guide & Diagnostic Wizard](#-troubleshooting-guide--diagnostic-wizard)
+13. [Complete Architectural Specification Portfolio (31 Documents)](#-complete-architectural-specification-portfolio-31-documents)
+14. [License & Attribution](#-license--attribution)
 
 ---
 
-## 🎯 System Overview & Positioning
+## 🎯 Executive Overview & Problem Space
 
-> **"ShiVi is the execution layer for distributed teams operating when connectivity and information cannot be trusted."**  
-> *Platform Principle: Do not build ShiVi as merely an AI disaster-management application. Build it as a resilient operational execution platform.*
-
-### Core Thesis
-Disasters do not wait for connectivity. Operational coordination cannot afford to either.
+> **"ShiVi is the execution layer for distributed emergency teams operating when connectivity, power, and information cannot be trusted."**  
+> *Platform Principle: Do not build ShiVi as merely an AI disaster-management application. Build it as an uncompromising, safety-critical operational execution platform.*
 
 ### The Problem Landscape at the Tactical Edge
-- **Weak & Collapsed Connectivity:** Base Transceiver Stations lose power and backhaul; responders are completely cut off.
-- **Fragmented Field Reports:** Multiple agencies (SDRF, NDRF, local volunteers, police) report conflicting observations with zero mutual visibility.
-- **Duplicated Resource Dispatches:** Disconnected command centers send redundant rescue squads to the same sector while leaving neighboring zones abandoned.
-- **Unsafe Silent Overwrites:** Last-Write-Wins (LWW) cloud synchronization silently overwrites critical life-safety hazards with stale observations.
 
-### The ShiVi Solution
-ShiVi provides **local-first tactical continuity**:
-- **Offline Operational State:** Mobile edge clients commit mutations locally with zero network reliance.
-- **Event-Based Synchronization:** Causal vector clocks and transactional outbox queues exchange delta batches over any available bearer.
-- **Idempotent Processing:** Deterministic event hashing guarantees zero duplicate business effects from network retries.
-- **Domain-Aware Conflict Protection:** Escalates contradictory life-safety claims to human commanders via an automated Safety Freeze.
-- **Evidence & Provenance:** Cryptographically seals field observations (GPS, timestamps, SHA-256 photo proof).
-- **Human Authorization:** Restricts safety-critical dispatches and closures to permitted human authority (RBAC).
-- **Governed Advisory AI:** AI acts as an intake accelerator and decision-support tool, never the authority for life-safety actions.
+During extreme crisis events—such as the 2024 Wayanad landslides, 2023 Sikkim glacial lake outburst floods, or Cyclone Remal—critical infrastructure collapses in cascades:
+
+- **Total Telecommunication Blackout:** Cell towers lose grid power and microwave backhaul; fiber lines sever. Standard cloud architectures (Firebase, AWS, Supabase) immediately fail, locking field rescue apps with spinners or fatal HTTP 504 errors.
+- **Fragmented Field Intelligence:** Multiple responding agencies (NDRF, SDRF, Indian Army, Civil Defence, local volunteer teams) generate disjointed observations with zero mutual visibility, leading to uncoordinated missions.
+- **Deadly Asset Duplication:** Independent command nodes dispatch rescue boats or heavy earthmovers to the same coordinates while nearby isolated sectors receive zero aid.
+- **Silent Data Overwrite (The LWW Trap):** Standard distributed databases use Last-Write-Wins timestamp synchronization. When a reconnecting phone syncs an old cached report marked *"Road Clear"* with a skewed clock, it silently overwrites another team's urgent warning *"Culvert Washed Away — Route Impassable"*, sending rescue convoys directly into danger.
+
+### The ShiVi Paradigm Shift
+
+ShiVi replaces fragile centralized assumptions with **mathematically verified, local-first tactical continuity**:
+
+1. **True Local-First Durability:** Every action, SOS report, and triage state mutation is committed atomically to local SQLite Write-Ahead Logging (WAL) storage before any network request is even queued.
+2. **Deterministic Admissibility:** Inputs are validated against strict admissibility classes (Classes A through E) to reject malformed or replayed data before state ingestion.
+3. **Causal Vector Clocks & Automated Safety Freeze:** When conflicting reports emerge over disconnected radios (e.g. Route Open vs. Route Collapsed), ShiVi never guesses. It activates a **Causal Safety Freeze**, freezes dependent tasks, and presents side-by-side evidence to the Incident Commander.
+4. **Physical Possession Over Virtual Claims:** Physical proximity (NFC tag swipe or GPS radius $\le 15\text{m}$) always overrides a virtual database booking. If conflict persists, the system dispatches an equivalent substitute asset from regional depots.
+5. **Governed Advisory AI:** Machine intelligence extracts entities, clusters duplicate reports, and recommends SOPs, but is constitutionally prohibited from executing dispatches or modifying ground truth without cryptographic human approval.
 
 ---
 
-## 🔄 The Primary Operational Loop: 14-Phase Continuous Verified Context Loop
+## 🖥️ Visual Command Center & Tactical Picture
 
-ShiVi does NOT model operations as isolated features or static CRUD tables. It executes a **Continuous Verified Operational Context Loop**:
+<p align="center">
+  <img src="docs/images/shivi_cop_dashboard.jpg" alt="ShiVi Common Operating Picture Dashboard" width="100%" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <br/>
+  <em><strong>Figure 1:</strong> The ShiVi Web Command Center — Live Common Operating Picture (COP) showcasing real-time geospatial flood hazard polygons, tactical fleet tracking, casualty status counters, multi-bearer network telemetry, and the 14-Phase Continuous Context Loop verification timeline.</em>
+</p>
+
+The **Incident Operations Center (IOC)** dashboard provides real-time situational awareness across the entire theater:
+- **Interactive Multi-Layer Map:** Geospatial vector rendering of flood hazard boundaries, impassable culverts, designated safe shelters, and live field responders.
+- **Tactical Fleet Tracker:** Continuous tracking of emergency vehicles, boats, and medical personnel with status indicators (`En Route`, `On Scene`, `Holding`).
+- **Telemetry Gauges:** Real-time water level meters, wind speed radar, and battery health profiles across field nodes.
+- **Multi-Bearer Connectivity Matrix:** Live health monitoring of Satellite Downlink, Cellular 5G/LTE backhaul, and tactical Radio/BLE mesh relays.
+
+---
+
+## 🔄 The Primary Operational Loop: 14-Phase Verified Context Loop
+
+ShiVi does NOT treat disaster operations as disconnected CRUD tables. It executes a **14-Phase Continuous Verified Context Loop**:
 
 ```text
 SENSE ──► INGEST ──► NORMALIZE ──► VALIDATE ──► UNDERSTAND ──► ENRICH ──► PRIORITIZE
@@ -89,7 +133,7 @@ SENSE ──► INGEST ──► NORMALIZE ──► VALIDATE ──► UNDERSTA
 UPDATED CONTEXT ◄── AUDIT ◄── RECONCILE ◄── SYNC ◄── VERIFY ◄── ACT ◄── AUTHORIZE ◄── PLAN
 ```
 
-> **Living Context Principle:** The output of one phase becomes the input for the next phase. Audit and reconciliation continuously feed the next operational context, creating an adaptive, living ground truth.
+> **Living Context Principle:** Every phase produces structured, verifiable state that feeds the subsequent phase. Audit and reconciliation continuously update global ground truth, re-entering Phase 1 (Sense) with zero data loss.
 
 ```text
 ┌──────────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -118,7 +162,7 @@ UPDATED CONTEXT ◄── AUDIT ◄── RECONCILE ◄── SYNC ◄── VER
 1. **Phase 1 — SENSE (Offline Data Capture):**
    - Captures raw operational reality without network connectivity across Community, Responder, and Official sources.
    - Preserves three distinct temporal dimensions: `occurred_at`, `recorded_at`, and `received_at`.
-   - Generates a globally unique UUIDv5 client reference and attaches sensor telemetry (GPS accuracy, raw media bytes).
+   - Generates a globally unique UUIDv5 client reference and attaches sensor telemetry (GPS horizontal accuracy, battery level, raw media bytes).
 2. **Phase 2 — INGEST (Trust Boundary Control):**
    - Evaluates incoming events at the network perimeter: verifies HMAC-SHA256 signatures, checks tenant isolation, enforces rate limits, validates payload schema, and inspects replay nonces.
    - Guarantees that **no accepted or rejected event silently disappears** (dead-letter queue preservation).
@@ -159,7 +203,7 @@ UPDATED CONTEXT ◄── AUDIT ◄── RECONCILE ◄── SYNC ◄── VER
     - Every mutation, override, and verification appends to an immutable cryptographic hash chain:
       $$H_N = \text{SHA-256}(H_{N-1} \parallel \text{ActionType} \parallel \text{EntityID} \parallel \text{PayloadHash} \parallel \text{ActorID} \parallel \text{Timestamp})$$
     - Guarantees total legal and operational reconstructability for post-disaster judicial review.
-15. **↺ UPDATED CONTEXT (Loop Closure):**
+15. **↺ CONTEXT CLOSURE:**
     - Reconciled outcomes and audit entries immediately update the global operational picture, streaming to edge devices as fresh context that feeds back into Phase 1 (SENSE).
 
 ---
@@ -189,6 +233,33 @@ UPDATED CONTEXT ◄── AUDIT ◄── RECONCILE ◄── SYNC ◄── VER
 
 ---
 
+## 📡 Multi-Bearer Tactical Mesh & Load Balancing Architecture
+
+<p align="center">
+  <img src="docs/images/shivi_mesh_architecture.jpg" alt="ShiVi Multi-Bearer Mesh and Tactical Load Balancing Architecture" width="100%" style="border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);" />
+  <br/>
+  <em><strong>Figure 2:</strong> Multi-Bearer Tactical Mesh & Edge Load Balancing Topology — Demonstrating peer-to-peer BLE 5.0 / Wi-Fi Direct ad-hoc gossip, dual-node failover proxying, and offline outbox synchronization with vector clock reconciliation.</em>
+</p>
+
+### Tactical Load Balancing Engine (`app/core/load_balancer.py`)
+
+ShiVi provides an in-process, zero-dependency tactical reverse proxy and load balancer capable of operating directly on edge hardware:
+
+- **Balancing Strategies:** Supports both `least_conn` (least active connections, optimal for long-lived sync streams) and `round_robin` (deterministic cyclical distribution).
+- **Asynchronous Health Probing:** Continuously checks `/health` across upstream nodes every 5 seconds. Unhealthy nodes are ejected automatically with zero dropped requests.
+- **In-Memory Concurrency Protection:** Employs atomic `asyncio.Lock` primitives to guarantee race-free connection counter updates.
+- **Performance:** Micro-benchmarks demonstrate **over 400,000 dispatches/sec** with mean dispatch overhead of **2.48 microseconds** (`0.0025 ms`).
+
+```bash
+# Launch Tactical Load Balancer via CLI
+python scripts/load_balancer.py --port 8000 --nodes http://127.0.0.1:8001 http://127.0.0.1:8002 --strategy least_conn
+
+# Run In-Memory Micro-Benchmark
+python scripts/load_balancer.py --benchmark --requests 50000
+```
+
+---
+
 ## 🧠 Intelligence Layer: Governed Advisory AI
 
 ```text
@@ -205,14 +276,15 @@ UPDATED CONTEXT ◄── AUDIT ◄── RECONCILE ◄── SYNC ◄── VER
  └──────────────────────────────────────┴──────────────────────────────────────┘
 ```
 
-ShiVi enforces a strict boundary between machine intelligence and mission-critical execution:
+ShiVi enforces a constitutional boundary between automated intelligence and mission-critical execution:
+
 - **No Autonomous Dispatch:** AI generates recommendations (e.g. recommended boat squad, triage priority score, extracted trapped persons count); it CANNOT trigger field dispatches without explicit supervisory cosignature.
 - **Deterministic Fallback:** If inference exceeds a $1,500\text{ms}$ timeout or model weights are offline, execution falls back instantly to deterministic regex rules with zero downtime.
 - **NDMA Standard Operating Procedure (SOP) Alignment:** Extracts emergency keywords to map incidents directly to pre-approved National Disaster Management Authority protocols.
 
 ---
 
-## 📡 Omni-Bearer Mesh Protocol & Packet Framing
+## 📦 Omni-Bearer Mesh Protocol & Binary Packet Framing
 
 To support low-bandwidth Bluetooth Low Energy (BLE 5.0) GATT connections with $\text{MTU} \approx 512\text{ bytes}$, ShiVi utilizes an adaptive binary framing protocol:
 
@@ -234,86 +306,13 @@ To support low-bandwidth Bluetooth Low Energy (BLE 5.0) GATT connections with $\
 
 - **Loop Avoidance:** Monotonic sequence numbers and hop limits ($TTL_{max}=7$) prevent packet replication storms.
 - **Priority Queue:** Safety Freezes ($P0$) and SOS alerts transmit before routine telemetry ($P1\text{--}P3$).
+- **140-Byte Satellite Burst Framing:** Encodes emergency events into $\le 140$-byte compact payloads (`SHV:1:<EVT>:<CAT>:<SEV>:<PEOPLE>:<LAT>,<LON>:<DESC>:<CRC32>`) with IEEE 802.3 CRC-32 verification for Iridium SBD and Garmin inReach satellite terminals.
 
 ---
 
-## 🛠️ Resilient Technology Stack
+## 📦 Exhaustive Backend Core Module Directory (13 Engines)
 
-```text
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                 TECHNOLOGY STACK                                       │
-├─────────────────────────┬─────────────────────────┬────────────────────────────────────┤
-│ MOBILE EDGE             │ COMMAND WEB             │ BACKEND SERVICES                   │
-│ • Flutter 3.x           │ • Next.js 14 App Router │ • Python 3.11+                     │
-│ • Riverpod (State)      │ • TypeScript            │ • FastAPI (Async ASGI)             │
-│ • Drift ORM             │ • Tailwind CSS          │ • Pydantic v2                      │
-│ • SQLite (WAL Mode)     │ • TanStack Query        │ • SQLAlchemy 2.0 (Async)           │
-│ • Dio (HTTP / Retry)    │ • WebSockets & SSE      │ • Alembic Migrations               │
-│ • Flutter SecureStorage │ • MapLibre GL           │ • Inversion of Control Container   │
-│ • MapLibre (Offline)    │ • Lucide Icons          │ • Causal Conflict Engine           │
-├─────────────────────────┴─────────────────────────┴────────────────────────────────────┤
-│ DATA & INFRASTRUCTURE                                                                  │
-│ • PostgreSQL 16 + PostGIS (Spatial Geofencing)                                         │
-│ • Redis 7 (In-Memory Inversion of Control & Rate Limiting)                             │
-│ • Celery / Redis Queue (Async Background Tasks)                                        │
-│ • MinIO / S3 (Cryptographic Photo & Video Evidence Vault)                              │
-│ • Docker Compose (Full-Stack Container Orchestration)                                  │
-│ • BigQuery & Apache Iceberg (Federated Multi-Cloud Lakehouse)                          │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🏆 Delivered Outcomes & Key Innovations
-
-| Traditional Emergency Systems | ShiVi Platform Outcome |
-| :--- | :--- |
-| ❌ Responders freeze/lose data when offline | **✅ 100% Local Operational Continuity via SQLite WAL Outbox** |
-| ❌ Blind Last-Write-Wins overwrites critical hazard reports | **✅ Causal Conflict Engine & Automatic Safety Freezes** |
-| ❌ Disconnected squads clash over the same rescue boat | **✅ Physical NFC Possession Priority & Auto-Substitution** |
-| ❌ Black-box AI hallucinates bogus dispatch actions | **✅ Governed AI Advisory strictly bounded by Human RBAC** |
-| ❌ False verbal closures with zero accountability | **✅ Evidence-Based Verification (Geofenced SHA-256 Photo Proof)** |
-| ❌ Unverifiable logs post-incident | **✅ Immutable Monotonic Hash Chain Audit Ledger** |
-
----
-
-## 🏗️ Global Architecture & Data Flow
-
-```mermaid
-graph TD
-    subgraph "Field Edge Tier (Disconnected / Low Connectivity)"
-        A1[Citizen SOS App] -->|Atomic Write| DB1[(Local SQLite Outbox)]
-        A2[Responder Mobile] -->|Atomic Write| DB2[(Local SQLite Outbox)]
-        DB1 <-->|BLE Mesh Gossip / Wi-Fi Direct| DB2
-    end
-
-    subgraph "Multi-Bearer Transport Layer"
-        DB2 -->|Cellular 4G/5G / Satellite NTN / Cloud Push| GW[Sync Ingestion Gateway]
-    end
-
-    subgraph "ShiVi Operations Core API"
-        GW --> SEC[Cryptographic Security & Anti-Replay Validator]
-        SEC --> IOC_C[Inversion of Control Container]
-        IOC_C --> CCE[Causal Conflict Engine]
-        IOC_C --> ALLOC[Distributed Asset Allocation Engine]
-        IOC_C --> PRIO[Explainable Priority Scoring Engine]
-        IOC_C --> AI[Hybrid AI Advisory Gateway]
-        CCE --> AUDIT[(Immutable Audit Ledger)]
-        CCE --> PG[(PostgreSQL + PostGIS DB)]
-    end
-
-    subgraph "Command & Analytics Tier"
-        PG --> IOC_DASH[Incident Operations Center - IOC Cache]
-        IOC_DASH --> WEB[Next.js 14 Common Operational Picture]
-        PG --> LAKE[BigQuery / Iceberg Lakehouse Federation]
-    end
-```
-
----
-
-## 📦 Exhaustive Backend Core Module Directory (13 Modules)
-
-The backend (`apps/core-api/app/modules/`) is architected as a modular monolith utilizing strict Protocol-based Inversion of Control (IoC):
+The backend (`backend/app/modules/`) is architected as a modular monolith utilizing strict Protocol-based Inversion of Control (IoC):
 
 ### 1. `incidents` — Incident Management & Triage
 - **Role:** Full lifecycle tracking of emergencies (`REPORTED`, `TRIAGED`, `IN_PROGRESS`, `CONTAINED`, `RESOLVED`, `CLOSED`).
@@ -351,12 +350,11 @@ The backend (`apps/core-api/app/modules/`) is architected as a modular monolith 
 - **Role:** Full legal and operational auditability of all disaster actions.
 - **Structure:** Append-only ledger recording actor ID, device ID, exact timestamp, state diff, causal parent, and supervisor justification.
 
-### 10. `integrations` — Official Disaster Warning & Emergency SMS Gateway
+### 10. `integrations` — Official Disaster Warning & Citizen SOS SMS Gateway
 - **Role:** Connects with national early warning ecosystems, citizen cellular networks, and satellite transceivers.
 - **Citizen SOS SMS Gateway:** Ingests inbound plain-text emergency SMS in English, Hindi, or Assamese (`"बाढ़ में 3 लोग फंसे हैं सेक्टर 4"`), extracts casualties/locations/hazards via regex/NER, computes deterministic priority score ($P \in [0, 100]$), and dispatches automated life-safety SMS acknowledgments.
 - **Sector Emergency Broadcaster:** Dispatches geo-targeted 160-character GSM cell alerts to affected field sectors with automated character clamping and recipient tracking.
-- **140-Byte Satellite Burst Framing:** Encodes emergency events into $\le 140$-byte compact payloads (`SHV:1:<EVT>:<CAT>:<SEV>:<PEOPLE>:<LAT>,<LON>:<DESC>:<CRC32>`) with IEEE 802.3 CRC-32 verification for Iridium SBD and Garmin inReach satellite terminals.
-- **Protocols:** Ingests NDMA SACHET Common Alerting Protocol (CAP v1.2 XML/JSON), India Meteorological Department (IMD) cyclone forecasts, and BigQuery / Iceberg Lakehouse catalogs.
+- **140-Byte Satellite Burst Framing:** Compact encoding for Iridium SBD and Garmin inReach.
 
 ### 11. `intelligence` — Governed Hybrid AI Advisory Gateway
 - **Role:** AI-assisted summarization, optical field character recognition, and SOP recommendation.
@@ -372,273 +370,160 @@ The backend (`apps/core-api/app/modules/`) is architected as a modular monolith 
 
 ---
 
-## 📱 Field Mobile Client Architecture (Flutter + SQLite)
+## 📱 Frontend Command Center & Field Mobile Architecture
 
-The mobile client (`apps/field-mobile/`) is designed for extreme hardware constraints:
+### Web Command Operations Center (`frontend/`)
+- **Next.js 14 App Router:** High-performance React Server Components with client-side optimistic UI updates.
+- **Common Operational Picture (COP):** Geospatial vector rendering powered by MapLibre GL, complete with incident pins, casualty markers, flood boundary overlays, and route lines.
+- **Conflict Adjudication Workspace:** Side-by-side photographic evidence comparison for resolving contradictory field observations.
+- **Citizen Emergency SMS Console (`/sms`):** Complete simulation hub for citizen distress SMS intake, multilingual parsing, and sector broadcast management.
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 ShiVi Flutter Field Client                  │
-├─────────────────────────────────────────────────────────────┤
-│ 1. DRIFT SQLITE OUTBOX                                      │
-│    Guarantees ACID storage for events, evidence, and assets. │
-├─────────────────────────────────────────────────────────────┤
-│ 2. HARDWARE PERFORMANCE TIER ADAPTER                        │
-│    - Tier Low (<3GB RAM): Plain list, no raster animations. │
-│    - Tier Mid (3-6GB RAM): Vector maps, 30fps transitions.  │
-│    - Tier High (>6GB RAM): 3D terrain, high-res aerials.    │
-├─────────────────────────────────────────────────────────────┤
-│ 3. MEDIA ADAPTIVE COMPRESSOR                                │
-│    Dynamically downsamples photos (1080p -> 720p -> 480p)   │
-│    based on active network bearer and battery level.        │
-├─────────────────────────────────────────────────────────────┤
-│ 4. BLUETOOTH MESH FRAMING & CRC-32 ENGINE                   │
-│    Chunks JSON payloads into 480B BLE GATT frames.          │
-├─────────────────────────────────────────────────────────────┤
-│ 5. SATELLITE BURST GENERATOR & SMS RELAY BEARER             │
-│    Encodes field SOS into 140B CRC-32 bursts for Iridium/   │
-│    inReach transceivers and triggers SMS fallback relay.    │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 💻 Web Command Center (Next.js 14 + MapLibre)
-
-The command web hub (`apps/command-web/`) provides real-time situational awareness:
-- **Live Common Operational Picture (COP):** Geospatial rendering of incidents, field responders, closed routes, and active shelters via MapLibre GL.
-- **Adjudication Workspace:** Side-by-side evidence inspection (photos, sensor logs) for resolving life-safety route and shelter conflicts.
-- **Disaster SMS Gateway Console (`/sms`):** Interactive control center featuring Inbound Citizen SOS Simulation, Geo-Targeted Sector Broadcaster with live 160-char meter, 140-Byte Satellite Burst Lab (Encoder/Decoder with CRC-32 validator), and real-time Transmission Audit Ledger.
-- **Resource Saturation Index (RSI):** Visual heatmaps identifying overloaded rescue units and equipment shortages.
-- **Audit Ledger Explorer:** Step-by-step cryptographic timeline reconstruction of every incident.
-
----
-
-## 📡 Omni-Bearer Mesh Synchronization
-
-```text
-┌─────────────────┬──────────┬──────────────┬───────────────┬──────────────────┐
-│ Bearer Layer    │ Max MTU  │ Internet Req │ P2P Supported │ Battery Profile  │
-├─────────────────┼──────────┼──────────────┼───────────────┼──────────────────┤
-│ Wi-Fi Broadband │ 64 KB    │ YES          │ NO            │ Low (Tier 2)     │
-│ Cellular 4G/5G  │ 32 KB    │ YES          │ NO            │ Medium (Tier 3)  │
-│ Cellular 2G/3G  │ 2 KB     │ YES          │ NO            │ Medium (Tier 3)  │
-│ Satellite NTN   │ 256 B    │ YES (Orbit)  │ NO            │ High (Tier 5)    │
-│ Wi-Fi Direct    │ 16 KB    │ NO           │ YES (High-BW) │ High (Tier 4)    │
-│ BLE 5.0+ Mesh   │ 480 B    │ NO           │ YES (Gossip)  │ Ultra-Low (Tier 1│
-└─────────────────┴──────────┴──────────────┴───────────────┴──────────────────┘
-```
-
----
-
-## 🔌 Complete REST API Reference
-
-| HTTP Verb | Endpoint Path | Authorization Role | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/v1/auth/login` | Public | Authenticates responder/commander and issues JWT |
-| `POST` | `/v1/sync/push` | Responder / Commander | Ingests batched offline outbox events and mesh relays |
-| `GET` | `/v1/sync/pull` | Responder / Commander | Fetches causal delta updates since last server cursor |
-| `POST` | `/v1/incidents` | Any Authenticated | Creates a new emergency incident with priority score |
-| `GET` | `/v1/incidents` | Any Authenticated | Lists incidents with bounding box and severity filters |
-| `GET` | `/v1/incidents/{id}` | Any Authenticated | Retrieves single incident details and causal history |
-| `POST` | `/v1/conflicts/adjudicate` | Incident Commander | Adjudicates conflicting field reports with mandatory reason |
-| `POST` | `/v1/assets/allocate` | Responder / Commander | Claims physical equipment with proof-of-custody checks |
-| `POST` | `/v1/tasks` | Incident Commander | Creates and dispatches a responder field task |
-| `GET` | `/v1/tasks/assigned` | Field Responder | Lists tasks assigned to active responder squad |
-| `POST` | `/v1/evidence/upload` | Responder / Commander | Uploads geotagged photo/audio with SHA-256 checksum |
-| `GET` | `/v1/dashboard/ioc-summary` | Any Authenticated | High-throughput cached summary with spatial clipping |
-| `GET` | `/v1/audit/ledger` | Incident Commander | Explores immutable cryptographic audit ledger |
-| `GET` | `/health` | Public | System health check (Postgres, Redis, Object Store) |
-
----
-
-## 🎬 Operational Disaster Walkthroughs & Scenarios
-
-### Scenario A: The Flood Evacuation Route Contradiction
-1. **The Event:** A flash flood hits Sector 7. Citizen reports 8 trapped residents.
-2. **The Conflict:** Scout Alpha logs Route-14 as `USABLE` via geotagged photo. Ten minutes later, Volunteer Beta discovers an undercut culvert and logs Route-14 as `BLOCKED`.
-3. **The ShiVi Response:** Upon reconnection, the Causal Conflict Engine detects contradictory route viability states. Route-14 is immediately set to `UNCERTAIN` and dependent evacuation tasks are automatically **frozen**.
-4. **The Adjudication:** The Incident Commander inspects both evidence items, talks to the scout, marks Route-14 `BLOCKED`, and re-routes the evacuation team via Sector 9 Causeway.
-
-### Scenario B: The "Data Mule" Bluetooth Mesh Relay
-1. **The Event:** A mountain landslide destroys cell towers in an isolated valley.
-2. **The Relay:** Field Scout records a landslide casualty report offline. App automatically fragments the payload into 480B BLE packets.
-3. **The Transfer:** A medical supply drone/responder vehicle passes within 40 meters. The two phones execute an epidemic gossip exchange over BLE.
-4. **The Upload:** The supply vehicle drives back into cell coverage; its background orchestrator automatically pushes the scout's incident report to the central cloud.
-
----
-
-## 🔒 Security, Cryptographic Identity & Anti-Replay
-
-- **Hardware-Bound Identity:** Every field device registers an asymmetric public key (Ed25519/ECDSA).
-- **Monotonic Hash Chains:** Every offline mutation references $Hash_{N-1}$, creating an unbreakable cryptographic chain of custody:
-  $$H_N = \text{SHA-256}(H_{N-1} \parallel \text{EventID} \parallel \text{Seq}_N \parallel \text{Payload} \parallel \text{Timestamp})$$
-- **Clock Drift Clamping:** Server clamps timestamps to $\le 120\text{s}$ drift from true NTP time; mutations outside drift bounds are quarantined.
-- **Zero Elevation of Privilege:** Role capabilities are embedded in cryptographic tokens and cross-checked against the immutable role matrix during sync.
-
----
-
-## ☁️ Federated Lakehouse & Declarative GCP Provisioning
-
-ShiVi includes full enterprise-grade BigQuery and Apache Iceberg data federation:
-- **Declarative Pipeline (`deployment.yaml`):** Provisions BigQuery datasets, Dataform SQLX pipelines, and DTS transfers with mandatory `datacloud: "antigravity"` resource attribution.
-- **Lakehouse Catalog:** Queries federated parquet/Iceberg tables across GCP and Azure for multi-year climate risk analysis without data duplication.
-
----
-
-## 🏛️ Decoupled Architecture & Workflows
-
-ShiVi is structured into completely independent, decoupled services that can be deployed, tested, and scaled individually:
-
-```text
-ShiVi/
-├── backend/                       # Standalone Python FastAPI Microservice (Port 8000)
-│   ├── app/                       # 13 Modular Engines (Domain Invariants, Causal Sync, IOC, etc.)
-│   ├── packages/event-contracts/  # Canonical Pydantic schemas & event envelopes
-│   ├── tests/                     # 58 Automated Pytest Suites (Base + E2E Integration)
-│   ├── scripts/                   # Benchmarks & P0 CLI workflow simulators
-│   ├── server.py                  # Standalone direct server runner
-│   ├── requirements.txt           # Independent Python dependencies
-│   ├── pyproject.toml & pytest.ini
-│   └── Dockerfile                 # Multi-stage Python 3.11 production container
-│
-├── frontend/                      # Standalone Next.js 14 Command Center (Port 3000)
-│   ├── src/app/                   # Next.js 14 App Router (Common Operational Picture)
-│   ├── src/components/            # Conflict Adjudicator, Audit Ledger, Simulation Modal, AI Drawer
-│   ├── src/services/api.ts        # Typed API Client with graceful offline fallback
-│   ├── package.json               # Independent Node.js dependencies
-│   ├── next.config.js             # Standalone config with dynamic backend proxy rewrites
-│   └── Dockerfile                 # Standalone production container (Nginx/Node)
-│
-├── mobile/                        # Standalone Flutter Field Mobile Client (SQLite + BLE Mesh)
-├── scripts/dev.js                 # Cross-platform concurrent runner for single-command launch
-├── package.json                   # Root orchestration scripts
-└── docker-compose.yml             # Full-stack container orchestration
-```
+### Field Mobile Client (`apps/field-mobile/`)
+- **Flutter 3.x Engine:** High-efficiency cross-platform field client built for rugged low-RAM Android devices.
+- **Drift SQLite WAL Outbox:** Local ACID persistence ensuring zero data loss during sudden battery termination.
+- **Hardware Tier Adaptability:** Automatically scales visual animations based on device RAM tier (Low $< 3\text{GB}$, Mid $3-6\text{GB}$, High $> 6\text{GB}$).
+- **BLE Mesh Gossip:** Opportunistic peer-to-peer exchange of chunked JSON outbox frames with CRC-32 integrity validation.
 
 ---
 
 ## ⚡ Empirical Performance Benchmarks
 
-Measured on local hardware using `backend/scripts/benchmark.py` under concurrent load:
+Measured on local hardware using `backend/scripts/benchmark.py` and `scripts/load_balancer.py` under concurrent load:
 
-| Target Endpoint | Method | Throughput | Mean Latency | Median (P50) | P95 Latency | Notes |
+| Benchmark Target | Metric / Strategy | Throughput | Mean Latency | Median (P50) | P95 Latency | Operational Notes |
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
-| `/health` | `GET` | **1,186.40 req/s** | 0.83 ms | 0.56 ms | 1.83 ms | Liveness probe / Edge heartbeat |
-| `/v1/dashboard/summary` | `GET` | **565.89 req/s** | 15.39 ms | 8.50 ms | 46.12 ms | IOC In-Memory Cached Aggregate |
-| `/v1/dashboard/geojson` | `GET` | **402.34 req/s** | 23.56 ms | 24.27 ms | 31.89 ms | PostGIS Spatial Bounding Polygon |
-| `/v1/demo/simulate-workflow` | `POST` | **33.71 req/s** | 57.21 ms | 29.26 ms | 129.56 ms | Full 9-step cryptographic workflow |
+| **Tactical Load Balancer** | `least_conn` | **403,203 disp/s** | 0.0025 ms | 0.0020 ms | 0.0035 ms | Zero-dependency in-process ASGI reverse proxy |
+| **System Health Probe** | `/health` | **1,186.40 req/s** | 0.83 ms | 0.56 ms | 1.83 ms | Edge heartbeat probe with `Server-Timing` headers |
+| **IOC Cache Summary** | `/v1/dashboard/summary` | **565.89 req/s** | 15.39 ms | 8.50 ms | 46.12 ms | In-memory 5-sec TTL aggregate with spatial bounding |
+| **GeoJSON Bounding Polygon**| `/v1/dashboard/geojson` | **402.34 req/s** | 23.56 ms | 24.27 ms | 31.89 ms | Geospatial vector feature collection |
+| **Full Lifecycle Workflow** | `/v1/demo/simulate-workflow`| **33.71 req/s** | 57.21 ms | 29.26 ms | 129.56 ms | Complete 9-step cryptographic end-to-end simulation |
 
 ---
 
-## 🚀 Quickstart & Verification Instructions
+## 🚀 Quickstart & Deployment Runbook
 
 ### Option A: Unified Dev Runner (Single Command)
-Run both backend (port 8000) and frontend (port 3000) concurrently with color-coded logging:
+
+Run both backend (port 8000) and frontend (port 3000/3001) concurrently with color-coded logging:
+
 ```bash
 npm run dev
 # Or directly via Node:
 node scripts/dev.js
 ```
+
 Open **[http://localhost:3000](http://localhost:3000)** for the Web Command Center and **[http://localhost:8000/docs](http://localhost:8000/docs)** for interactive Swagger API documentation.
 
-### Option B: Run Services Standalone
+---
 
-#### 1. Standalone Backend (FastAPI)
+### Option B: Standalone Python Backend (FastAPI)
+
 ```bash
 cd backend
 
-# Create or activate virtual environment
-python -m venv .venv
-.\.venv\Scripts\activate  # Windows (or source .venv/bin/activate on Unix)
-pip install -r requirements.txt
+# Activate existing virtual environment
+..\.venv\Scripts\activate  # Windows (or source ../.venv/bin/activate on Unix)
 
-# Run server (Swagger on http://localhost:8000/docs)
+# Run standalone server
 python server.py
 
-# Run all 65 automated tests
+# Run complete 82-test automated test suite
 pytest tests/ -v
 
 # Run performance benchmarks
 python scripts/benchmark.py
 ```
 
-#### 2. Standalone Frontend (Next.js 14)
+---
+
+### Option C: Standalone Web Command Center (Next.js 14)
+
 ```bash
 cd frontend
 
-# Install dependencies
+# Install Node dependencies
 npm install
 
-# Run development server (http://localhost:3000)
+# Start Next.js development server
 npm run dev
 
-# Run production build (verifies TypeScript & static prerender)
+# Verify production TypeScript compilation and static prerendering
 npm run build
 ```
 
-### Option C: Production Docker & Nginx Deployment (Single Command)
+---
+
+### Option D: Production Docker Cluster (Nginx + Multi-Worker Uvicorn)
+
 Deploys a hardened multi-container cluster with Nginx reverse proxy, 4 FastAPI uvicorn workers, and Next.js standalone runner:
 
 ```bash
+# Windows PowerShell:
+.\scripts\deploy_production.ps1
+
 # Linux / macOS / Cloud VM:
 chmod +x scripts/deploy_production.sh
 ./scripts/deploy_production.sh
-
-# Windows PowerShell:
-.\scripts\deploy_production.ps1
 ```
 
 All traffic is consolidated on **[http://localhost](http://localhost)** (Port 80) via Nginx.
 
-### Option D: Zero-Docker Bare-Metal Edge Deployment
-For frontline laptops and field command tents with no container runtime:
+---
+
+## 🔍 Troubleshooting Guide & Diagnostic Wizard
+
+ShiVi includes an automated, 5-stage pre-flight diagnostic utility to test and self-heal deployment issues:
+
 ```bash
-chmod +x scripts/deploy_baremetal.sh
-./scripts/deploy_baremetal.sh
+python scripts/diagnose.py
 ```
 
-### Option E: Automated Post-Deployment Diagnostic Healthcheck
-Validate the health, response latency, and operational readiness of all endpoints:
-```bash
-python scripts/healthcheck.py http://localhost:8000
-```
+The diagnostic wizard automatically verifies:
+1. **Python & Runtime Dependencies:** Checks Python version, virtualenv activation, and required packages (`fastapi`, `starlette`, `pydantic`, `sqlalchemy`, `aiosqlite`, `jose`, `uvicorn`, `httpx`, `pytest`).
+2. **Frontend & Node.js Environment:** Validates Node.js runtime and `node_modules` integrity.
+3. **Network & Port Availability:** Verifies Ports 8000 (Backend) and 3000/3001 (Frontend) with automated port fallback.
+4. **SQLite Database & WAL Integrity:** Verifies WAL journal mode, synchronous pragmas, and schema table row counts.
+5. **ASGI Health & Latency Probes:** Sends live ASGI requests to confirm `Server-Timing` headers and tactical load balancer operability.
 
-> 📖 **Full Deployment & Infrastructure Runbook:** See [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for Kubernetes (`deploy/k8s/`), Google Cloud Run (`deploy/cloud/`), Systemd services (`deploy/systemd/`), and [mobile/DEPLOYMENT.md](mobile/DEPLOYMENT.md) for Android release APK packaging and sideloading.
+> 📖 **Comprehensive Troubleshooting Handbook:** See [docs/TROUBLESHOOTING_GUIDE.md](docs/TROUBLESHOOTING_GUIDE.md) for step-by-step resolution of port conflicts, database locks, and mesh routing issues.
 
 ---
 
-## 📚 Complete 30-Document Architectural Specification Portfolio
+## 📚 Complete Architectural Specification Portfolio (31 Documents)
 
-1. [01_EXECUTIVE_PROJECT_BRIEF.md](file:///d:/ShiVi,/docs/01_EXECUTIVE_PROJECT_BRIEF.md): Executive charter, problem statement, and impact metrics.
-2. [02_RESEARCH_AND_EVIDENCE_REVIEW.md](file:///d:/ShiVi,/docs/02_RESEARCH_AND_EVIDENCE_REVIEW.md): Analysis of historical disaster coordination failures.
-3. [03_PRODUCT_REQUIREMENTS_DOCUMENT.md](file:///d:/ShiVi,/docs/03_PRODUCT_REQUIREMENTS_DOCUMENT.md): Comprehensive functional and non-functional requirements.
-4. [04_FUNCTIONAL_SPECIFICATION_DOCUMENT.md](file:///d:/ShiVi,/docs/04_FUNCTIONAL_SPECIFICATION_DOCUMENT.md): Core functional workflows and operational roles.
-5. [05_CONTEXT_LOOP_SPECIFICATION.md](file:///d:/ShiVi,/docs/05_CONTEXT_LOOP_SPECIFICATION.md): P0 8-step verified operational context loop.
-6. [06_SYSTEM_ARCHITECTURE_DOCUMENT.md](file:///d:/ShiVi,/docs/06_SYSTEM_ARCHITECTURE_DOCUMENT.md): Global system topology, database models, and service boundaries.
-7. [07_TECHNICAL_ARCHITECTURE_DOCUMENT.md](file:///d:/ShiVi,/docs/07_TECHNICAL_ARCHITECTURE_DOCUMENT.md): Technical deep-dive into local-first mechanics and sync protocols.
-8. [08_DATA_MODEL_AND_EVENT_CONTRACTS.md](file:///d:/ShiVi,/docs/08_DATA_MODEL_AND_EVENT_CONTRACTS.md): Canonical event envelope, entity JSON schemas, and vector clocks.
-9. [09_SYNC_AND_CONFLICT_RESOLUTION_SPEC.md](file:///d:/ShiVi,/docs/09_SYNC_AND_CONFLICT_RESOLUTION_SPEC.md): Causal Conflict Engine and automated life-safety freezes.
-10. [10_API_SPECIFICATION.md](file:///d:/ShiVi,/docs/10_API_SPECIFICATION.md): REST endpoints, OpenAPI schemas, and error codes.
-11. [11_SECURITY_PRIVACY_THREAT_MODEL.md](file:///d:/ShiVi,/docs/11_SECURITY_PRIVACY_THREAT_MODEL.md): STRIDE threat model, RBAC policies, and cryptographic controls.
-12. [13_UI_UX_ACCESSIBILITY_BLUEPRINT.md](file:///d:/ShiVi,/docs/13_UI_UX_ACCESSIBILITY_BLUEPRINT.md): WCAG 2.1 AAA high-contrast field design and low-literacy interfaces.
-14. [14_ECOSYSTEM_INTEGRATION_ARCHITECTURE.md](file:///d:/ShiVi,/docs/14_ECOSYSTEM_INTEGRATION_ARCHITECTURE.md): NDMA SACHET CAP, IMD weather, and open-data connectors.
-15. [15_INFRASTRUCTURE_DEVOPS_RELIABILITY.md](file:///d:/ShiVi,/docs/15_INFRASTRUCTURE_DEVOPS_RELIABILITY.md): Multi-cloud infrastructure, Bicep templates, and HA topologies.
-16. [16_OBSERVABILITY_INCIDENT_RESPONSE.md](file:///d:/ShiVi,/docs/16_OBSERVABILITY_INCIDENT_RESPONSE.md): OpenTelemetry instrumentation, Prometheus metrics, and runbooks.
-17. [17_TESTING_CHAOS_STRATEGY.md](file:///d:/ShiVi,/docs/17_TESTING_CHAOS_STRATEGY.md): Chaos engineering, partition simulation, and test automation.
-18. [18_24_HOUR_HACKATHON_EXECUTION_PLAN.md](file:///d:/ShiVi,/docs/18_24_HOUR_HACKATHON_EXECUTION_PLAN.md): Rapid 24-hour deployment and demo execution schedule.
-19. [19_PILOT_PRODUCTION_ROADMAP.md](file:///d:/ShiVi,/docs/19_PILOT_PRODUCTION_ROADMAP.md): Multi-district pilot deployment roadmap (Phases 1-4).
-20. [20_BUSINESS_MODEL_UNIT_LOGIC_SCALE.md](file:///d:/ShiVi,/docs/20_BUSINESS_MODEL_UNIT_LOGIC_SCALE.md): Total Cost of Ownership (TCO) and public-good sustainability model.
-21. [21_PITCH_DEMO_AND_JUDGE_QA.md](file:///d:/ShiVi,/docs/21_PITCH_DEMO_AND_JUDGE_QA.md): 5-minute competition pitch narrative, demo script, and judge FAQ.
-22. [22_FINAL_EVALUATION_AND_CHECKLIST.md](file:///d:/ShiVi,/docs/22_FINAL_EVALUATION_AND_CHECKLIST.md): Principal-Engineer verification checklist and audit signs.
-23. [23_ACCIDENTAL_DATA_LOSS_PREVENTION_POLICY.md](file:///d:/ShiVi,/docs/23_ACCIDENTAL_DATA_LOSS_PREVENTION_POLICY.md): Strict data preservation rules and guardrails.
-24. [24_FEDERATED_LAKEHOUSE_CATALOG_ARCHITECTURE.md](file:///d:/ShiVi,/docs/24_FEDERATED_LAKEHOUSE_CATALOG_ARCHITECTURE.md): Multi-cloud Iceberg/BigQuery lakehouse federation.
-25. [25_MOBILE_PERFORMANCE_TIER_OPTIMIZATION.md](file:///d:/ShiVi,/docs/25_MOBILE_PERFORMANCE_TIER_OPTIMIZATION.md): Device tier adaptation (Low/Mid/High) for Android devices.
-26. [26_LOAD_BALANCING_DEADLOCK_PREVENTION_AND_LOOP_AVOIDANCE.md](file:///d:/ShiVi,/docs/26_LOAD_BALANCING_DEADLOCK_PREVENTION_AND_LOOP_AVOIDANCE.md): Concurrency jitter retry, circuit breakers, and mesh loop guards.
-27. [27_DISTRIBUTED_ASSET_LOCK_AND_POSSESSION_RESOLUTION.md](file:///d:/ShiVi,/docs/27_DISTRIBUTED_ASSET_LOCK_AND_POSSESSION_RESOLUTION.md): Physical possession priority and automatic substitute allocation.
-28. [28_OFFLINE_IDENTITY_SECURITY_AND_ANTI_REPLAY_SPEC.md](file:///d:/ShiVi,/docs/28_OFFLINE_IDENTITY_SECURITY_AND_ANTI_REPLAY_SPEC.md): Monotonic hash chains, hardware-backed signatures, and anti-replay.
-29. [29_IOC_CONTAINER_AND_OPERATIONS_CENTER_OPTIMIZATION.md](file:///d:/ShiVi,/docs/29_IOC_CONTAINER_AND_OPERATIONS_CENTER_OPTIMIZATION.md): Inversion of Control container and high-performance IOC caching.
-30. [30_MULTI_BEARER_BLUETOOTH_WIFI_CELLULAR_MESH_SPEC.md](file:///d:/ShiVi,/docs/30_MULTI_BEARER_BLUETOOTH_WIFI_CELLULAR_MESH_SPEC.md): BLE Mesh GATT framing, Wi-Fi Direct, and multi-network routing.
+All architectural specifications, protocols, and formal engineering documents are maintained directly in the repository:
+
+1. [01_EXECUTIVE_PROJECT_BRIEF.md](docs/01_EXECUTIVE_PROJECT_BRIEF.md): Executive charter, problem statement, and impact metrics.
+2. [02_RESEARCH_AND_EVIDENCE_REVIEW.md](docs/02_RESEARCH_AND_EVIDENCE_REVIEW.md): Analysis of historical disaster coordination failures.
+3. [03_PRODUCT_REQUIREMENTS_DOCUMENT.md](docs/03_PRODUCT_REQUIREMENTS_DOCUMENT.md): Comprehensive functional and non-functional requirements.
+4. [04_FUNCTIONAL_SPECIFICATION_DOCUMENT.md](docs/04_FUNCTIONAL_SPECIFICATION_DOCUMENT.md): Core functional workflows and operational roles.
+5. [05_CONTEXT_LOOP_SPECIFICATION.md](docs/05_CONTEXT_LOOP_SPECIFICATION.md): P0 8-step verified operational context loop.
+6. [06_SYSTEM_ARCHITECTURE_DOCUMENT.md](docs/06_SYSTEM_ARCHITECTURE_DOCUMENT.md): Global system topology, database models, and service boundaries.
+7. [07_TECHNICAL_ARCHITECTURE_DOCUMENT.md](docs/07_TECHNICAL_ARCHITECTURE_DOCUMENT.md): Technical deep-dive into local-first mechanics and sync protocols.
+8. [08_DATA_MODEL_AND_EVENT_CONTRACTS.md](docs/08_DATA_MODEL_AND_EVENT_CONTRACTS.md): Canonical event envelope, entity JSON schemas, and vector clocks.
+9. [09_SYNC_AND_CONFLICT_RESOLUTION_SPEC.md](docs/09_SYNC_AND_CONFLICT_RESOLUTION_SPEC.md): Causal Conflict Engine and automated life-safety freezes.
+10. [10_API_SPECIFICATION.md](docs/10_API_SPECIFICATION.md): REST endpoints, OpenAPI schemas, and error codes.
+11. [11_SECURITY_PRIVACY_THREAT_MODEL.md](docs/11_SECURITY_PRIVACY_THREAT_MODEL.md): STRIDE threat model, RBAC policies, and cryptographic controls.
+12. [13_UI_UX_ACCESSIBILITY_BLUEPRINT.md](docs/13_UI_UX_ACCESSIBILITY_BLUEPRINT.md): WCAG 2.1 AAA high-contrast field design and low-literacy interfaces.
+13. [14_ECOSYSTEM_INTEGRATION_ARCHITECTURE.md](docs/14_ECOSYSTEM_INTEGRATION_ARCHITECTURE.md): NDMA SACHET CAP, IMD weather, and open-data connectors.
+14. [15_INFRASTRUCTURE_DEVOPS_RELIABILITY.md](docs/15_INFRASTRUCTURE_DEVOPS_RELIABILITY.md): Multi-cloud infrastructure, Bicep templates, and HA topologies.
+15. [16_OBSERVABILITY_INCIDENT_RESPONSE.md](docs/16_OBSERVABILITY_INCIDENT_RESPONSE.md): OpenTelemetry instrumentation, Prometheus metrics, and runbooks.
+16. [17_TESTING_CHAOS_STRATEGY.md](docs/17_TESTING_CHAOS_STRATEGY.md): Chaos engineering, partition simulation, and test automation.
+17. [18_24_HOUR_HACKATHON_EXECUTION_PLAN.md](docs/18_24_HOUR_HACKATHON_EXECUTION_PLAN.md): Rapid 24-hour deployment and demo execution schedule.
+18. [19_PILOT_PRODUCTION_ROADMAP.md](docs/19_PILOT_PRODUCTION_ROADMAP.md): Multi-district pilot deployment roadmap (Phases 1-4).
+19. [20_BUSINESS_MODEL_UNIT_LOGIC_SCALE.md](docs/20_BUSINESS_MODEL_UNIT_LOGIC_SCALE.md): Total Cost of Ownership (TCO) and public-good sustainability model.
+20. [21_PITCH_DEMO_AND_JUDGE_QA.md](docs/21_PITCH_DEMO_AND_JUDGE_QA.md): 5-minute competition pitch narrative, demo script, and judge FAQ.
+21. [22_FINAL_EVALUATION_AND_CHECKLIST.md](docs/22_FINAL_EVALUATION_AND_CHECKLIST.md): Principal-Engineer verification checklist and audit signs.
+22. [23_ACCIDENTAL_DATA_LOSS_PREVENTION_POLICY.md](docs/23_ACCIDENTAL_DATA_LOSS_PREVENTION_POLICY.md): Strict data preservation rules and guardrails.
+23. [24_FEDERATED_LAKEHOUSE_CATALOG_ARCHITECTURE.md](docs/24_FEDERATED_LAKEHOUSE_CATALOG_ARCHITECTURE.md): Multi-cloud Iceberg/BigQuery lakehouse federation.
+24. [25_MOBILE_PERFORMANCE_TIER_OPTIMIZATION.md](docs/25_MOBILE_PERFORMANCE_TIER_OPTIMIZATION.md): Device tier adaptation (Low/Mid/High) for Android devices.
+25. [26_LOAD_BALANCING_DEADLOCK_PREVENTION_AND_LOOP_AVOIDANCE.md](docs/26_LOAD_BALANCING_DEADLOCK_PREVENTION_AND_LOOP_AVOIDANCE.md): Concurrency jitter retry, circuit breakers, and mesh loop guards.
+26. [27_DISTRIBUTED_ASSET_LOCK_AND_POSSESSION_RESOLUTION.md](docs/27_DISTRIBUTED_ASSET_LOCK_AND_POSSESSION_RESOLUTION.md): Physical possession priority and automatic substitute allocation.
+27. [28_OFFLINE_IDENTITY_SECURITY_AND_ANTI_REPLAY_SPEC.md](docs/28_OFFLINE_IDENTITY_SECURITY_AND_ANTI_REPLAY_SPEC.md): Monotonic hash chains, hardware-backed signatures, and anti-replay.
+28. [29_IOC_CONTAINER_AND_OPERATIONS_CENTER_OPTIMIZATION.md](docs/29_IOC_CONTAINER_AND_OPERATIONS_CENTER_OPTIMIZATION.md): Inversion of Control container and high-performance IOC caching.
+29. [30_MULTI_BEARER_BLUETOOTH_WIFI_CELLULAR_MESH_SPEC.md](docs/30_MULTI_BEARER_BLUETOOTH_WIFI_CELLULAR_MESH_SPEC.md): BLE Mesh GATT framing, Wi-Fi Direct, and multi-network routing.
+30. [RESEARCH_PAPER.md](docs/RESEARCH_PAPER.md): Formal IEEE/ACM peer-review manuscript on the ShiVi architecture.
+31. [DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md): Complete multi-target deployment runbook (Docker, K8s, Cloud Run, Bare-Metal).
 
 ---
 
@@ -650,4 +535,6 @@ python scripts/healthcheck.py http://localhost:8000
 
 ---
 
-> **Disasters do not wait for connectivity. Neither should coordination.**
+<p align="center">
+  <strong>शिवी: Disasters do not wait for connectivity. Neither should coordination.</strong>
+</p>
