@@ -77,3 +77,21 @@ def calculate_incident_priority(
     }
 
     return total_score, breakdown
+
+
+def calculate_priority_score(
+    severity: str,
+    category: str = "RESCUE",
+    people_at_risk: int = 0,
+    **kwargs
+) -> float:
+    """
+    Convenience wrapper returning float priority score.
+    """
+    score, _ = calculate_incident_priority(
+        severity=severity,
+        people_at_risk=people_at_risk,
+        category=category,
+        **kwargs
+    )
+    return score
