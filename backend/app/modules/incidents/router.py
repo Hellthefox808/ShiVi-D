@@ -89,6 +89,10 @@ async def create_incident(
     await db.commit()
     await db.refresh(incident)
     
+    # Invalidate dashboard summary cache
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
+    
     return incident
 
 
@@ -173,4 +177,9 @@ async def triage_incident(
     
     await db.commit()
     await db.refresh(incident)
+
+    # Invalidate dashboard summary cache
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
+
     return incident

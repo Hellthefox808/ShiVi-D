@@ -33,6 +33,7 @@ import api, {
   AuditRecordItem,
   DashboardSummaryData,
   SimulationResponse,
+  TacticalMapData,
 } from "../services/api";
 
 import Navbar from "../components/Navbar";
@@ -42,11 +43,15 @@ import AdvisoryDrawer from "../components/AdvisoryDrawer";
 import AssetContentionCard from "../components/AssetContentionCard";
 import AuditLedgerTimeline from "../components/AuditLedgerTimeline";
 import ContextLoopMonitor from "../components/ContextLoopMonitor";
+import TacticalCopMap from "../components/TacticalCopMap";
+import MeshRelaySimulator from "../components/MeshRelaySimulator";
+import FieldResponderHud from "../components/FieldResponderHud";
 import ErrorBoundary from "../components/ErrorBoundary";
 
 export default function CommandCenter() {
   // Navigation & View State
-  const [activeTab, setActiveTab] = useState<"cop" | "pipeline" | "conflicts" | "assets" | "audit">("cop");
+  const [activeTab, setActiveTab] = useState<"cop" | "mesh" | "pipeline" | "conflicts" | "assets" | "audit">("cop");
+  const [operationalView, setOperationalView] = useState<"commander" | "field">("commander");
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [connectivityMode, setConnectivityMode] = useState<"cloud" | "mesh" | "offline">("cloud");
   const [backendConnected, setBackendConnected] = useState<boolean>(false);
@@ -56,6 +61,7 @@ export default function CommandCenter() {
   const [incidents, setIncidents] = useState<IncidentItem[]>([]);
   const [conflicts, setConflicts] = useState<ConflictCaseItem[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditRecordItem[]>([]);
+  const [mapData, setMapData] = useState<TacticalMapData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Simulation & Modal State
@@ -205,14 +211,16 @@ export default function CommandCenter() {
       setBackendConnected(true);
 
       // 2. Fetch live data
-      const [sumData, incData, confData, auditData] = await Promise.allSettled([
+      const [sumData, incData, confData, auditData, mapDataRes] = await Promise.allSettled([
         api.getSummary(),
         api.getIncidents(),
         api.getConflicts(),
         api.getAuditTimeline(),
+        api.getTacticalMapLayers(),
       ]);
 
       if (sumData.status === "fulfilled") setSummary(sumData.value);
+      if (mapDataRes.status === "fulfilled") setMapData(mapDataRes.value);
       if (incData.status === "fulfilled" && incData.value.length > 0) {
         setIncidents(incData.value);
         if (!selectedIncidentId) setSelectedIncidentId(incData.value[0].id);
@@ -266,15 +274,16 @@ export default function CommandCenter() {
   }, [loadData]);
 
   // Run Live Disaster Workflow Simulation
-  const handleRunSimulation = async () => {
+  const handleRunSimulation = async (scenarioId: string = "scenario-flood-contradiction") => {
     setIsSimulating(true);
     setIsSimModalOpen(true);
     try {
-      const res = await api.simulateWorkflow();
+      const res = await api.simulateWorkflow(scenarioId);
       setSimulationResult(res);
       await loadData();
     } catch (err) {
       // Offline fallback simulation trace
+
       setTimeout(() => {
         setSimulationResult({
           status: "SUCCESS",
@@ -354,6 +363,7 @@ export default function CommandCenter() {
           onResetState={handleResetState}
           onToggleAiDrawer={() => setIsAiDrawerOpen(true)}
           isSimulating={isSimulating}
+          onRunScenario={(scenarioId) => handleRunSimulation(scenarioId)}
         />
 
         {/* Official Warning & Disaster Context Alert Banner */}
@@ -426,90 +436,196 @@ export default function CommandCenter() {
             </div>
           </div>
 
-          {/* Navigation Tabs Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#1E293B] pb-3">
+          {/* Operational View Switcher & Drill Launch Ribbon */}
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#121826] border border-[#1E293B] rounded-2xl px-5 py-3">
             <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400 font-mono font-semibold">VIEW MODE:</span>
               <button
-                onClick={() => setActiveTab("cop")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === "cop"
+                onClick={() => setOperationalView("commander")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  operationalView === "commander"
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                    : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                    : "bg-[#0B0F19] text-gray-400 hover:text-white"
                 }`}
               >
-                <Layers className="w-4 h-4" />
-                <span>Common Operational Picture</span>
+                Incident Commander COP
               </button>
-
               <button
-                onClick={() => setActiveTab("pipeline")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === "pipeline"
-                    ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                    : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                onClick={() => setOperationalView("field")}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                  operationalView === "field"
+                    ? "bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-600/30"
+                    : "bg-[#0B0F19] border-[#1E293B] text-gray-400 hover:text-white"
                 }`}
               >
-                <RotateCcw className="w-4 h-4" />
-                <span>14-Phase Context Loop</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("conflicts")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
-                  activeTab === "conflicts"
-                    ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
-                    : "text-gray-400 hover:text-white hover:bg-[#121826]"
-                }`}
-              >
-                <Lock className="w-4 h-4" />
-                <span>Conflict Resolution & Safety Freezes</span>
-                {conflicts.filter((c) => c.status === "OPEN").length > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-red-400 animate-ping absolute -top-1 -right-1" />
-                )}
-              </button>
-
-              <button
-                onClick={() => setActiveTab("assets")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === "assets"
-                    ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                    : "text-gray-400 hover:text-white hover:bg-[#121826]"
-                }`}
-              >
-                <LifeBuoy className="w-4 h-4" />
-                <span>Asset Contention & NFC Leases</span>
-              </button>
-
-              <button
-                onClick={() => setActiveTab("audit")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                  activeTab === "audit"
-                    ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30"
-                    : "text-gray-400 hover:text-white hover:bg-[#121826]"
-                }`}
-              >
-                <FileCheck className="w-4 h-4" />
-                <span>Cryptographic Audit Ledger</span>
+                Tactical Field Responder (Wet-Screen HUD)
               </button>
             </div>
 
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span>Causal Clock: {new Date().toLocaleTimeString()}</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs text-gray-400 font-mono hidden md:inline">DRILLS:</span>
+              <button
+                onClick={() => handleRunSimulation("scenario-flood-contradiction")}
+                disabled={isSimulating}
+                className="px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 text-blue-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                title="Run Route-88 Flash Flood Contradiction & Safety Freeze Drill"
+              >
+                <Droplets className="w-3 h-3 text-blue-400" />
+                <span>Flood Freeze</span>
+              </button>
+              <button
+                onClick={() => handleRunSimulation("scenario-asset-contention")}
+                disabled={isSimulating}
+                className="px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                title="Run Distributed Heavy Equipment Contention & NFC Lease Drill"
+              >
+                <LifeBuoy className="w-3 h-3 text-indigo-400" />
+                <span>Asset Lease</span>
+              </button>
+              <button
+                onClick={() => handleRunSimulation("scenario-replay-attack")}
+                disabled={isSimulating}
+                className="px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                title="Run Adversarial Poison Packet & Anti-Replay Mitigation Drill"
+              >
+                <Shield className="w-3 h-3 text-red-400" />
+                <span>Replay Attack</span>
+              </button>
+              <button
+                onClick={() => handleRunSimulation("scenario-sms-triage")}
+                disabled={isSimulating}
+                className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                title="Run Multilingual SMS Ingestion & Governed NLP Triage Drill"
+              >
+                <Sparkles className="w-3 h-3 text-emerald-400" />
+                <span>SMS Triage</span>
+              </button>
+              <button
+                onClick={() => setIsSimModalOpen(true)}
+                className="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-blue-600/20"
+                title="Open Simulation Studio"
+              >
+                <Radio className="w-3.5 h-3.5" /> Studio
+              </button>
             </div>
           </div>
 
-          {/* TAB 1: Common Operational Picture (COP) */}
-          {activeTab === "cop" && (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Incidents Feed */}
-              <div className="lg:col-span-2 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                    Live Field Incidents Feed ({incidents.length})
-                  </h3>
-                  <span className="text-xs text-gray-500 font-mono">Sorted by Multi-Factor Priority</span>
+          {operationalView === "field" ? (
+            <FieldResponderHud
+              onIncidentCreated={(newInc) => {
+                setIncidents((prev) => [newInc, ...prev]);
+                setSelectedIncidentId(newInc.id);
+              }}
+            />
+          ) : (
+            <>
+              {/* Navigation Tabs Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#1E293B] pb-3">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setActiveTab("cop")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeTab === "cop"
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                    }`}
+                  >
+                    <Layers className="w-4 h-4" />
+                    <span>Common Operational Picture</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab("mesh")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeTab === "mesh"
+                        ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                    }`}
+                  >
+                    <Radio className="w-4 h-4" />
+                    <span>Omni-Bearer Mesh Protocol (DOC-30)</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab("pipeline")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeTab === "pipeline"
+                        ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                    }`}
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>14-Phase Context Loop</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab("conflicts")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
+                      activeTab === "conflicts"
+                        ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                    }`}
+                  >
+                    <Lock className="w-4 h-4" />
+                    <span>Conflict Resolution & Safety Freezes</span>
+                    {conflicts.filter((c) => c.status === "OPEN").length > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-red-400 animate-ping absolute -top-1 -right-1" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab("assets")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeTab === "assets"
+                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                    }`}
+                  >
+                    <LifeBuoy className="w-4 h-4" />
+                    <span>Asset Contention & NFC Leases</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab("audit")}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                      activeTab === "audit"
+                        ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                    }`}
+                  >
+                    <FileCheck className="w-4 h-4" />
+                    <span>Cryptographic Audit Ledger</span>
+                  </button>
                 </div>
+
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span>Causal Clock: {new Date().toLocaleTimeString()}</span>
+                </div>
+              </div>
+
+              {/* TAB 1: Common Operational Picture (COP) */}
+              {activeTab === "cop" && (
+                <div className="space-y-6">
+                  {/* Tactical Geo-Radar Map */}
+                  <TacticalCopMap
+                    incidents={incidents}
+                    selectedIncidentId={selectedIncident?.id || null}
+                    onSelectIncident={(id) => setSelectedIncidentId(id)}
+                    mapData={mapData}
+                    isRouteFrozen={incidents.some((i) => i.is_route_blocked)}
+                  />
+
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Incidents Feed */}
+                    <div className="lg:col-span-2 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                          Live Field Incidents Feed ({incidents.length})
+                        </h3>
+                        <span className="text-xs text-gray-500 font-mono">Sorted by Multi-Factor Priority</span>
+                      </div>
+
 
                 <div className="space-y-3">
                   {incidents.map((inc) => {
@@ -696,26 +812,32 @@ export default function CommandCenter() {
                 </div>
               )}
             </div>
-          )}
+          </div>
+        )}
 
-          {/* TAB 2: Conflict Resolution Studio */}
-          {activeTab === "conflicts" && (
-            <ConflictAdjudicator
-              conflicts={conflicts}
-              onResolve={handleResolveConflict}
-              isResolving={isResolvingConflict}
-            />
-          )}
+        {/* TAB 2: Omni-Bearer Mesh Protocol (DOC-30) */}
+        {activeTab === "mesh" && <MeshRelaySimulator />}
 
-          {/* TAB 3: Physical Asset Contention & Leases */}
-          {activeTab === "assets" && <AssetContentionCard />}
+        {/* TAB 3: Conflict Resolution Studio */}
+        {activeTab === "conflicts" && (
+          <ConflictAdjudicator
+            conflicts={conflicts}
+            onResolve={handleResolveConflict}
+            isResolving={isResolvingConflict}
+          />
+        )}
 
-          {/* TAB 4: Cryptographic Audit Ledger */}
-          {activeTab === "audit" && <AuditLedgerTimeline logs={auditLogs} />}
+        {/* TAB 4: Physical Asset Contention & Leases */}
+        {activeTab === "assets" && <AssetContentionCard />}
 
-          {/* TAB 5: 14-Phase Continuous Operational Context Loop */}
-          {activeTab === "pipeline" && <ContextLoopMonitor />}
-        </main>
+        {/* TAB 5: Cryptographic Audit Ledger */}
+        {activeTab === "audit" && <AuditLedgerTimeline logs={auditLogs} />}
+
+        {/* TAB 6: 14-Phase Continuous Operational Context Loop */}
+        {activeTab === "pipeline" && <ContextLoopMonitor />}
+      </>
+    )}
+  </main>
 
         {/* Live Disaster Simulation Modal */}
         <SimulationModal
@@ -723,6 +845,7 @@ export default function CommandCenter() {
           onClose={() => setIsSimModalOpen(false)}
           result={simulationResult}
           loading={isSimulating}
+          onRunScenario={(scenarioId) => handleRunSimulation(scenarioId)}
         />
 
         {/* Governed Advisory Drawer */}

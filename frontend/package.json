@@ -6,7 +6,7 @@
     "dev": "node scripts/run-next.js dev",
     "build": "node scripts/run-next.js build",
     "start": "node scripts/run-next.js start",
-    "lint": "node scripts/run-next.js lint"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "next": "^14.2.3",

@@ -49,8 +49,12 @@ logs/
 # Agent Customizations & AI Artifacts
 .agents/
 .gemini/
+.jolli/
+*.tsbuildinfo
 *.agent
 *.skill
 *ai*.md
 *AI*.md
+verification_report.json
+results_all.json
 

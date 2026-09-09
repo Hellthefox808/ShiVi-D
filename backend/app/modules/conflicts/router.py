@@ -141,4 +141,9 @@ async def resolve_conflict(
 
     await db.commit()
     await db.refresh(case)
+
+    # Invalidate dashboard summary cache
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
+
     return case

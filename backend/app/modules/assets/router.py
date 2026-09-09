@@ -154,6 +154,15 @@ async def claim_asset_custody(
             available_substitutes=available_subs,
         )
 
+        # Update primary asset state to reflect the winning claim
+        asset.current_holder_id = resolution.winner_claimant_id
+        asset.current_incident_id = resolution.winner_incident_id
+        asset.current_task_id = resolution.winner_task_id
+        if resolution.winner_claimant_id == current_user.sub:
+            asset.has_physical_proof = (req.claim_type == "PHYSICAL_POSSESSION")
+            asset.physical_proof_type = req.proof_data.get("proof_type") if req.claim_type == "PHYSICAL_POSSESSION" else None
+            asset.physical_proof_timestamp = datetime.now(timezone.utc) if req.claim_type == "PHYSICAL_POSSESSION" else None
+
         # Update substitute asset if assigned
         if resolution.substitute_provided and resolution.substitute_asset_id:
             sub_asset_res = await db.execute(select(PhysicalAsset).where(PhysicalAsset.id == resolution.substitute_asset_id))
@@ -183,6 +192,10 @@ async def claim_asset_custody(
         db.add(audit)
         await db.commit()
 
+        # Invalidate dashboard summary cache
+        from app.modules.dashboard.router import IOCCacheManager
+        IOCCacheManager.invalidate(current_user.tenant_id)
+
         return {
             "status": "contention_resolved",
             "resolution": resolution.__dict__,
@@ -211,6 +224,10 @@ async def claim_asset_custody(
     )
     db.add(claim)
     await db.commit()
+
+    # Invalidate dashboard summary cache
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
 
     return {
         "status": "allocated",

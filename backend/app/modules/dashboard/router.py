@@ -104,8 +104,9 @@ class ContextLoopStatusResponse(BaseModel):
 # ==============================================================================
 
 class IOCCacheManager:
-    """Thread-safe TTL caching for Incident Operations Center summaries."""
+    """Thread-safe TTL caching for Incident Operations Center summaries and context loop telemetry."""
     _cache: Dict[str, Dict[str, Any]] = {}
+    _context_cache: Dict[str, Dict[str, Any]] = {}
     CACHE_TTL_SECONDS = 5  # 5-second freshness window under crisis load
 
     @classmethod
@@ -128,12 +129,31 @@ class IOCCacheManager:
         }
 
     @classmethod
+    def get_context(cls, tenant_id: str) -> Optional[ContextLoopStatusResponse]:
+        entry = cls._context_cache.get(tenant_id)
+        if not entry:
+            return None
+        if datetime.now(timezone.utc) > entry["expires_at"]:
+            cls._context_cache.pop(tenant_id, None)
+            return None
+        return entry["data"]
+
+    @classmethod
+    def set_context(cls, tenant_id: str, context_resp: ContextLoopStatusResponse):
+        cls._context_cache[tenant_id] = {
+            "data": context_resp,
+            "expires_at": datetime.now(timezone.utc) + timedelta(seconds=cls.CACHE_TTL_SECONDS),
+        }
+
+    @classmethod
     def invalidate(cls, tenant_id: Optional[str] = None):
         """Invalidates cache when a new sync event mutates state."""
         if tenant_id:
             cls._cache.pop(tenant_id, None)
+            cls._context_cache.pop(tenant_id, None)
         else:
             cls._cache.clear()
+            cls._context_cache.clear()
 
 
 # ==============================================================================
@@ -186,11 +206,12 @@ async def get_dashboard_summary(
     )
     open_conflicts = c_res.scalar() or 0
 
-    # 4. Active Responders
+    # 4. Active Responders (all active operational field personnel)
     u_res = await db.execute(
         select(func.count(User.id)).where(
             User.tenant_id == tenant_id,
-            User.role == "RESPONDER",
+            User.role.in_(["RESPONDER", "field_lead", "volunteer", "SUPERVISOR", "responder"]),
+            User.is_active == True,
         )
     )
     active_responders = u_res.scalar() or 0
@@ -277,7 +298,7 @@ async def get_map_geojson(
                 type="Feature",
                 geometry=GeoJSONFeatureGeometry(
                     type="Point",
-                    coordinates=[float(inc.longitude), float(inc.latitude)],
+                    coordinates=[float(getattr(inc, "longitude", 0.0) or 0.0), float(getattr(inc, "latitude", 0.0) or 0.0)],
                 ),
                 properties=GeoJSONFeatureProperties(
                     id=str(inc.id),
@@ -285,8 +306,8 @@ async def get_map_geojson(
                     category=str(inc.category),
                     severity=str(inc.severity),
                     status=str(inc.status),
-                    people_at_risk=int(inc.people_at_risk),
-                    priority_score=float(inc.priority_score),
+                    people_at_risk=int(getattr(inc, "people_at_risk", 0) or 0),
+                    priority_score=float(getattr(inc, "priority_score", 0.0) or 0.0),
                 ),
             )
         )
@@ -319,6 +340,11 @@ async def get_context_loop_telemetry(
     closing the loop back into operational sensing.
     """
     tenant_id = current_user.tenant_id
+
+    # Check In-Memory Context-Loop Cache
+    cached_loop = IOCCacheManager.get_context(tenant_id)
+    if cached_loop:
+        return cached_loop
 
     # Query operational metrics
     inc_count = (await db.execute(select(func.count(Incident.id)).where(Incident.tenant_id == tenant_id))).scalar() or 0
@@ -500,7 +526,7 @@ async def get_context_loop_telemetry(
         ),
     ]
 
-    return ContextLoopStatusResponse(
+    response = ContextLoopStatusResponse(
         loop_status="CONTINUOUS_VERIFIED",
         total_phases=14,
         loop_closure_verified=True,
@@ -509,3 +535,175 @@ async def get_context_loop_telemetry(
         phases=phases,
         timestamp=datetime.now(timezone.utc).isoformat(),
     )
+    IOCCacheManager.set_context(tenant_id, response)
+    return response
+
+
+@router.get("/map-layers", tags=["Tactical Common Operational Picture (COP)"])
+async def get_tactical_map_layers(
+    db: AsyncSession = Depends(get_db),
+    current_user: TokenPayload = Depends(get_current_user_token),
+):
+    """
+    Returns structured tactical geospatial layers for the Command Center COP radar map:
+    - River flood surge inundation polygon
+    - Route transit corridors (including real-time Safety Freeze on Route-88)
+    - Critical infrastructure facilities (Hospitals, Relief Camps, Boat Ramps)
+    - Active responder squad GPS coordinates and telemetry
+    """
+    from app.modules.incidents.models import RouteObservation
+    from app.modules.conflicts.models import ConflictCase
+
+    # Check live Route-88 status from database
+    route_status = "SAFETY_FREEZE"
+    active_conflict_id = None
+    r_res = await db.execute(
+        select(RouteObservation).where(
+            RouteObservation.route_identifier == "ROUTE-88",
+            RouteObservation.tenant_id == current_user.tenant_id,
+        )
+    )
+    r_obs = r_res.scalars().first()
+    if r_obs:
+        if r_obs.status == "USABLE" and not r_obs.is_frozen:
+            route_status = "OPEN"
+        elif r_obs.status == "BLOCKED" and not r_obs.is_frozen:
+            route_status = "BLOCKED"
+        else:
+            route_status = "SAFETY_FREEZE"
+        active_conflict_id = r_obs.active_conflict_id
+
+    return {
+        "zone": {
+            "name": "Guwahati Urban & Brahmaputra Basin Sector 4",
+            "center": {"lat": 26.1856, "lng": 91.7483},
+            "flood_level_meters_above_danger": 2.45,
+            "flow_velocity_mps": 3.8,
+            "surge_trend": "RISING (+0.15m/hr)",
+            "weather_condition": "SEVERE_PRECIPITATION",
+        },
+        "inundation_polygon": [
+            {"lat": 26.1950, "lng": 91.7300},
+            {"lat": 26.1920, "lng": 91.7650},
+            {"lat": 26.1780, "lng": 91.7700},
+            {"lat": 26.1750, "lng": 91.7450},
+            {"lat": 26.1810, "lng": 91.7250},
+        ],
+        "corridors": [
+            {
+                "id": "ROUTE-88",
+                "name": "Route-88 (Sector 4 Main River Bridge)",
+                "status": route_status,
+                "is_frozen": route_status == "SAFETY_FREEZE",
+                "active_conflict_id": active_conflict_id,
+                "hazard_description": "Flash surge undermining pier 3; conflicting scout vs ward reports",
+                "waypoints": [
+                    {"lat": 26.1780, "lng": 91.7400},
+                    {"lat": 26.1830, "lng": 91.7460},
+                    {"lat": 26.1880, "lng": 91.7520},
+                    {"lat": 26.1920, "lng": 91.7580},
+                ],
+            },
+            {
+                "id": "ROUTE-4B",
+                "name": "Route-4B (Sector 4 Boat Ramp Bypass)",
+                "status": "OPEN",
+                "is_frozen": False,
+                "hazard_description": "Shallow water navigable via motorized inflatable rescue boats",
+                "waypoints": [
+                    {"lat": 26.1780, "lng": 91.7400},
+                    {"lat": 26.1810, "lng": 91.7340},
+                    {"lat": 26.1870, "lng": 91.7310},
+                    {"lat": 26.1910, "lng": 91.7330},
+                ],
+            },
+            {
+                "id": "ROUTE-BYPASS-NORTH",
+                "name": "North Guwahati Elevated Ring Road",
+                "status": "OPEN",
+                "is_frozen": False,
+                "hazard_description": "Elevated tarmac clear of water inundation",
+                "waypoints": [
+                    {"lat": 26.1700, "lng": 91.7200},
+                    {"lat": 26.1750, "lng": 91.7100},
+                    {"lat": 26.1980, "lng": 91.7150},
+                    {"lat": 26.2050, "lng": 91.7400},
+                ],
+            },
+        ],
+        "infrastructure": [
+            {
+                "id": "INFRA-01",
+                "name": "Gauhati Medical College & Hospital (GMCH)",
+                "type": "HOSPITAL",
+                "lat": 26.1585,
+                "lng": 91.7705,
+                "status": "OPERATIONAL_HIGH_CAPACITY",
+                "available_beds": 38,
+            },
+            {
+                "id": "INFRA-02",
+                "name": "North Guwahati Relief Camp #3",
+                "type": "SHELTER",
+                "lat": 26.1921,
+                "lng": 91.7341,
+                "status": "ACTIVE_RECEIVING",
+                "occupancy": 320,
+                "max_capacity": 500,
+            },
+            {
+                "id": "INFRA-03",
+                "name": "Pandu Port Inflatable Boat Staging Point",
+                "type": "BOAT_RAMP",
+                "lat": 26.1840,
+                "lng": 91.7190,
+                "status": "OPERATIONAL",
+                "active_boats": 6,
+            },
+            {
+                "id": "INFRA-04",
+                "name": "Dispur Emergency Operations Command (SEOC)",
+                "type": "COMMAND_HUB",
+                "lat": 26.1433,
+                "lng": 91.7898,
+                "status": "COMMAND_ACTIVE",
+            },
+        ],
+        "active_units": [
+            {
+                "id": "UNIT-SDRF-01",
+                "name": "SDRF Rescue Unit Alpha (IRB Boat 04)",
+                "callsign": "BRAVO-LEAD",
+                "lat": 26.1845,
+                "lng": 91.7450,
+                "heading_degrees": 42,
+                "battery_pct": 87,
+                "connectivity": "BLE_MESH_RELAY_HOP_2",
+                "assigned_task": "task-sim-01 (Sector 4 Rooftop Evacuation)",
+            },
+            {
+                "id": "UNIT-NDRF-04",
+                "name": "NDRF High-Clearance Tactical Squad",
+                "callsign": "DELTA-FOUR",
+                "lat": 26.1905,
+                "lng": 91.7320,
+                "heading_degrees": 180,
+                "battery_pct": 94,
+                "connectivity": "CELLULAR_BACKHAUL",
+                "assigned_task": "Supply distribution at Relief Camp #3",
+            },
+            {
+                "id": "UNIT-DRONE-02",
+                "name": "Autonomous Flood Recon Drone Alpha",
+                "callsign": "EAGLE-EYE",
+                "lat": 26.1865,
+                "lng": 91.7510,
+                "heading_degrees": 290,
+                "battery_pct": 68,
+                "connectivity": "RADIO_DIRECT",
+                "altitude_meters": 120,
+                "assigned_task": "Aerial surveillance of Pier 3 / Route-88",
+            },
+        ],
+    }
+
