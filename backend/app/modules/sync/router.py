@@ -220,6 +220,10 @@ async def push_sync_events(
 
     await db.commit()
 
+    # Invalidate dashboard cache for current tenant on sync mutations
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
+
     return SyncPushResult(
         status="success",
         processed_count=len(batch.events),
@@ -275,3 +279,190 @@ async def pull_sync_events(
         next_cursor=next_cur,
         has_more=len(events) == limit,
     )
+
+
+# ---------------------------------------------------------------------------
+# Omni-Bearer Mesh Protocol: BLE 5.0 GATT MTU Packet Framing & Reassembly
+# (Spec: docs/30_MULTI_BEARER_BLUETOOTH_WIFI_CELLULAR_MESH_SPEC.md)
+# ---------------------------------------------------------------------------
+import zlib
+import base64
+import json
+
+
+class MeshFrame(BaseModel):
+    packet_id: str
+    chunk_index: int
+    total_chunks: int
+    chunk_payload_base64: str
+    chunk_payload_text: str
+    chunk_bytes: int
+    crc32: str
+    hop_count: int = 1
+
+
+class MeshPacketizeRequest(BaseModel):
+    payload: Any
+    max_mtu_bytes: int = 496  # BLE 5.0 ATT MTU safe limit
+    bearer: str = "BLE_5.0_GATT"
+    source_device_id: str = "node-citizen-01"
+    target_device_id: str = "hub-command-00"
+
+
+class MeshPacketizeResponse(BaseModel):
+    packet_id: str
+    total_original_bytes: int
+    total_frames: int
+    max_frame_bytes: int
+    bearer: str
+    frames: List[MeshFrame]
+
+
+class MeshReassembleRequest(BaseModel):
+    frames: List[MeshFrame]
+
+
+class MeshReassembleResponse(BaseModel):
+    packet_id: str
+    status: str
+    received_frames: int
+    total_frames: int
+    reassembled_payload: str
+    integrity_hash_sha256: str
+    crc32_verified: bool
+
+
+@router.post("/mesh/packetize", response_model=MeshPacketizeResponse)
+async def packetize_mesh_payload(
+    req: MeshPacketizeRequest,
+    current_user: TokenPayload = Depends(get_current_user_token),
+):
+    """
+    Slices an arbitrary JSON/text operational payload into ≤496-byte BLE GATT MTU frames
+    with CRC32 integrity verification tags and chunk sequencing headers.
+    Enforces Omni-Bearer Framing invariant for Zero-Connectivity BLE gossip relays.
+    """
+    if isinstance(req.payload, (dict, list)):
+        raw_bytes = json.dumps(req.payload, separators=(",", ":")).encode("utf-8")
+    else:
+        raw_bytes = str(req.payload).encode("utf-8")
+
+    packet_id = f"pkt-{uuid.uuid4().hex[:12]}"
+    max_chunk_size = max(64, min(req.max_mtu_bytes, 496))
+
+    chunks = [raw_bytes[i : i + max_chunk_size] for i in range(0, len(raw_bytes), max_chunk_size)]
+    if not chunks:
+        chunks = [b""]
+
+    total_chunks = len(chunks)
+    frames = []
+
+    for idx, chunk in enumerate(chunks):
+        crc = f"{zlib.crc32(chunk) & 0xFFFFFFFF:08x}"
+        chunk_b64 = base64.b64encode(chunk).decode("ascii")
+        try:
+            chunk_text = chunk.decode("utf-8", errors="replace")
+        except Exception:
+            chunk_text = "<binary>"
+
+        frames.append(
+            MeshFrame(
+                packet_id=packet_id,
+                chunk_index=idx,
+                total_chunks=total_chunks,
+                chunk_payload_base64=chunk_b64,
+                chunk_payload_text=chunk_text,
+                chunk_bytes=len(chunk),
+                crc32=crc,
+                hop_count=1,
+            )
+        )
+
+    return MeshPacketizeResponse(
+        packet_id=packet_id,
+        total_original_bytes=len(raw_bytes),
+        total_frames=total_chunks,
+        max_frame_bytes=max_chunk_size,
+        bearer=req.bearer,
+        frames=frames,
+    )
+
+
+@router.post("/mesh/reassemble", response_model=MeshReassembleResponse)
+async def reassemble_mesh_payload(
+    req: MeshReassembleRequest,
+    current_user: TokenPayload = Depends(get_current_user_token),
+):
+    """
+    Reassembles unordered BLE GATT MTU frames into original payload,
+    validating CRC32 integrity per frame and calculating overall SHA-256 payload digest.
+    """
+    import hashlib
+
+    if not req.frames:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot reassemble empty frame list",
+        )
+
+    packet_id = req.frames[0].packet_id
+    total_expected = req.frames[0].total_chunks
+
+    # Group by chunk_index to handle possible duplicates and out-of-order arrival
+    seen_indices = {}
+    crc_all_valid = True
+
+    for frame in req.frames:
+        if frame.packet_id != packet_id:
+            continue
+        try:
+            chunk_bytes = base64.b64decode(frame.chunk_payload_base64)
+            computed_crc = f"{zlib.crc32(chunk_bytes) & 0xFFFFFFFF:08x}"
+            if computed_crc.lower() != frame.crc32.lower():
+                crc_all_valid = False
+            seen_indices[frame.chunk_index] = chunk_bytes
+        except Exception:
+            crc_all_valid = False
+
+    received_count = len(seen_indices)
+    if received_count < total_expected or not crc_all_valid:
+        status_str = "CORRUPTED" if not crc_all_valid else "INCOMPLETE"
+        return MeshReassembleResponse(
+            packet_id=packet_id,
+            status=status_str,
+            received_frames=received_count,
+            total_frames=total_expected,
+            reassembled_payload="",
+            integrity_hash_sha256="",
+            crc32_verified=crc_all_valid,
+        )
+
+    # Assemble in sequential order 0..total_expected-1
+    assembled_bytes = bytearray()
+    for i in range(total_expected):
+        if i in seen_indices:
+            assembled_bytes.extend(seen_indices[i])
+        else:
+            return MeshReassembleResponse(
+                packet_id=packet_id,
+                status="MISSING_CHUNKS",
+                received_frames=received_count,
+                total_frames=total_expected,
+                reassembled_payload="",
+                integrity_hash_sha256="",
+                crc32_verified=False,
+            )
+
+    payload_str = assembled_bytes.decode("utf-8", errors="replace")
+    sha256_hash = hashlib.sha256(assembled_bytes).hexdigest()
+
+    return MeshReassembleResponse(
+        packet_id=packet_id,
+        status="REASSEMBLED_VERIFIED",
+        received_frames=received_count,
+        total_frames=total_expected,
+        reassembled_payload=payload_str,
+        integrity_hash_sha256=sha256_hash,
+        crc32_verified=True,
+    )
+

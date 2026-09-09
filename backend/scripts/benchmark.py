@@ -77,25 +77,101 @@ async def benchmark_endpoint(
 
 async def run_all_benchmarks():
     print("=" * 80)
-    print("  [BENCHMARK] SHIVI OPERATIONS CORE API - EMPIRICAL BENCHMARK SUITE")
-    print("=" * 80)
+    print("  [BENCHMARK] SHIVI OPERATIONS CORE API - MAXIMUM CAPACITY BENCHMARK SUITE")
+    print("================================================================================")
 
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as client:
-        # 1. Health check benchmark
-        await benchmark_endpoint(client, "GET", "/health", total_requests=200, concurrency=20)
+        # 1. Edge Health check benchmark (High concurrency)
+        await benchmark_endpoint(client, "GET", "/health", total_requests=500, concurrency=50)
 
         # 2. IOC Dashboard Summary (In-memory cached query)
-        await benchmark_endpoint(client, "GET", "/v1/dashboard/summary", total_requests=100, concurrency=10)
+        await benchmark_endpoint(client, "GET", "/v1/dashboard/summary", total_requests=200, concurrency=20)
 
         # 3. Spatial GeoJSON Viewport Endpoint
         await benchmark_endpoint(client, "GET", "/v1/dashboard/geojson", total_requests=100, concurrency=10)
 
-        # 4. P0 Workflow Simulator (Multi-table transactional workflow)
-        await benchmark_endpoint(client, "POST", "/v1/demo/simulate-workflow", total_requests=20, concurrency=2)
+        # 4. 14-Phase Continuous Verified Context Loop Telemetry
+        await benchmark_endpoint(client, "GET", "/v1/dashboard/context-loop", total_requests=100, concurrency=10)
+
+        # 5. Compact 140-Byte Satellite Burst Encoding (CRC-32 micro-framing)
+        sat_payload = {
+            "event_id": "EVT-SAT-001",
+            "category": "RESCUE",
+            "severity": "CRITICAL",
+            "people_at_risk": 5,
+            "latitude": 26.1856,
+            "longitude": 91.7483,
+            "short_desc": "Boat rescue required rooftop flooded",
+        }
+        await benchmark_endpoint(
+            client,
+            "POST",
+            "/v1/integrations/sms/compact/encode",
+            total_requests=200,
+            concurrency=20,
+            payload=sat_payload,
+        )
+
+        # 6. Disaster SMS Gateway Ingestion & NLP Triage
+        sms_payload = {
+            "sender_phone": "+919876543210",
+            "message_text": "SOS 3 PEOPLE TRAPPED SECTOR 4",
+            "gateway_type": "GSM_GATEWAY",
+        }
+        await benchmark_endpoint(
+            client,
+            "POST",
+            "/v1/integrations/sms/inbound",
+            total_requests=100,
+            concurrency=10,
+            payload=sms_payload,
+        )
+
+        # 7. Operational Simulation Drills across all 4 scenarios
+        scenarios = [
+            "scenario-flood-contradiction",
+            "scenario-asset-contention",
+            "scenario-replay-attack",
+            "scenario-sms-triage",
+        ]
+        for sc in scenarios:
+            await benchmark_endpoint(
+                client,
+                "POST",
+                f"/v1/demo/simulate-workflow?scenario_id={sc}",
+                total_requests=10,
+                concurrency=2,
+            )
 
     print("\n" + "=" * 80)
-    print("  [SUCCESS] BENCHMARK RUN COMPLETED WITH 100% SUCCESS")
-    print("=" * 80)
+    print("  [BENCHMARK] TACTICAL LOAD BALANCER & MULTI-NODE ROUTING EVALUATION")
+    print("================================================================================")
+    from app.core.load_balancer import TacticalLoadBalancer
+
+    lb_least_conn = TacticalLoadBalancer(
+        nodes=["http://backend-node-1:8000", "http://backend-node-2:8000"],
+        strategy="least_conn",
+    )
+    lb_round_robin = TacticalLoadBalancer(
+        nodes=["http://backend-node-1:8000", "http://backend-node-2:8000"],
+        strategy="round_robin",
+    )
+
+    print("[LOAD BALANCER] Simulating 1,000 requests across dual backend nodes:")
+    for lb, name in [(lb_least_conn, "Least-Connections"), (lb_round_robin, "Round-Robin")]:
+        t0 = time.perf_counter()
+        for _ in range(1000):
+            node = await lb.select_node()
+            lb.release_node(node)
+        elapsed = time.perf_counter() - t0
+        lb_throughput = 1000 / elapsed
+        print(f"  • Strategy: {name:<18} | Throughput: {lb_throughput:,.2f} dispatches/sec | Distribution: " +
+              ", ".join([f"{n.url.split('//')[1]}: {n.total_requests} reqs" for n in lb.nodes]))
+        await lb.client.aclose()
+
+    print("\n" + "=" * 80)
+    print("  [SUCCESS] MAXIMUM CAPACITY & LOAD BALANCER BENCHMARK RUN COMPLETED (100% INTEGRITY)")
+    print("================================================================================")
 
 
 if __name__ == "__main__":

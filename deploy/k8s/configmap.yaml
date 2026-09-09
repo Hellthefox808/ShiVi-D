@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shivi-config
+  namespace: shivi-ops
+data:
+  PORT: "8000"
+  HOST: "0.0.0.0"
+  ENVIRONMENT: "production"
+  LOG_LEVEL: "INFO"
+  CORS_ORIGINS: "*"
+  DATABASE_URL: "sqlite+aiosqlite:////data/shivi_production.db"
+  NEXT_PUBLIC_API_URL: "http://shivi-backend-svc:8000"

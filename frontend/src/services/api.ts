@@ -126,6 +126,29 @@ export interface SimulationResponse {
   };
 }
 
+export interface ContextLoopPhase {
+  phase_number: number;
+  code: string;
+  name: string;
+  stage: string;
+  status: string;
+  latency_ms: number;
+  throughput_events_sec: number;
+  invariant: string;
+  active_records: number;
+  details?: Record<string, any>;
+}
+
+export interface ContextLoopResponse {
+  loop_status: string;
+  total_phases: number;
+  loop_closure_verified: boolean;
+  active_cycle_id: string;
+  feedback_latency_ms: number;
+  phases: ContextLoopPhase[];
+  timestamp: string;
+}
+
 class ApiService {
   private baseUrl: string;
 
@@ -135,9 +158,13 @@ class ApiService {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
-    const headers = {
+    const token = typeof window !== "undefined" ? localStorage.getItem("shivi_auth_token") : null;
+    const authHeader: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+
+    const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(options.headers || {}),
+      ...authHeader,
+      ...((options.headers as Record<string, string>) || {}),
     };
 
     const controller = new AbortController();
@@ -152,8 +179,21 @@ class ApiService {
       clearTimeout(timeoutId);
 
       if (!res.ok) {
-        const errorBody = await res.text();
-        throw new Error(`API Error [${res.status}]: ${errorBody}`);
+        let errorMsg = `API Error [${res.status}]`;
+        try {
+          const errData = await res.json();
+          if (errData?.detail) {
+            if (typeof errData.detail === "string") {
+              errorMsg = errData.detail;
+            } else if (Array.isArray(errData.detail)) {
+              errorMsg = errData.detail.map((d: any) => d.msg || JSON.stringify(d)).join("; ");
+            }
+          }
+        } catch {
+          const rawText = await res.text().catch(() => "");
+          if (rawText) errorMsg += `: ${rawText}`;
+        }
+        throw new Error(errorMsg);
       }
       return await res.json();
     } catch (err: any) {
@@ -243,8 +283,8 @@ class ApiService {
   }
 
   // P0 Disaster Workflow Simulation
-  async simulateWorkflow(): Promise<SimulationResponse> {
-    return this.request("/v1/demo/simulate-workflow", {
+  async simulateWorkflow(scenarioId: string = "scenario-flood-contradiction"): Promise<SimulationResponse> {
+    return this.request(`/v1/demo/simulate-workflow?scenario_id=${encodeURIComponent(scenarioId)}`, {
       method: "POST",
     });
   }
@@ -305,7 +345,166 @@ class ApiService {
   async getSmsLogs(): Promise<any[]> {
     return this.request("/v1/integrations/sms/logs");
   }
+
+  async getContextLoopStatus(): Promise<ContextLoopResponse> {
+    return this.request("/v1/dashboard/context-loop");
+  }
+
+  // Tactical COP Map Layers
+  async getTacticalMapLayers(): Promise<TacticalMapData> {
+    return this.request("/v1/dashboard/map-layers");
+  }
+
+  // Omni-Bearer BLE 5.0 GATT Mesh Packet Framing
+  async packetizeMeshPayload(
+    payload: any,
+    maxMtu: number = 496,
+    bearer: string = "BLE_5.0_GATT"
+  ): Promise<MeshPacketizeResponse> {
+    return this.request("/v1/sync/mesh/packetize", {
+      method: "POST",
+      body: JSON.stringify({
+        payload,
+        max_mtu_bytes: maxMtu,
+        bearer,
+      }),
+    });
+  }
+
+  async reassembleMeshFrames(frames: MeshFrame[]): Promise<MeshReassembleResponse> {
+    return this.request("/v1/sync/mesh/reassemble", {
+      method: "POST",
+      body: JSON.stringify({ frames }),
+    });
+  }
+
+  // Multimodal Voice Triage
+  async voiceTriage(transcript: string, languageHint: string = "hi"): Promise<VoiceTriageResponse> {
+    return this.request("/v1/ai/voice-triage", {
+      method: "POST",
+      body: JSON.stringify({
+        simulated_transcript: transcript,
+        language_hint: languageHint,
+      }),
+    });
+  }
+
+  // Multi-Scenario Simulation Catalog
+  async getSimulationScenarios(): Promise<SimulationScenario[]> {
+    return this.request("/v1/demo/scenarios");
+  }
+}
+
+export interface TacticalMapData {
+  zone: {
+    name: string;
+    center: { lat: number; lng: number };
+    flood_level_meters_above_danger: number;
+    flow_velocity_mps: number;
+    surge_trend: string;
+    weather_condition: string;
+  };
+  inundation_polygon: Array<{ lat: number; lng: number }>;
+  corridors: Array<{
+    id: string;
+    name: string;
+    status: "OPEN" | "BLOCKED" | "SAFETY_FREEZE";
+    is_frozen: boolean;
+    active_conflict_id?: string;
+    hazard_description: string;
+    waypoints: Array<{ lat: number; lng: number }>;
+  }>;
+  infrastructure: Array<{
+    id: string;
+    name: string;
+    type: "HOSPITAL" | "SHELTER" | "BOAT_RAMP" | "COMMAND_HUB";
+    lat: number;
+    lng: number;
+    status: string;
+    available_beds?: number;
+    occupancy?: number;
+    max_capacity?: number;
+    active_boats?: number;
+  }>;
+  active_units: Array<{
+    id: string;
+    name: string;
+    callsign: string;
+    lat: number;
+    lng: number;
+    heading_degrees: number;
+    battery_pct: number;
+    connectivity: string;
+    altitude_meters?: number;
+    assigned_task: string;
+  }>;
+}
+
+export interface MeshFrame {
+  packet_id: string;
+  chunk_index: number;
+  total_chunks: number;
+  chunk_payload_base64: string;
+  chunk_payload_text: string;
+  chunk_bytes: number;
+  crc32: string;
+  hop_count: number;
+}
+
+export interface MeshPacketizeResponse {
+  packet_id: string;
+  total_original_bytes: number;
+  total_frames: number;
+  max_frame_bytes: number;
+  bearer: string;
+  frames: MeshFrame[];
+}
+
+export interface MeshReassembleResponse {
+  packet_id: string;
+  status: string;
+  received_frames: number;
+  total_frames: number;
+  reassembled_payload: string;
+  integrity_hash_sha256: string;
+  crc32_verified: boolean;
+}
+
+export interface VoiceTriageResponse {
+  detected_language: string;
+  transcript: string;
+  extraction: {
+    category: string;
+    suggested_title: string;
+    severity: string;
+    estimated_people: number;
+    extracted_hazards: string[];
+    confidence: number;
+  };
+  urgency_score: number;
+  urgency_breakdown: Record<string, any>;
+  recommended_sop: {
+    sop_code: string;
+    title: string;
+    mandatory_checklist: string[];
+    safety_warnings: string[];
+    required_equipment: string[];
+    issuing_body: string;
+  };
+  transcription_latency_ms: number;
+  prompt_hash: string;
+}
+
+export interface SimulationScenario {
+  id: string;
+  name: string;
+  category: string;
+  severity: string;
+  invariants_tested: string[];
+  description: string;
+  duration_ms: number;
 }
 
 export const api = new ApiService();
 export default api;
+

@@ -11,8 +11,12 @@ import {
   Cpu,
   ArrowRight,
   ShieldCheck,
+  Mic,
+  Volume2,
+  Play,
+  RotateCcw,
 } from "lucide-react";
-import api from "../services/api";
+import api, { VoiceTriageResponse } from "../services/api";
 
 interface AIAdvisoryDrawerProps {
   isOpen: boolean;
@@ -25,64 +29,48 @@ export function AIAdvisoryDrawer({
   onClose,
   onApplyExtraction,
 }: AIAdvisoryDrawerProps) {
+  const [selectedLanguage, setSelectedLanguage] = useState<"hi" | "as" | "en">("hi");
   const [inputText, setInputText] = useState<string>(
-    "Flood surge entering hospital ground floor, 14 patients on ICU beds require urgent evacuation to dry shelter at Ward 4."
+    "वार्ड 4 में ब्रह्मपुत्र का पानी घरों में घुस रहा है, 5 लोग छत पर फंसे हैं, तुरंत मोटरबोट भेजो!"
   );
-  const [isExtracting, setIsExtracting] = useState<boolean>(false);
-  const [extractedData, setExtractedData] = useState<any | null>(null);
-  const [sopCategory, setSopCategory] = useState<string>("RESCUE");
-  const [sopSeverity, setSopSeverity] = useState<string>("CRITICAL");
-  const [sopResult, setSopResult] = useState<any | null>(null);
-  const [isLoadingSop, setIsLoadingSop] = useState<boolean>(false);
+  const [isVoiceProcessing, setIsVoiceProcessing] = useState<boolean>(false);
+  const [voiceResult, setVoiceResult] = useState<VoiceTriageResponse | null>(null);
+  const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
 
   if (!isOpen) return null;
 
-  const handleExtract = async () => {
-    if (!inputText.trim()) return;
-    setIsExtracting(true);
-    try {
-      const res = await api.extractIncidentEntities(inputText);
-      setExtractedData(res);
-    } catch (err) {
-      // Graceful offline fallback
-      setExtractedData({
-        category: "RESCUE",
-        severity: "CRITICAL",
-        people_at_risk: 14,
-        urgency: "IMMEDIATE",
-        confidence: 0.94,
-        explanation: "Parsed critical medical flood scenario with 14 patients requiring immediate evacuation.",
-      });
-    } finally {
-      setIsExtracting(false);
-    }
+  const samplePresets = {
+    hi: {
+      label: "Hindi Audio",
+      text: "वार्ड 4 में ब्रह्मपुत्र का पानी घरों में घुस रहा है, 5 लोग छत पर फंसे हैं, तुरंत मोटरबोट भेजो!",
+    },
+    as: {
+      label: "Assamese Audio",
+      text: "ব্ৰহ্মপুত্ৰৰ পানী বৃদ্ধি পাইছে, ৪ নম্বৰ ৱাৰ্ডত আমাৰ ঘৰ ডুব গৈছে, সহায় লাগে!",
+    },
+    en: {
+      label: "English Audio",
+      text: "Critical flash flood surge near Sector 4 Bridge, 3 civilians stranded on hospital roof, urgent boat needed.",
+    },
   };
 
-  const handleFetchSop = async () => {
-    setIsLoadingSop(true);
+  const handleSelectPreset = (lang: "hi" | "as" | "en") => {
+    setSelectedLanguage(lang);
+    setInputText(samplePresets[lang].text);
+  };
+
+  const handleRunVoiceTriage = async () => {
+    setIsVoiceProcessing(true);
+    setIsPlayingAudio(true);
+    setTimeout(() => setIsPlayingAudio(false), 1200);
+
     try {
-      const res = await api.getAiSop(sopCategory, sopSeverity);
-      setSopResult(res);
+      const res = await api.voiceTriage(inputText, selectedLanguage);
+      setVoiceResult(res);
     } catch (err) {
-      setSopResult({
-        category: sopCategory,
-        severity: sopSeverity,
-        title: "NDMA Standard Operating Procedure for High-Water Rescue",
-        protocol_id: "NDMA-SOP-FLD-2026",
-        required_equipment: [
-          "Inflatable Motorized Rescue Boat (IRB)",
-          "Life Jackets (Class IV PFD)",
-          "Submersible Dewatering Pump",
-          "Portable Emergency Medical Kit",
-        ],
-        safety_checks: [
-          "Verify water flow velocity does not exceed 3.5 m/s",
-          "Establish secondary downstream safety net before boat launch",
-          "Maintain dual-radio communication with Sector Staging Officer",
-        ],
-      });
+      console.error("Voice triage error:", err);
     } finally {
-      setIsLoadingSop(false);
+      setIsVoiceProcessing(false);
     }
   };
 
@@ -97,7 +85,7 @@ export function AIAdvisoryDrawer({
             </div>
             <div>
               <h3 className="font-bold text-white text-base flex items-center gap-2">
-                Governed Hybrid AI Advisory
+                Governed Multimodal AI Advisory Studio
                 <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
                   INVARIANT 5
                 </span>
@@ -115,176 +103,169 @@ export function AIAdvisoryDrawer({
           </button>
         </div>
 
-        {/* Body */}
+        {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
-          {/* Section 1: Emergency SOS Transcript Parsing */}
+          {/* Audio Waveform Simulator */}
           <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2">
-                <Cpu className="w-3.5 h-3.5 text-purple-400" />
-                Raw Field SOS Entity Extraction
+                <Mic className="w-4 h-4 text-purple-400" /> Multilingual Voice Emergency Dispatch
               </span>
-              <span className="text-[10px] text-gray-500 font-mono">NLP / Voice Transcript</span>
+              <span className="text-[10px] font-mono text-purple-400">WHISPER-V3 COMPATIBLE</span>
             </div>
 
+            {/* Language Preset Tabs */}
+            <div className="flex gap-2">
+              {(["hi", "as", "en"] as const).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => handleSelectPreset(lang)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
+                    selectedLanguage === lang
+                      ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-600/30"
+                      : "bg-[#121826] border-[#1E293B] text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {samplePresets[lang].label}
+                </button>
+              ))}
+            </div>
+
+            {/* Audio Wave Graphic */}
+            <div className="bg-[#121826] border border-[#1E293B] rounded-xl p-3 flex items-center gap-3">
+              <div
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
+                  isPlayingAudio ? "bg-purple-600 text-white animate-pulse" : "bg-purple-500/20 text-purple-400"
+                }`}
+              >
+                <Volume2 className="w-5 h-5" />
+              </div>
+
+              {/* Simulated Waveform Bars */}
+              <div className="flex items-center gap-1 flex-1 h-8">
+                {[40, 75, 30, 90, 60, 100, 45, 80, 55, 95, 30, 85, 70, 40, 90, 60, 75, 50, 85, 60, 40].map(
+                  (h, i) => (
+                    <div
+                      key={i}
+                      className={`flex-1 rounded-full transition-all ${
+                        isPlayingAudio ? "bg-purple-400 animate-pulse" : "bg-purple-500/30"
+                      }`}
+                      style={{ height: `${isPlayingAudio ? Math.max(20, (h * Math.random() + 20)) : h}%` }}
+                    />
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Transcript Area */}
             <textarea
               rows={3}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               className="w-full bg-[#121826] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all font-mono"
-              placeholder="Paste raw audio transcript or field message..."
             />
 
+            {/* Action Button */}
             <button
-              onClick={handleExtract}
-              disabled={isExtracting || !inputText.trim()}
-              className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-purple-600/30 disabled:opacity-50"
+              onClick={handleRunVoiceTriage}
+              disabled={isVoiceProcessing || !inputText.trim()}
+              className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-600/30 disabled:opacity-50"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              {isExtracting ? "Extracting Entities..." : "Extract Structured Incident Entities"}
+              {isVoiceProcessing ? (
+                <RotateCcw className="w-4 h-4 animate-spin" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+              <span>Transcribe & Extract Structured Triage</span>
             </button>
+          </div>
 
-            {extractedData && (
-              <div className="mt-4 pt-4 border-t border-[#1E293B] space-y-3">
+          {/* Structured Output & Explainable Priority Display */}
+          {voiceResult && (
+            <div className="bg-[#0B0F19] border border-purple-500/30 rounded-2xl p-5 space-y-4 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> Advisory Triage Result
+                </span>
+                <span className="text-[10px] font-mono text-gray-400">
+                  Latency: {voiceResult.transcription_latency_ms} ms • Hash: {voiceResult.prompt_hash}
+                </span>
+              </div>
+
+              {/* Extraction Metrics */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-[#121826] p-2.5 rounded-xl border border-[#1E293B]">
+                  <span className="text-[10px] text-gray-400 uppercase block">Category</span>
+                  <span className="text-xs font-bold text-white">{voiceResult.extraction.category}</span>
+                </div>
+                <div className="bg-[#121826] p-2.5 rounded-xl border border-[#1E293B]">
+                  <span className="text-[10px] text-gray-400 uppercase block">Severity</span>
+                  <span className="text-xs font-bold text-red-400">{voiceResult.extraction.severity}</span>
+                </div>
+                <div className="bg-[#121826] p-2.5 rounded-xl border border-[#1E293B]">
+                  <span className="text-[10px] text-gray-400 uppercase block">People at Risk</span>
+                  <span className="text-xs font-bold text-amber-400">{voiceResult.extraction.estimated_people}</span>
+                </div>
+              </div>
+
+              {/* Explainable Priority Score */}
+              <div className="bg-[#121826] p-3.5 rounded-xl border border-amber-500/30 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Extraction Completed
-                  </span>
-                  <span className="text-xs font-mono text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">
-                    Confidence: {(extractedData.confidence * 100).toFixed(1)}%
+                  <span className="text-xs font-bold text-gray-300">Explainable Multi-Factor Priority</span>
+                  <span className="text-sm font-black text-amber-400">
+                    {voiceResult.urgency_score} / 100
                   </span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                  <div className="bg-[#121826] p-2.5 rounded-lg border border-[#1E293B]">
-                    <span className="text-gray-500 block text-[10px]">CATEGORY</span>
-                    <span className="font-bold text-blue-400">{extractedData.category}</span>
-                  </div>
-                  <div className="bg-[#121826] p-2.5 rounded-lg border border-[#1E293B]">
-                    <span className="text-gray-500 block text-[10px]">SEVERITY</span>
-                    <span className="font-bold text-red-400">{extractedData.severity}</span>
-                  </div>
-                  <div className="bg-[#121826] p-2.5 rounded-lg border border-[#1E293B]">
-                    <span className="text-gray-500 block text-[10px]">PEOPLE AT RISK</span>
-                    <span className="font-bold text-amber-400">{extractedData.people_at_risk}</span>
-                  </div>
-                  <div className="bg-[#121826] p-2.5 rounded-lg border border-[#1E293B]">
-                    <span className="text-gray-500 block text-[10px]">URGENCY</span>
-                    <span className="font-bold text-purple-400">{extractedData.urgency || "HIGH"}</span>
-                  </div>
-                </div>
-
-                {extractedData.explanation && (
-                  <p className="text-xs text-gray-400 italic bg-[#121826] p-2.5 rounded-lg border border-[#1E293B]">
-                    "{extractedData.explanation}"
+                {voiceResult.urgency_breakdown.explanation && (
+                  <p className="text-[11px] text-gray-400 italic">
+                    "{voiceResult.urgency_breakdown.explanation}"
                   </p>
                 )}
-
-                <button
-                  onClick={() => {
-                    onApplyExtraction(extractedData);
-                    onClose();
-                  }}
-                  className="w-full py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-all shadow-md shadow-blue-600/30"
-                >
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Authorize & Pre-fill Incident Triage
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Section 2: Grounded NDMA Standard Operating Procedures */}
-          <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2">
-                <FileCheck className="w-3.5 h-3.5 text-blue-400" />
-                Grounded NDMA / SDMA SOP Advisor
-              </span>
-              <span className="text-[10px] text-gray-500 font-mono">Disaster Protocols</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-[11px] text-gray-400 mb-1">Incident Category</label>
-                <select
-                  value={sopCategory}
-                  onChange={(e) => setSopCategory(e.target.value)}
-                  className="w-full bg-[#121826] border border-[#1E293B] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
-                >
-                  <option value="RESCUE">RESCUE (Water/Structural)</option>
-                  <option value="MEDICAL">MEDICAL (Evac/Triaged)</option>
-                  <option value="FLOOD_HAZARD">FLOOD_HAZARD (Breach)</option>
-                  <option value="SHELTER">SHELTER (Relief Camp)</option>
-                  <option value="SUPPLY">SUPPLY (Water/Ration)</option>
-                </select>
               </div>
 
-              <div>
-                <label className="block text-[11px] text-gray-400 mb-1">Severity Tier</label>
-                <select
-                  value={sopSeverity}
-                  onChange={(e) => setSopSeverity(e.target.value)}
-                  className="w-full bg-[#121826] border border-[#1E293B] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
-                >
-                  <option value="CRITICAL">CRITICAL (Immediate Life Threat)</option>
-                  <option value="HIGH">HIGH (Urgent Assistance)</option>
-                  <option value="MEDIUM">MEDIUM (Stable/Monitored)</option>
-                  <option value="LOW">LOW (Informational)</option>
-                </select>
-              </div>
-            </div>
-
-            <button
-              onClick={handleFetchSop}
-              disabled={isLoadingSop}
-              className="w-full py-2.5 rounded-xl bg-[#121826] border border-[#1E293B] hover:bg-[#1E293B] text-gray-200 text-xs font-semibold flex items-center justify-center gap-2 transition-all"
-            >
-              <FileCheck className="w-3.5 h-3.5 text-blue-400" />
-              {isLoadingSop ? "Consulting Protocol Database..." : "Retrieve Grounded SOP Guidelines"}
-            </button>
-
-            {sopResult && (
-              <div className="mt-3 pt-3 border-t border-[#1E293B] space-y-3 text-xs">
+              {/* Official SOP Recommendation */}
+              <div className="bg-[#121826] p-3.5 rounded-xl border border-[#1E293B] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-white">{sopResult.title || "Disaster Response SOP"}</span>
-                  <span className="text-[10px] font-mono text-gray-400">{sopResult.protocol_id}</span>
+                  <span className="text-xs font-bold text-purple-300">
+                    {voiceResult.recommended_sop.title}
+                  </span>
+                  <span className="text-[10px] font-mono text-gray-500">
+                    {voiceResult.recommended_sop.sop_code}
+                  </span>
                 </div>
 
-                {sopResult.required_equipment && (
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-semibold text-gray-400 block uppercase">
-                      Mandatory Deployment Assets:
-                    </span>
-                    <ul className="list-disc list-inside text-gray-300 space-y-0.5 text-[11px]">
-                      {sopResult.required_equipment.map((eq: string, idx: number) => (
-                        <li key={idx}>{eq}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {sopResult.safety_checks && (
-                  <div className="space-y-1 pt-1">
-                    <span className="text-[11px] font-semibold text-gray-400 block uppercase">
-                      Life-Safety Verification Checklist:
-                    </span>
-                    <ul className="list-disc list-inside text-amber-300 space-y-0.5 text-[11px]">
-                      {sopResult.safety_checks.map((chk: string, idx: number) => (
-                        <li key={idx}>{chk}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                <div className="space-y-1">
+                  <span className="text-[10px] text-gray-400 uppercase font-semibold">
+                    Mandatory Checklist:
+                  </span>
+                  <ul className="space-y-1 text-[11px] text-gray-300">
+                    {voiceResult.recommended_sop.mandatory_checklist.slice(0, 3).map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#1E293B] bg-[#0B0F19]/80 flex justify-between items-center text-xs text-gray-500">
-          <span>AI outputs bounded by confidence scores</span>
-          <span>Zero Hallucination Tolerance</span>
+              {/* Apply to Active Incident Button */}
+              <button
+                onClick={() => {
+                  onApplyExtraction({
+                    category: voiceResult.extraction.category,
+                    severity: voiceResult.extraction.severity,
+                    people_at_risk: voiceResult.extraction.estimated_people,
+                  });
+                  onClose();
+                }}
+                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-600/30"
+              >
+                <FileCheck className="w-4 h-4" />
+                <span>Apply Extracted Values to Incident State</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -292,3 +273,4 @@ export function AIAdvisoryDrawer({
 }
 
 export default AIAdvisoryDrawer;
+

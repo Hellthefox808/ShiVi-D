@@ -71,6 +71,11 @@ async def create_task(
     db.add(task)
     await db.commit()
     await db.refresh(task)
+
+    # Invalidate dashboard summary cache
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
+
     return task
 
 
@@ -148,6 +153,11 @@ async def assign_task(
 
     await db.commit()
     await db.refresh(task)
+
+    # Invalidate dashboard summary cache
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
+
     return task
 
 
@@ -197,4 +207,9 @@ async def transition_task(
 
     await db.commit()
     await db.refresh(task)
+
+    # Invalidate dashboard summary cache
+    from app.modules.dashboard.router import IOCCacheManager
+    IOCCacheManager.invalidate(current_user.tenant_id)
+
     return task

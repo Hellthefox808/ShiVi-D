@@ -1,0 +1,23 @@
+[Unit]
+Description=ShiVi Common Operational Picture Web Service
+After=shivi-backend.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/shivi/frontend
+ExecStart=/usr/bin/node scripts/run-next.js start
+Restart=always
+RestartSec=5s
+Environment=PORT=3000
+Environment=NODE_ENV=production
+Environment=NEXT_TELEMETRY_DISABLED=1
+Environment=NEXT_PUBLIC_API_URL=http://localhost:8000
+
+# Sandboxing & Resource Protection
+LimitNOFILE=65536
+MemoryMax=2G
+CPUQuota=200%
+
+[Install]
+WantedBy=multi-user.target

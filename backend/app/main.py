@@ -29,6 +29,8 @@ async def lifespan(app: FastAPI):
     yield
 
 
+from starlette.middleware.gzip import GZipMiddleware
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
@@ -38,8 +40,27 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS configuration supporting frontend ports and configurable origins
-cors_origins_env = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:8000,*")
+import time
+from starlette.requests import Request
+from starlette.responses import Response
+
+@app.middleware("http")
+async def add_server_timing_and_process_time(request: Request, call_next):
+    start_time = time.perf_counter()
+    response: Response = await call_next(request)
+    process_time = (time.perf_counter() - start_time) * 1000.0
+    response.headers["X-Process-Time"] = f"{process_time:.2f}ms"
+    response.headers["Server-Timing"] = f"app;dur={process_time:.2f}"
+    return response
+
+# GZip compression for responses > 1KB (optimizes low-bandwidth mesh and satellite bursts)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# CORS configuration supporting frontend ports (including port 3001 fallback) and configurable origins
+cors_origins_env = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,http://localhost:8000,*",
+)
 cors_origins = [orig.strip() for orig in cors_origins_env.split(",") if orig.strip()]
 if "*" in cors_origins:
     cors_origins = ["*"]
