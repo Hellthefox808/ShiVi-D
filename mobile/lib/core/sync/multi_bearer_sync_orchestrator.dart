@@ -5,14 +5,23 @@ import '../network/bluetooth_mesh_framing.dart';
 import '../database/database.dart';
 import 'sync_repository.dart';
 
-/// Result of a multi-bearer synchronization cycle
+/// Briefing: Structured outcome report returned after completing a multi-bearer synchronization pass.
+/// Reason: Field agents and debug logs need transparent metrics on which physical radio transport was utilized,
+/// how many bytes were broadcast, whether transmission succeeded, and which peer handled the exchange.
 class MultiBearerSyncReport {
+  // Explanation: The specific physical or virtual network interface used for synchronization
   final NetworkBearerType bearerUsed;
+  // Explanation: True if the payload was successfully transmitted and acknowledged by the receiving node/server
   final bool isSuccess;
+  // Explanation: Number of discrete event envelopes synchronized in this pass
   final int eventsTransferred;
+  // Explanation: Total raw byte volume transmitted over the physical layer
   final int bytesTransferred;
+  // Explanation: Identifier of the remote peer device (for direct P2P/Mesh exchanges), or null for central cloud
   final String? peerId;
+  // Explanation: Human-readable failure description if synchronization failed
   final String? errorMessage;
+  // Explanation: UTC timestamp marking when the sync operation completed
   final DateTime timestamp;
 
   const MultiBearerSyncReport({
@@ -26,11 +35,18 @@ class MultiBearerSyncReport {
   });
 }
 
-/// Unified Orchestrator across Wi-Fi, Cellular, Wi-Fi Direct, and Bluetooth Mesh
+/// Briefing: Unified Multi-Radio Synchronization Orchestrator across Cloud, Wi-Fi Direct, BLE Mesh, and Satellite.
+/// Reason: In catastrophe zones, traditional cellular backhauls frequently fail. Responders must seamlessly
+/// hop across whatever radio connectivity exists—from high-bandwidth cloud APIs down to low-bandwidth Bluetooth gossip
+/// or satellite pings—without manual reconfiguration or data loss.
 class MultiBearerSyncOrchestrator {
+  // Explanation: Repository providing cloud HTTP batch sync methods
   final SyncRepository cloudSyncRepo;
+  // Explanation: Hardware bearer manager reporting current active radio link
   final NetworkBearerManager bearerManager;
+  // Explanation: Framing engine handling fragmentation and reassembly of BLE mesh packets
   final BleMeshFramingEngine bleEngine;
+  // Explanation: Hardware ID of the current device authoring transmissions
   final String localDeviceId;
 
   MultiBearerSyncOrchestrator({
@@ -40,7 +56,16 @@ class MultiBearerSyncOrchestrator {
     required this.localDeviceId,
   });
 
-  /// Executes synchronization over the best available bearer
+  /// Briefing: Selects the appropriate synchronization pathway based on the active network bearer and executes transfer.
+  /// Reason: Dynamically degrades from full HTTP cloud sync down to peer-to-peer or fragmented mesh gossip depending on available connectivity.
+  /// 
+  /// Explanation:
+  /// Inspects `bearerManager.activeBearer`:
+  /// - Wi-Fi / Cellular: Calls [_syncViaCloudHttp]
+  /// - Wi-Fi Direct: Calls [_syncViaWifiDirect]
+  /// - BLE Mesh: Calls [_syncViaBluetoothMesh]
+  /// - Satellite NTN: Calls [_syncViaSatelliteMinimal]
+  /// - Disconnected: Returns a failure report immediately without spinning up radios.
   Future<MultiBearerSyncReport> executeAutoSync({
     required List<LocalEventEntity> pendingEvents,
     Function(List<BleMeshChunk> chunks)? onBleTransmit,
@@ -75,7 +100,8 @@ class MultiBearerSyncOrchestrator {
     }
   }
 
-  /// Cloud HTTP Sync (Wi-Fi or Cellular)
+  /// Briefing: Synchronizes pending outbox events directly to the central cloud API via HTTPS.
+  /// Reason: Used when standard Internet infrastructure is operational, offering the highest throughput and lowest latency.
   Future<MultiBearerSyncReport> _syncViaCloudHttp(
     List<LocalEventEntity> events,
     NetworkBearerType bearer,
@@ -103,7 +129,9 @@ class MultiBearerSyncOrchestrator {
     );
   }
 
-  /// Wi-Fi Direct Peer-to-Peer Socket Sync
+  /// Briefing: Synchronizes event payloads across an ad-hoc local Wi-Fi Direct peer-to-peer link.
+  /// Reason: In local disaster command posts where cell towers are down, high-bandwidth local Wi-Fi hotspots
+  /// or Wi-Fi Direct sockets allow instant synchronization of rich data and high-res imagery between nearby responders.
   Future<MultiBearerSyncReport> _syncViaWifiDirect(
     List<LocalEventEntity> events,
     Function(String jsonPayload)? onWifiDirectTransmit,
@@ -150,7 +178,9 @@ class MultiBearerSyncOrchestrator {
     );
   }
 
-  /// Bluetooth Low Energy (BLE) Mesh Epidemic Gossip Sync
+  /// Briefing: Synchronizes event payloads using Bluetooth Low Energy (BLE) Epidemic Gossip.
+  /// Reason: When no Wi-Fi or cellular networks exist, phones exchange data opportunistically as responders walk past one another.
+  /// Because BLE characteristics have a tiny Maximum Transmission Unit (MTU), payloads are fragmented into CRC-validated chunks.
   Future<MultiBearerSyncReport> _syncViaBluetoothMesh(
     List<LocalEventEntity> events,
     Function(List<BleMeshChunk> chunks)? onBleTransmit,
@@ -201,7 +231,9 @@ class MultiBearerSyncOrchestrator {
     );
   }
 
-  /// Minimal Satellite Non-Terrestrial Network (NTN) Emergency Sync
+  /// Briefing: Transmits critical life-safety alerts over Non-Terrestrial Network (NTN) satellite links.
+  /// Reason: Direct-to-cell satellite connectivity has extreme bandwidth and message quota restrictions.
+  /// Only highest-priority life-safety events (like urgent incident discoveries) are transmitted; telemetry is dropped.
   Future<MultiBearerSyncReport> _syncViaSatelliteMinimal(
     List<LocalEventEntity> events,
   ) async {
@@ -216,7 +248,9 @@ class MultiBearerSyncOrchestrator {
     );
   }
 
-  /// Ingests a received BLE Mesh characteristic chunk from a peer node
+  /// Briefing: Ingests an incoming BLE characteristic chunk received over the air from a peer device.
+  /// Reason: Feeds fragmented packets into the [BleMeshFramingEngine]. Once all chunks arrive and pass CRC validation,
+  /// returns the reconstructed JSON payload for local database ingestion.
   String? receiveBleChunk(BleMeshChunk chunk) {
     return bleEngine.ingestChunk(chunk);
   }

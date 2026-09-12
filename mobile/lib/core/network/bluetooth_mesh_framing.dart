@@ -1,13 +1,21 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-/// Represents a single BLE characteristic transmission frame
+/// Briefing: Represents an atomic BLE characteristic transmission frame with compact binary header.
+/// Reason: Standard Bluetooth Low Energy characteristics have tight MTU limits (typically ~512 bytes on Android/iOS).
+/// To reliably broadcast multi-kilobyte disaster event envelopes, payloads must be sliced into small frames
+/// stamped with packet identification, chunk indexing, and overall payload checksums.
 class BleMeshChunk {
+  // Explanation: 16-bit identifier grouping chunks belonging to the same root transmission
   final int packetId;      // 0 - 65535
+  // Explanation: Total count of chunks comprising the complete payload (max 255 chunks)
   final int totalChunks;   // 1 - 255
+  // Explanation: Zero-based sequence position of this specific chunk
   final int chunkIndex;    // 0 - (totalChunks - 1)
-  final int crc32;         // 32-bit checksum of the FULL unfragmented payload
-  final Uint8List payload; // Raw chunk bytes
+  // Explanation: 32-bit CRC checksum computed over the UNFRAGMENTED root payload for integrity verification
+  final int crc32;
+  // Explanation: The raw binary payload slice carried by this characteristic frame
+  final Uint8List payload;
 
   const BleMeshChunk({
     required this.packetId,
@@ -17,7 +25,9 @@ class BleMeshChunk {
     required this.payload,
   });
 
-  /// Binary wire serialization: [packetId:2B][totalChunks:1B][chunkIndex:1B][crc32:4B][payload:NB]
+  /// Briefing: Serializes the frame into an 8-byte binary header followed by chunk payload.
+  /// Reason: Binary packing avoids JSON/hex string bloating over radio frequencies.
+  /// Layout: [packetId: 2B big-endian][totalChunks: 1B][chunkIndex: 1B][crc32: 4B big-endian][payload: NB]
   Uint8List toBytes() {
     final byteData = ByteData(8 + payload.length);
     byteData.setUint16(0, packetId, Endian.big);
@@ -30,7 +40,8 @@ class BleMeshChunk {
     return result;
   }
 
-  /// Binary wire deserialization
+  /// Briefing: Deserializes a raw binary characteristic byte buffer into a structured [BleMeshChunk].
+  /// Reason: Parses incoming radio packets received by the peripheral manager.
   static BleMeshChunk fromBytes(Uint8List bytes) {
     if (bytes.length < 8) {
       throw FormatException('BLE Mesh chunk corrupted: Length ${bytes.length} < 8 bytes header');
@@ -52,10 +63,13 @@ class BleMeshChunk {
   }
 }
 
-/// Standard IEEE 802.3 CRC-32 implementation for wire framing
+/// Briefing: Standard IEEE 802.3 CRC-32 lookup table implementation for wire framing.
+/// Reason: Radio transmissions over BLE are susceptible to atmospheric interference and bit flips.
+/// A 32-bit cyclical redundancy check guarantees that reassembled payloads match the sender's origin exactly.
 class Crc32Calculator {
   static final List<int> _table = _generateTable();
 
+  /// Briefing: Pre-computes the 256-entry lookup table for fast 32-bit polynomial division.
   static List<int> _generateTable() {
     final table = List<int>.filled(256, 0);
     for (int i = 0; i < 256; i++) {
@@ -72,6 +86,7 @@ class Crc32Calculator {
     return table;
   }
 
+  /// Briefing: Computes the CRC-32 checksum for an arbitrary byte array.
   static int compute(List<int> bytes) {
     int crc = 0xFFFFFFFF;
     for (final byte in bytes) {
@@ -82,12 +97,17 @@ class Crc32Calculator {
   }
 }
 
-/// Fragmenter & Assembler for BLE GATT Mesh Transmissions
+/// Briefing: Slicing and Reassembly Engine for asynchronous BLE GATT Mesh Transmissions.
+/// Reason: Responders walk in and out of BLE range dynamically. Chunks may arrive out of order
+/// or over multiple GATT read/write cycles. This engine tracks incomplete packets and emits
+/// complete UTF-8 strings once all slices are assembled and checksums validate.
 class BleMeshFramingEngine {
   static int _globalPacketCounter = 1;
-  static const int defaultMaxChunkPayload = 450; // Leave 8 bytes for header within 512 MTU
+  // Explanation: Default MTU chunk slice. 450 bytes payload + 8 bytes header = 458 bytes, safely within 512 MTU.
+  static const int defaultMaxChunkPayload = 450;
 
-  /// Fragments a large string/payload into BLE chunks
+  /// Briefing: Fragments an arbitrary text payload into a sequence of MTU-safe [BleMeshChunk]s.
+  /// Reason: Prepares disaster event envelopes for broadcast across BLE characteristics.
   static List<BleMeshChunk> fragmentPayload({
     required String rawContent,
     int maxChunkSize = defaultMaxChunkPayload,
@@ -129,10 +149,11 @@ class BleMeshFramingEngine {
     return chunks;
   }
 
-  /// Stateful Reassembler for collecting chunks from asynchronous BLE streams
+  // Explanation: Buffer cache mapping [packetId -> [chunkIndex -> chunk]]
   final Map<int, Map<int, BleMeshChunk>> _pendingPackets = {};
 
-  /// Ingests a chunk; returns the complete decoded string when all chunks arrive and CRC passes
+  /// Briefing: Ingests an incoming chunk; returns the complete decoded string when all chunks arrive and CRC passes.
+  /// Reason: Handles asynchronous, out-of-order BLE frame arrivals. Discards corrupted packets on CRC mismatch.
   String? ingestChunk(BleMeshChunk chunk) {
     _pendingPackets.putIfAbsent(chunk.packetId, () => {});
     _pendingPackets[chunk.packetId]![chunk.chunkIndex] = chunk;
@@ -164,6 +185,7 @@ class BleMeshFramingEngine {
     return null; // Awaiting remaining chunks
   }
 
+  /// Briefing: Purges all pending packet buffers to release memory.
   void clearPending() {
     _pendingPackets.clear();
   }

@@ -1,24 +1,42 @@
 import 'package:flutter/material.dart';
 
+/// Briefing: Operating display modes designed for extreme field conditions.
+/// Reason: Responders encounter harsh physical environments: blinding outdoor sun, pitch-black night missions,
+/// and low-battery emergencies where screen backlight power must be conserved.
 enum FieldVisualMode {
-  oledStealth, // True black #000000 for maximum battery preservation on OLED
-  directSunlight, // Ultra high-contrast pure white/black for outdoor glare
-  nightVision, // Deep red tactical mode to prevent dark-adaptation loss
+  // Explanation: True black #000000 background shuts off OLED subpixels completely to preserve battery over 48+ hour deployments.
+  oledStealth,
+  // Explanation: Maximum contrast light theme (pure white background, deep ink text) engineered to defeat glare in direct sunlight.
+  directSunlight,
+  // Explanation: Deep monochromatic red spectrum preventing dark-adaptation loss and rod-cell fatigue during night searches.
+  nightVision,
 }
 
+/// Briefing: Field Ergonomics and Life-Safety Theme System for ShiVi Mobile.
+/// Reason: Emergency UIs must be legible under stress, operational with thick hazmat/firefighting gloves,
+/// and instantly communicative of hazard states through deterministic color coding.
 class FieldTheme {
-  // Brand & Life-Safety Color Tokens
+  // Explanation: Critical life-safety emergency alert (immediate evacuation, active hazard)
   static const Color alertCritical = Color(0xFFEF4444); // Red
+  // Explanation: Warning condition requiring operator attention or caution
   static const Color alertWarning = Color(0xFFF59E0B);  // Amber
+  // Explanation: Nominal state, successful synchronization, or resolved task
   static const Color alertSuccess = Color(0xFF10B981);  // Green
+  // Explanation: Causal Safety Freeze active (concurrent conflict awaiting supervisor adjudication)
   static const Color alertFrozen = Color(0xFF8B5CF6);   // Purple (Conflict Safety Freeze)
+  // Explanation: Telemetry and sensor data indicator
   static const Color cyanAccent = Color(0xFF06B6D4);    // Cyan Telemetry
+  // Explanation: Primary incident command authority accent
   static const Color primaryBlue = Color(0xFF2563EB);   // Command Blue
 
   // Touch Target Sizing (Gloved Operation Standard)
+  // Explanation: Minimum tap target size in dp for gloved operation (ISO/OSHA safety standards)
   static const double minTouchTarget = 48.0;
+  // Explanation: Expanded tap target size for rapid-action buttons under high-stress field scenarios
   static const double largeTouchTarget = 56.0;
 
+  /// Briefing: Resolves and builds a full Flutter [ThemeData] tailored to the selected [FieldVisualMode].
+  /// Reason: Dynamically switches the UI palette at runtime when ambient sensors or user switches modes.
   static ThemeData getTheme(FieldVisualMode mode) {
     switch (mode) {
       case FieldVisualMode.oledStealth:
@@ -30,6 +48,8 @@ class FieldTheme {
     }
   }
 
+  /// Briefing: Assembles the OLED stealth theme with 0-nit true black backgrounds.
+  /// Reason: Preserves maximum mAh battery life on AMOLED/OLED displays during protracted rescue operations.
   static ThemeData _buildOledTheme() {
     return ThemeData(
       brightness: Brightness.dark,
@@ -63,6 +83,8 @@ class FieldTheme {
     );
   }
 
+  /// Briefing: Assembles high-contrast light theme for direct midday sunlight.
+  /// Reason: Mitigates screen reflection and glare when responders operate outdoors without shade.
   static ThemeData _buildSunlightTheme() {
     return ThemeData(
       brightness: Brightness.light,
@@ -98,6 +120,8 @@ class FieldTheme {
     );
   }
 
+  /// Briefing: Assembles tactical red-spectrum theme for night operations.
+  /// Reason: Preserves visual rhodopsin and scotopic vision, allowing personnel to look from screen to dark terrain without blindness.
   static ThemeData _buildNightVisionTheme() {
     return ThemeData(
       brightness: Brightness.dark,

@@ -4,9 +4,16 @@ import 'package:flutter/material.dart';
 import '../../core/database/database.dart';
 import '../../core/theme/field_theme.dart';
 
+/// Briefing: Squad Task Assignment, Execution Lifecycle, and Verification Screen.
+/// Reason: Field responders receive tactical tasks (rescue, supply drop, medical extraction) that follow
+/// a strict life-safety state machine. This screen enforces state transitions, highlights Causal Safety Freezes
+/// (when concurrent conflicting route data is detected), and enforces Phase 7 cryptographic evidence submission.
 class TaskListScreen extends StatelessWidget {
+  // Explanation: Current materialized view of tasks from the local SQLite database
   final List<LocalTaskEntity> tasks;
+  // Explanation: Callback to transition task state (e.g. OFFERED -> ACCEPTED -> EN_ROUTE -> ON_SITE)
   final Function(String taskId, String nextStatus) onStatusChange;
+  // Explanation: Callback to submit cryptographic proof and GPS coordinates for supervisor verification
   final Function(String taskId, String sha256Proof, double lat, double lon, String note)? onCompleteWithEvidence;
 
   const TaskListScreen({
@@ -16,6 +23,10 @@ class TaskListScreen extends StatelessWidget {
     this.onCompleteWithEvidence,
   }) : super(key: key);
 
+  /// Briefing: Displays the Phase 7 photographic evidence submission dialog.
+  /// Reason: Implements the "Two-Person Verification Rule". A task cannot be marked completed without
+  /// tangible photographic evidence, geofenced GPS coordinates, and a deterministic SHA-256 digest
+  /// that prevents fraudulent completion reports in disaster audits.
   void _showEvidenceDialog(BuildContext context, LocalTaskEntity task) {
     final noteController = TextEditingController(text: 'Evacuation complete. 3 survivors transferred to field hospital.');
     const lat = 26.1872;

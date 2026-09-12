@@ -2,11 +2,16 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../database/database.dart';
 
-/// ShiVi Mobile Client API Service
-/// Handles bidirectional HTTP communication with the FastAPI backend.
+/// Briefing: ShiVi Mobile Client REST API Service.
+/// Reason: Provides structured, authenticated HTTP communication between field devices and the central FastAPI hub.
+/// When network connectivity is operational, this service delivers cloud synchronization, evidence ingest,
+/// mission tasking, and telemetry reporting.
 class ApiService {
+  // Explanation: Dio HTTP client configured with aggressive connection and receive timeouts for field conditions
   final Dio dio;
+  // Explanation: Target backend host URL
   final String baseUrl;
+  // Explanation: Authorization bearer token for API authentication
   final String authToken;
 
   ApiService({
@@ -19,7 +24,8 @@ class ApiService {
           receiveTimeout: const Duration(seconds: 5),
         ));
 
-  /// Checks liveness connectivity to the backend
+  /// Briefing: Checks liveness and network path reachability to the backend server.
+  /// Reason: Used by connectivity monitors to distinguish between local Wi-Fi connection and actual internet uplink.
   Future<bool> checkHealth() async {
     try {
       final response = await dio.get('/health');
@@ -29,7 +35,12 @@ class ApiService {
     }
   }
 
-  /// Pushes a batch of outbox event envelopes to /v1/sync/push
+  /// Briefing: Pushes a batch of outbox event envelopes to `/v1/sync/push`.
+  /// Reason: Flushes local event-sourced state changes to the central database in an atomic bulk transaction.
+  /// 
+  /// Explanation:
+  /// Transforms each [LocalEventEntity] into JSON and posts to `/v1/sync/push`.
+  /// Returns `true` on HTTP 200 success, or `false` on network failure so items remain in the outbox.
   Future<bool> pushOutboxEvents({
     required String deviceId,
     required List<LocalEventEntity> events,
@@ -73,7 +84,8 @@ class ApiService {
     }
   }
 
-  /// Fetches IOC Dashboard Summary metrics
+  /// Briefing: Fetches live Incident Operations Center (IOC) dashboard metrics and system posture.
+  /// Reason: Populates the mobile tactical overview with real-time responder counts, open incidents, and network health.
   Future<Map<String, dynamic>?> fetchDashboardSummary() async {
     try {
       final response = await dio.get('/v1/dashboard/summary');
@@ -86,7 +98,8 @@ class ApiService {
     }
   }
 
-  /// Fetches active tasks for the responder
+  /// Briefing: Retrieves the list of active tasks assigned to field units.
+  /// Reason: Synchronizes task status, priorities, and assigned personnel from the central coordination server.
   Future<List<Map<String, dynamic>>> fetchTasks() async {
     try {
       final response = await dio.get('/v1/tasks');
@@ -99,7 +112,8 @@ class ApiService {
     }
   }
 
-  /// Uploads photographic evidence with SHA-256 digest (Phase 7)
+  /// Briefing: Uploads photographic or sensor verification evidence with cryptographic digest (Phase 7: Verification).
+  /// Reason: Validates task completion through immutable GPS-stamped SHA-256 evidence hashes.
   Future<bool> uploadEvidence({
     required String taskId,
     required String sha256Hash,
@@ -128,7 +142,8 @@ class ApiService {
     }
   }
 
-  /// Triggers the full 8-phase P0 demo workflow simulation
+  /// Briefing: Triggers the full 8-phase P0 demo workflow simulation on the backend.
+  /// Reason: Allows field testers to simulate an entire disaster response cycle with synthetic multi-node data.
   Future<Map<String, dynamic>?> triggerSimulation() async {
     try {
       final response = await dio.post('/v1/demo/simulate-workflow');

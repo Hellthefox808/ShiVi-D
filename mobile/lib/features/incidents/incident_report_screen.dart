@@ -5,7 +5,12 @@ import '../../core/theme/field_theme.dart';
 import '../../core/models/incident_model.dart';
 import '../../core/database/local_database_repository.dart';
 
+/// Briefing: Emergency Incident / SOS Capture Screen for Field Personnel.
+/// Reason: In life-and-death disaster scenarios, typing extensive descriptions on a touchscreen is impossible.
+/// This screen provides 1-tap tactical presets, simulated voice distress capture, automatic GPS coordinate pinning,
+/// and instant deterministic priority score calculation before durable outbox commitment.
 class IncidentReportScreen extends StatefulWidget {
+  // Explanation: Callback invoked with the newly assembled [IncidentModel] upon user confirmation
   final Function(IncidentModel incident) onSubmit;
 
   const IncidentReportScreen({Key? key, required this.onSubmit}) : super(key: key);
@@ -15,20 +20,29 @@ class IncidentReportScreen extends StatefulWidget {
 }
 
 class _IncidentReportScreenState extends State<IncidentReportScreen> {
+  // Explanation: Controller for incident headline/summary
   final _titleController = TextEditingController();
+  // Explanation: Controller for detailed notes or voice transcription
   final _descController = TextEditingController();
+  // Explanation: Selected disaster domain (RESCUE, MEDICAL, HAZARD, RELIEF)
   String _selectedCategory = 'RESCUE';
+  // Explanation: Selected threat severity level (CRITICAL, HIGH, MEDIUM, LOW)
   String _selectedSeverity = 'CRITICAL';
+  // Explanation: Count of endangered lives or casualties
   int _peopleAtRisk = 3;
+  // Explanation: Pinned GPS latitude coordinate
   double _lat = 26.1856;
+  // Explanation: Pinned GPS longitude coordinate
   double _lon = 91.7483;
+  // Explanation: True while assembling and persisting the incident model
   bool _isSubmitting = false;
 
-  // Voice recording simulation
+  // Voice recording simulation state
   bool _isRecordingVoice = false;
   int _recordingSeconds = 0;
   Timer? _recordingTimer;
 
+  // Standard emergency taxonomy choices
   final List<String> _categories = ['RESCUE', 'MEDICAL', 'HAZARD', 'RELIEF'];
   final List<String> _severities = ['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'];
 
@@ -40,6 +54,8 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
     super.dispose();
   }
 
+  /// Briefing: Computes deterministic priority score (0-100) using the triage formula in [LocalDatabaseRepository].
+  /// Reason: Instantly reflects priority changes on screen as responders tweak category, severity, or casualty counts.
   double get _currentPriorityScore {
     return LocalDatabaseRepository.calculatePriorityScore(
       category: _selectedCategory,
@@ -48,6 +64,8 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
     );
   }
 
+  /// Briefing: Populates form fields with one-touch tactical presets.
+  /// Reason: Minimizes cognitive load and screen time during urgent emergencies (e.g. immediate evacuation).
   void _applyQuickPreset(String title, String category, String severity, int people) {
     setState(() {
       _titleController.text = title;
@@ -57,6 +75,8 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
     });
   }
 
+  /// Briefing: Toggles voice distress audio capture simulation.
+  /// Reason: Allows responders to record verbal distress notes hands-free, appending duration notes to the description.
   void _toggleVoiceRecording() {
     if (_isRecordingVoice) {
       _recordingTimer?.cancel();
@@ -77,6 +97,8 @@ class _IncidentReportScreenState extends State<IncidentReportScreen> {
     }
   }
 
+  /// Briefing: Validates input fields, computes priority, constructs [IncidentModel], and triggers [onSubmit].
+  /// Reason: Guarantees that empty titles are rejected and all incident envelopes contain complete metadata.
   void _handleSubmit() {
     if (_titleController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(

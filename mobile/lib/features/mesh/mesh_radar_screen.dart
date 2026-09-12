@@ -5,9 +5,17 @@ import '../../core/database/database.dart';
 import '../../core/database/local_database_repository.dart';
 import '../../core/network/api_service.dart';
 
+/// Briefing: Mesh Radar & Opportunistic Peer-to-Peer Synchronization Screen.
+/// Reason: When infrastructure is wiped out, responders form ad-hoc dynamic wireless networks.
+/// This screen provides real-time visibility into discovered peer nodes (BLE, Wi-Fi Direct),
+/// supports 1-tap P2P mesh bump sync, generates 140-byte compact satellite burst strings for non-terrestrial links,
+/// and allows inspecting raw outbox event envelopes and causal version vectors.
 class MeshRadarScreen extends StatefulWidget {
+  // Explanation: Offline SQLite database repository managing outbox and event logs
   final LocalDatabaseRepository repository;
+  // Explanation: REST API client used for uplink push when connectivity is available
   final ApiService apiService;
+  // Explanation: Callback notifying parent widgets to refresh badge counters and state
   final VoidCallback onStateChanged;
 
   const MeshRadarScreen({
@@ -22,10 +30,14 @@ class MeshRadarScreen extends StatefulWidget {
 }
 
 class _MeshRadarScreenState extends State<MeshRadarScreen> {
+  // Explanation: True while pushing outbox to cloud HTTP endpoint
   bool _isSyncing = false;
+  // Explanation: True while transferring BLE gossip packets to a nearby peer
   bool _isP2pBumping = false;
+  // Explanation: Currently selected hardware network transport
   String _activeBearer = '4G Cellular (Primary)';
 
+  // Mock list representing nearby discovered peer devices in the disaster area
   final List<Map<String, dynamic>> _mockPeers = [
     {
       'id': 'NODE-SDRF-02',
@@ -56,6 +68,10 @@ class _MeshRadarScreenState extends State<MeshRadarScreen> {
     },
   ];
 
+  /// Briefing: Compresses the most critical local incident into an ultra-compact 140-byte satellite burst.
+  /// Reason: Commercial direct-to-satellite messaging (Iridium, Garmin inReach, 3GPP Rel-17 NTN) charges per byte
+  /// and limits transmissions to 140 bytes. This method formats the distress coordinates, casualty count,
+  /// and an 8-character hex CRC-32 checksum to fit strictly within satellite hardware packet envelopes.
   void _handleGenerateSatelliteBurst() {
     final incident = widget.repository.incidents.isNotEmpty
         ? widget.repository.incidents.first

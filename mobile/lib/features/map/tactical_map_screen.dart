@@ -3,8 +3,14 @@ import 'package:flutter/material.dart';
 import '../../core/theme/field_theme.dart';
 import '../../core/database/database.dart';
 
+/// Briefing: Offline Tactical GIS Radar & Inundation Map Screen.
+/// Reason: Responders cannot rely on Google Maps or Mapbox when cell towers collapse and internet is cut.
+/// This screen renders vector radar maps entirely offline using local coordinate math, custom canvas painters,
+/// dynamic flood water inundation polygons, blocked bridge alerts (Route-88), and safe detour routes.
 class TacticalMapScreen extends StatefulWidget {
+  // Explanation: Materialized incidents retrieved from local database
   final List<LocalIncidentEntity> incidents;
+  // Explanation: Optional callback when a tactical incident pin is tapped
   final Function(LocalIncidentEntity)? onIncidentSelected;
 
   const TacticalMapScreen({
@@ -19,13 +25,20 @@ class TacticalMapScreen extends StatefulWidget {
 
 class _TacticalMapScreenState extends State<TacticalMapScreen>
     with SingleTickerProviderStateMixin {
+  // Explanation: Animation controller driving the pulsing radar beacon effect
   late AnimationController _pulseController;
+  // Explanation: Selected disaster geographical sector
   String _selectedSector = 'Sector 4 - Guwahati Basin';
+  // Explanation: Layer toggle: Flood inundation area
   bool _showFloodOverlay = true;
+  // Explanation: Layer toggle: Submerged/blocked road infrastructure
   bool _showBlockedRoutes = true;
+  // Explanation: Layer toggle: Verified bypass/detour paths
   bool _showDetourPaths = true;
+  // Explanation: Layer toggle: Distress incidents
   bool _showIncidents = true;
 
+  // Explanation: Currently inspected incident in bottom sheet
   LocalIncidentEntity? _activeIncident;
 
   @override
@@ -43,6 +56,8 @@ class _TacticalMapScreenState extends State<TacticalMapScreen>
     super.dispose();
   }
 
+  /// Briefing: Displays bottom modal sheet with full incident telemetry and detour navigation action.
+  /// Reason: Allows responder to inspect casualty figures and commit to a mission without leaving map context.
   void _showIncidentDetails(LocalIncidentEntity incident) {
     setState(() => _activeIncident = incident);
     showModalBottomSheet(

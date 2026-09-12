@@ -10,8 +10,14 @@ import '../../core/database/database.dart';
 import '../../core/database/local_database_repository.dart';
 import '../../core/network/api_service.dart';
 
+/// Briefing: Primary Command & Control Dashboard for ShiVi Field Responders.
+/// Reason: Responders in stressful disaster scenes require an uncluttered, high-contrast dashboard
+/// that immediately displays pending outbox backlog, battery reserve, network connection state,
+/// and fast 1-tap access to emergency reporting, task management, tactical mapping, and peer mesh syncing.
 class FieldDashboardScreen extends StatefulWidget {
+  // Explanation: Callback invoked when the user selects a different ambient visual mode (OLED, Sunlight, Night Vision)
   final Function(FieldVisualMode mode) onThemeChanged;
+  // Explanation: The currently active visual display mode
   final FieldVisualMode currentThemeMode;
 
   const FieldDashboardScreen({
@@ -25,21 +31,31 @@ class FieldDashboardScreen extends StatefulWidget {
 }
 
 class _FieldDashboardScreenState extends State<FieldDashboardScreen> {
+  // Explanation: Active tab index for the bottom navigation bar (0: Tasks, 1: Radar, 2: Mesh, 3: Audit)
   int _currentIndex = 0;
+  // Explanation: Simulated or queried battery level percentage for display in the tactical status pill
   final int _batteryPercent = 88;
+  // Explanation: True if upstream cloud backend is reachable
   bool _isOnline = true;
+  // Explanation: True while an active HTTP or mesh sync flush is in progress
   bool _isSyncing = false;
 
+  // Explanation: Local offline-first SQLite database repository
   late final LocalDatabaseRepository _repository;
+  // Explanation: REST API client used for syncing and simulation
   late final ApiService _apiService;
 
   @override
   void initState() {
     super.initState();
+    // Initialize repository with a deterministic field hardware node identifier
     _repository = LocalDatabaseRepository(deviceId: 'NODE-SDRF-01');
     _apiService = ApiService();
   }
 
+  /// Briefing: Flushes pending local outbox events to the central backend.
+  /// Reason: Allows manual on-demand sync when responders regain intermittent connectivity.
+  /// Notifies the user via feedback SnackBar detailing how many mutations were accepted.
   void _handleSyncOutbox() async {
     setState(() => _isSyncing = true);
 
@@ -69,6 +85,8 @@ class _FieldDashboardScreenState extends State<FieldDashboardScreen> {
     }
   }
 
+  /// Briefing: Triggers backend end-to-end 8-phase disaster response workflow simulation.
+  /// Reason: Used during drills and demonstrations to populate live multi-node conflict and triage scenarios.
   void _handleSimulationTrigger() async {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -238,6 +256,7 @@ class _FieldDashboardScreenState extends State<FieldDashboardScreen> {
     );
   }
 
+  /// Briefing: Selects the primary screen body corresponding to the active navigation tab.
   Widget _buildBody() {
     switch (_currentIndex) {
       case 0:
@@ -278,6 +297,5 @@ class _FieldDashboardScreenState extends State<FieldDashboardScreen> {
         return Container();
     }
   }
-
 }
 

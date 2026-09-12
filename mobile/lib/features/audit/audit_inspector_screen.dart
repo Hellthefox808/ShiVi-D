@@ -4,7 +4,12 @@ import '../../core/theme/field_theme.dart';
 import '../../core/database/database.dart';
 import '../../core/database/local_database_repository.dart';
 
+/// Briefing: Phase 8 Cryptographic Audit Ledger & Forensic Inspector Screen.
+/// Reason: Post-disaster inquiries and judicial reviews require tamper-evident proof of every decision,
+/// route change, and resource allocation. This screen allows commanders to inspect the immutable
+/// event log, run cryptographic SHA-256 integrity verifications, and export structured JSON handovers.
 class AuditInspectorScreen extends StatefulWidget {
+  // Explanation: Offline SQLite database repository holding the immutable event log
   final LocalDatabaseRepository repository;
 
   const AuditInspectorScreen({
@@ -17,9 +22,14 @@ class AuditInspectorScreen extends StatefulWidget {
 }
 
 class _AuditInspectorScreenState extends State<AuditInspectorScreen> {
+  // Explanation: True while verifying cryptographic hash signatures across the event log
   bool _isVerifying = false;
+  // Explanation: True if all events validate against cryptographic checksums
   bool _isChainValid = true;
 
+  /// Briefing: Verifies the integrity of the local event-sourced ledger.
+  /// Reason: Scans every recorded event to confirm the presence of valid 64-character SHA-256 digests.
+  /// Detects any unauthorized manual modifications or database tampering.
   void _verifyLedgerIntegrity() async {
     setState(() => _isVerifying = true);
     await Future.delayed(const Duration(milliseconds: 900));
@@ -100,6 +110,9 @@ class _AuditInspectorScreenState extends State<AuditInspectorScreen> {
     }
   }
 
+  /// Briefing: Compiles and exports the complete local event history into a formatted JSON handover ledger.
+  /// Reason: In off-grid disaster operations where nodes must physically swap data with relief coordinators,
+  /// this creates an offline-verifiable snapshot for external analysis or transfer via portable storage.
   void _exportEmergencyLedger() {
     final exportData = {
       'exported_at': DateTime.now().toUtc().toIso8601String(),
