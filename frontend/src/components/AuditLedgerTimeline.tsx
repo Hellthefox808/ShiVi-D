@@ -1,19 +1,55 @@
+/**
+ * ShiVi Operations Console - Immutable Compliance Audit Ledger Timeline
+ * ======================================================================
+ *
+ * Briefing:
+ *     Audit log viewer component (`AuditLedgerTimeline`) rendering the chronological sequence
+ *     of tamper-evident operational events and supervisor adjudications.
+ *     Features:
+ *     - Visual badge indicators categorizing events (Conflict freezes, Mission completions, System updates).
+ *     - Actor identification and role tags ('INCIDENT_COMMANDER', 'FIELD_RESPONDER', 'SYSTEM').
+ *     - Entity target classifications and target entity UUIDs.
+ *     - Formatted human operational rationales recorded during critical overrides.
+ *     - Precise UTC timestamps formatted to operator locale.
+ *
+ * Reason:
+ *     Post-disaster inquiries and judicial reviews require mathematical proof of who made which decision,
+ *     at what exact second, and based on what field evidence. The AuditLedgerTimeline exposes this
+ *     hash-chained compliance record directly to incident commanders in real time.
+ */
+
 "use client";
 
 import React from "react";
 import { ShieldCheck, Clock, User, CheckCircle2, Lock } from "lucide-react";
 import { AuditRecordItem } from "../services/api";
 
+/**
+ * Briefing:
+ *     Component properties providing audit ledger records.
+ */
 interface AuditLedgerTimelineProps {
+  // Explanation: Chronological array of audit entries fetched from /v1/audit/timeline.
   logs: AuditRecordItem[];
 }
 
+/**
+ * Briefing:
+ *     Audit Ledger Timeline component.
+ *
+ * Reason:
+ *     Renders an auditable list of chronological mission actions, providing instant verification
+ *     that state transitions adhere to legal standards and zero-overwrite safety rules.
+ *
+ * @param props AuditLedgerTimelineProps containing logs array.
+ */
 export function AuditLedgerTimeline({ logs }: AuditLedgerTimelineProps) {
   return (
-    <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-6 space-y-6 shadow-xl">
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#1E293B]">
+    <div className="bg-[#111318] border border-[#222634] rounded-2xl p-6 space-y-6 shadow-xl">
+      {/* Header Banner */}
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#222634]">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
@@ -26,11 +62,12 @@ export function AuditLedgerTimeline({ logs }: AuditLedgerTimelineProps) {
           </div>
         </div>
 
-        <span className="text-xs font-mono px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 rounded-full flex items-center gap-1.5">
+        <span className="text-xs font-mono px-3 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-full flex items-center gap-1.5">
           <CheckCircle2 className="w-3.5 h-3.5" /> 100% CRYPTOGRAPHIC INTEGRITY
         </span>
       </div>
 
+      {/* Audit Log Entries List */}
       <div className="space-y-3">
         {logs.length === 0 ? (
           <p className="text-xs text-gray-500 py-8 text-center">No audit records registered yet.</p>
@@ -41,7 +78,7 @@ export function AuditLedgerTimeline({ logs }: AuditLedgerTimelineProps) {
             return (
               <div
                 key={log.id || idx}
-                className="bg-[#0B0F19] border border-[#1E293B] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-gray-700 transition-all"
+                className="bg-[#08090C] border border-[#222634] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-gray-700 transition-all"
               >
                 <div className="flex items-start gap-3">
                   <div
@@ -50,7 +87,7 @@ export function AuditLedgerTimeline({ logs }: AuditLedgerTimelineProps) {
                         ? "bg-red-500/10 text-red-400 border border-red-500/30"
                         : isVerifiedAction
                         ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                        : "bg-blue-500/10 text-blue-400 border border-blue-500/30"
+                        : "bg-amber-500/10 text-amber-400 border border-amber-500/30"
                     }`}
                   >
                     {isConflictAction ? <Lock className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
@@ -59,7 +96,7 @@ export function AuditLedgerTimeline({ logs }: AuditLedgerTimelineProps) {
                   <div className="space-y-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-xs font-mono font-bold text-white">{log.action}</span>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#121826] text-gray-300 border border-[#1E293B]">
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#111318] text-gray-300 border border-[#222634]">
                         {log.actor_role}
                       </span>
                       <span className="text-[10px] text-gray-500 font-mono">
@@ -67,7 +104,7 @@ export function AuditLedgerTimeline({ logs }: AuditLedgerTimelineProps) {
                       </span>
                     </div>
                     {log.reason && (
-                      <p className="text-xs text-gray-300 italic bg-[#121826]/60 p-2 rounded-lg border border-[#1E293B]/60">
+                      <p className="text-xs text-gray-300 italic bg-[#111318]/60 p-2 rounded-lg border border-[#222634]/60">
                         "{log.reason}"
                       </p>
                     )}

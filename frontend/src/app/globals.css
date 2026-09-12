@@ -1,10 +1,30 @@
+/**
+ * ShiVi Global Design Tokens & Tactical Stylesheet
+ * ==================================================
+ *
+ * Briefing:
+ *     Global stylesheet configuring Tailwind CSS directives, core CSS custom properties
+ *     (design tokens), typography baseline, and low-profile dark-mode scrollbars.
+ *
+ * Reason:
+ *     Tactical web consoles require high data density without visual distraction.
+ *     Thin scrollbars and a pitch-black background palette (#0B0F19) keep user focus
+ *     on high-contrast alert badges (red, amber, cyan) and map telemetry layers.
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Tactical color variables for the emergency operations theme */
 :root {
-  --background: #0B0F19;
+  /* Explanation: Pitch carbon background matching field tactical console */
+  --background: #08090C;
+  /* Explanation: Crisp high-contrast off-white for legible typography */
   --foreground: #F8FAFC;
+  --accent: #F59E0B;
+  --card: #111318;
+  --border: #222634;
 }
 
 body {
@@ -14,18 +34,18 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom scrollbar for dark mode operations console */
+/* Custom low-profile scrollbar designed for high-density dark-mode operations feeds */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: #08090C;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1E293B;
+  background: #222634;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #374151;
 }

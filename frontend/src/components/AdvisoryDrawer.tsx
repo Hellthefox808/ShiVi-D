@@ -1,3 +1,25 @@
+/**
+ * ShiVi Operations Console - Governed Multimodal AI Advisory Studio
+ * ===================================================================
+ *
+ * Briefing:
+ *     Slide-out drawer component (`AIAdvisoryDrawer`) implementing the ShiVi
+ *     "Governed Advisory AI" invariant (Invariant 5).
+ *     Provides interactive AI-assisted triage capabilities:
+ *     - Multilingual emergency dispatch presets (Hindi, Assamese, English) matching regional disaster patterns.
+ *     - Simulated audio waveform visualizer and speech-to-text transcription engine.
+ *     - Structured disaster entity extraction (hazard category, severity, people at risk).
+ *     - Explainable multi-factor priority score calculation ($P \in [0, 100]$).
+ *     - NDMA Standard Operating Procedure (SOP) retrieval with mandatory safety checklists.
+ *     - Explicit human commander authorization before any extracted values can be applied to canonical state.
+ *
+ * Reason:
+ *     Autonomous AI decision-making without supervision in life-safety environments creates legal and ethical
+ *     catastrophes (hallucinated boat assignments, miscategorized casualties). In ShiVi, AI is strictly advisory:
+ *     models propose extractions and SOP checklists, but only certified human incident commanders can authorize
+ *     and apply the results to the mission database.
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -18,27 +40,51 @@ import {
 } from "lucide-react";
 import api, { VoiceTriageResponse } from "../services/api";
 
+/**
+ * Briefing:
+ *     Component properties controlling drawer visibility and callback actions.
+ */
 interface AIAdvisoryDrawerProps {
+  // Explanation: True if the slide-out drawer is open.
   isOpen: boolean;
+  // Explanation: Handler to close the drawer.
   onClose: () => void;
+  // Explanation: Callback fired when operator authorizes and applies extracted values to the active incident.
   onApplyExtraction: (extracted: any) => void;
 }
 
+/**
+ * Briefing:
+ *     Governed Multimodal AI Advisory Drawer component.
+ *
+ * Reason:
+ *     Provides commanders with an on-demand AI copilot to parse messy incoming voice and text reports,
+ *     compute explainable urgency ratings, and pull NDMA SOP checklists without relinquishing control.
+ *
+ * @param props AIAdvisoryDrawerProps configuration.
+ */
 export function AIAdvisoryDrawer({
   isOpen,
   onClose,
   onApplyExtraction,
 }: AIAdvisoryDrawerProps) {
+  // Explanation: Selected language code for speech transcription ('hi', 'as', 'en').
   const [selectedLanguage, setSelectedLanguage] = useState<"hi" | "as" | "en">("hi");
+  // Explanation: Raw input field transcript or distress message text.
   const [inputText, setInputText] = useState<string>(
     "वार्ड 4 में ब्रह्मपुत्र का पानी घरों में घुस रहा है, 5 लोग छत पर फंसे हैं, तुरंत मोटरबोट भेजो!"
   );
+  // Explanation: True while backend AI model is transcribing and extracting entities.
   const [isVoiceProcessing, setIsVoiceProcessing] = useState<boolean>(false);
+  // Explanation: Structured triage response returned by /v1/ai/voice-triage.
   const [voiceResult, setVoiceResult] = useState<VoiceTriageResponse | null>(null);
+  // Explanation: Visual animation state for the simulated audio waveform bars.
   const [isPlayingAudio, setIsPlayingAudio] = useState<boolean>(false);
 
+  // Explanation: Return null if drawer is closed to minimize DOM overhead.
   if (!isOpen) return null;
 
+  // Explanation: Realistic regional disaster distress report presets.
   const samplePresets = {
     hi: {
       label: "Hindi Audio",
@@ -54,11 +100,25 @@ export function AIAdvisoryDrawer({
     },
   };
 
+  /**
+   * Briefing:
+   *     Switches active language preset and populates sample distress transcript.
+   *
+   * @param lang Language identifier ('hi', 'as', 'en').
+   */
   const handleSelectPreset = (lang: "hi" | "as" | "en") => {
     setSelectedLanguage(lang);
     setInputText(samplePresets[lang].text);
   };
 
+  /**
+   * Briefing:
+   *     Dispatches input text to backend multimodal voice triage endpoint.
+   *
+   * Reason:
+   *     Triggers transcription animation, queries /v1/ai/voice-triage, and stores
+   *     structured extraction, urgency breakdown, and NDMA SOP recommendations in local state.
+   */
   const handleRunVoiceTriage = async () => {
     setIsVoiceProcessing(true);
     setIsPlayingAudio(true);
@@ -76,17 +136,17 @@ export function AIAdvisoryDrawer({
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#121826] border-l border-[#1E293B] w-full max-w-xl h-full flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-right duration-300">
+      <div className="bg-[#111318] border-l border-[#222634] w-full max-w-xl h-full flex flex-col shadow-2xl overflow-hidden animate-in slide-in-from-right duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E293B] bg-[#0B0F19]/80">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#222634] bg-[#08090C]/80">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
               <h3 className="font-bold text-white text-base flex items-center gap-2">
                 Governed Multimodal AI Advisory Studio
-                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
                   INVARIANT 5
                 </span>
               </h3>
@@ -97,7 +157,7 @@ export function AIAdvisoryDrawer({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#1E293B] transition-all"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#222634] transition-all"
           >
             <X className="w-5 h-5" />
           </button>
@@ -106,12 +166,12 @@ export function AIAdvisoryDrawer({
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
           {/* Audio Waveform Simulator */}
-          <div className="bg-[#0B0F19] border border-[#1E293B] rounded-2xl p-5 space-y-4">
+          <div className="bg-[#08090C] border border-[#222634] rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2">
-                <Mic className="w-4 h-4 text-purple-400" /> Multilingual Voice Emergency Dispatch
+                <Mic className="w-4 h-4 text-amber-400" /> Multilingual Voice Emergency Dispatch
               </span>
-              <span className="text-[10px] font-mono text-purple-400">WHISPER-V3 COMPATIBLE</span>
+              <span className="text-[10px] font-mono text-amber-400">WHISPER-V3 COMPATIBLE</span>
             </div>
 
             {/* Language Preset Tabs */}
@@ -122,8 +182,8 @@ export function AIAdvisoryDrawer({
                   onClick={() => handleSelectPreset(lang)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                     selectedLanguage === lang
-                      ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-600/30"
-                      : "bg-[#121826] border-[#1E293B] text-gray-400 hover:text-white"
+                      ? "bg-amber-500 border-amber-400 text-black font-bold shadow-lg shadow-amber-500/20"
+                      : "bg-[#111318] border-[#222634] text-gray-400 hover:text-white"
                   }`}
                 >
                   {samplePresets[lang].label}
@@ -132,10 +192,10 @@ export function AIAdvisoryDrawer({
             </div>
 
             {/* Audio Wave Graphic */}
-            <div className="bg-[#121826] border border-[#1E293B] rounded-xl p-3 flex items-center gap-3">
+            <div className="bg-[#111318] border border-[#222634] rounded-xl p-3 flex items-center gap-3">
               <div
                 className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all ${
-                  isPlayingAudio ? "bg-purple-600 text-white animate-pulse" : "bg-purple-500/20 text-purple-400"
+                  isPlayingAudio ? "bg-amber-500 text-black animate-pulse font-bold" : "bg-amber-500/20 text-amber-400"
                 }`}
               >
                 <Volume2 className="w-5 h-5" />
@@ -148,7 +208,7 @@ export function AIAdvisoryDrawer({
                     <div
                       key={i}
                       className={`flex-1 rounded-full transition-all ${
-                        isPlayingAudio ? "bg-purple-400 animate-pulse" : "bg-purple-500/30"
+                        isPlayingAudio ? "bg-amber-400 animate-pulse" : "bg-amber-500/30"
                       }`}
                       style={{ height: `${isPlayingAudio ? Math.max(20, (h * Math.random() + 20)) : h}%` }}
                     />
@@ -162,19 +222,19 @@ export function AIAdvisoryDrawer({
               rows={3}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="w-full bg-[#121826] border border-[#1E293B] rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-all font-mono"
+              className="w-full bg-[#111318] border border-[#222634] rounded-xl p-3 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-all font-mono"
             />
 
             {/* Action Button */}
             <button
               onClick={handleRunVoiceTriage}
               disabled={isVoiceProcessing || !inputText.trim()}
-              className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-purple-600/30 disabled:opacity-50"
+              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50"
             >
               {isVoiceProcessing ? (
                 <RotateCcw className="w-4 h-4 animate-spin" />
               ) : (
-                <Play className="w-4 h-4" />
+                <Play className="w-4 h-4 fill-current" />
               )}
               <span>Transcribe & Extract Structured Triage</span>
             </button>
@@ -182,7 +242,7 @@ export function AIAdvisoryDrawer({
 
           {/* Structured Output & Explainable Priority Display */}
           {voiceResult && (
-            <div className="bg-[#0B0F19] border border-purple-500/30 rounded-2xl p-5 space-y-4 animate-in fade-in duration-200">
+            <div className="bg-[#08090C] border border-amber-500/30 rounded-2xl p-5 space-y-4 animate-in fade-in duration-200">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider font-mono flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4" /> Advisory Triage Result
@@ -194,22 +254,22 @@ export function AIAdvisoryDrawer({
 
               {/* Extraction Metrics */}
               <div className="grid grid-cols-3 gap-2">
-                <div className="bg-[#121826] p-2.5 rounded-xl border border-[#1E293B]">
+                <div className="bg-[#111318] p-2.5 rounded-xl border border-[#222634]">
                   <span className="text-[10px] text-gray-400 uppercase block">Category</span>
                   <span className="text-xs font-bold text-white">{voiceResult.extraction.category}</span>
                 </div>
-                <div className="bg-[#121826] p-2.5 rounded-xl border border-[#1E293B]">
+                <div className="bg-[#111318] p-2.5 rounded-xl border border-[#222634]">
                   <span className="text-[10px] text-gray-400 uppercase block">Severity</span>
                   <span className="text-xs font-bold text-red-400">{voiceResult.extraction.severity}</span>
                 </div>
-                <div className="bg-[#121826] p-2.5 rounded-xl border border-[#1E293B]">
+                <div className="bg-[#111318] p-2.5 rounded-xl border border-[#222634]">
                   <span className="text-[10px] text-gray-400 uppercase block">People at Risk</span>
                   <span className="text-xs font-bold text-amber-400">{voiceResult.extraction.estimated_people}</span>
                 </div>
               </div>
 
               {/* Explainable Priority Score */}
-              <div className="bg-[#121826] p-3.5 rounded-xl border border-amber-500/30 space-y-2">
+              <div className="bg-[#111318] p-3.5 rounded-xl border border-amber-500/30 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-gray-300">Explainable Multi-Factor Priority</span>
                   <span className="text-sm font-black text-amber-400">
@@ -224,9 +284,9 @@ export function AIAdvisoryDrawer({
               </div>
 
               {/* Official SOP Recommendation */}
-              <div className="bg-[#121826] p-3.5 rounded-xl border border-[#1E293B] space-y-2">
+              <div className="bg-[#111318] p-3.5 rounded-xl border border-[#222634] space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-purple-300">
+                  <span className="text-xs font-bold text-amber-300">
                     {voiceResult.recommended_sop.title}
                   </span>
                   <span className="text-[10px] font-mono text-gray-500">
@@ -273,4 +333,3 @@ export function AIAdvisoryDrawer({
 }
 
 export default AIAdvisoryDrawer;
-

@@ -1,3 +1,25 @@
+/**
+ * ShiVi Operations Console - Common Operational Picture (COP) Tactical Map
+ * ========================================================================
+ *
+ * Briefing:
+ *     Vector-based tactical radar and geospatial situational map component (`TacticalCopMap`).
+ *     Projects WGS84 geographic coordinates (EPSG:4326) onto an interactive SVG viewport
+ *     (1000x650 coordinate canvas) centered on Guwahati Sector 4 disaster operations.
+ *     Renders multiple toggleable tactical layers:
+ *     - Brahmaputra river waterway geometry and live flood surge inundation polygon.
+ *     - Evacuation and transit corridors, prominently highlighting safety-frozen routes (e.g. Route-88).
+ *     - Critical civilian infrastructure (hospitals, relief shelters, boat ramps).
+ *     - Real-time field responder telemetry (SDRF rescue boats, aerial reconnaissance drones).
+ *     - Pulsing incident radar pins colored by severity with explainable priority tags.
+ *
+ * Reason:
+ *     In disaster scenarios, third-party vector tile services (Mapbox, Google Maps) fail
+ *     during cellular blackouts or when bandwidth drops to 1-2 kbps over tactical mesh radios.
+ *     An embedded, zero-dependency SVG tactical radar guarantees instant rendering, offline durability,
+ *     and clear visual distinction of life-safety causal freezes without relying on external internet tiles.
+ */
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -20,14 +42,33 @@ import {
 } from "lucide-react";
 import { IncidentItem, TacticalMapData } from "../services/api";
 
+/**
+ * Briefing:
+ *     Component properties configuring tactical radar display and event callbacks.
+ */
 interface TacticalCopMapProps {
+  // Explanation: List of active disaster incidents to plot as radar pins.
   incidents: IncidentItem[];
+  // Explanation: UUID of currently highlighted incident in the COP feed.
   selectedIncidentId: string | null;
+  // Explanation: Callback fired when operator clicks an incident pin on the radar.
   onSelectIncident: (id: string) => void;
+  // Explanation: Dynamic spatial and hydrological layers from backend /v1/dashboard/map-layers.
   mapData?: TacticalMapData | null;
+  // Explanation: Invariant flag indicating whether Route-88 is currently under causal safety freeze.
   isRouteFrozen?: boolean;
 }
 
+/**
+ * Briefing:
+ *     Interactive SVG Tactical COP Map component.
+ *
+ * Reason:
+ *     Renders a high-contrast dark-mode tactical overview with pan, zoom, and layer toggling,
+ *     ensuring rapid situational awareness under extreme operational stress.
+ *
+ * @param props TacticalCopMapProps configuration and callbacks.
+ */
 export default function TacticalCopMap({
   incidents,
   selectedIncidentId,
@@ -35,11 +76,17 @@ export default function TacticalCopMap({
   mapData,
   isRouteFrozen = true,
 }: TacticalCopMapProps) {
+  // Explanation: Toggle state for the hydrological flood surge polygon overlay.
   const [showFloodPolygon, setShowFloodPolygon] = useState(true);
+  // Explanation: Toggle state for evacuation routes and transit corridors.
   const [showRoutes, setShowRoutes] = useState(true);
+  // Explanation: Toggle state for active field responders and aerial drones.
   const [showUnits, setShowUnits] = useState(true);
+  // Explanation: Toggle state for fixed infrastructure (hospitals, shelters, ramps).
   const [showInfrastructure, setShowInfrastructure] = useState(true);
+  // Explanation: Zoom magnification factor for the SVG canvas (range 0.85 to 1.4).
   const [zoomLevel, setZoomLevel] = useState(1);
+  // Explanation: ID of feature currently hovered or focused by the operator.
   const [activeHoverId, setActiveHoverId] = useState<string | null>(null);
 
   // Geographic bounds for Guwahati Sector 4 mapping to SVG viewBox (0 0 1000 650)
@@ -50,33 +97,45 @@ export default function TacticalCopMap({
   const minLng = 91.7000;
   const maxLng = 91.8000;
 
+  /**
+   * Briefing:
+   *     Linear geographic projection converting WGS-84 coordinates to SVG pixel space.
+   *
+   * Reason:
+   *     Provides deterministic, zero-dependency translation from latitude/longitude
+   *     to viewport coordinates (X: 0..1000, Y: 0..650).
+   *
+   * @param lat WGS-84 latitude.
+   * @param lng WGS-84 longitude.
+   * @returns Projected SVG coordinate object { x, y }.
+   */
   const project = (lat: number, lng: number) => {
     const x = ((lng - minLng) / (maxLng - minLng)) * 1000;
     const y = ((maxLat - lat) / (maxLat - minLat)) * 650;
     return { x, y };
   };
 
-  // Pre-calculated river path for Brahmaputra through the sector
+  // Explanation: Pre-calculated Bézier curve path for Brahmaputra river waterway traversing the sector.
   const riverPath =
     "M 0,220 C 180,240 320,180 500,230 C 680,280 820,220 1000,260 L 1000,420 C 820,380 660,430 480,390 C 300,350 160,410 0,380 Z";
 
-  // Inundation flood surge zone polygon
+  // Explanation: Inundation flood surge zone polygon point string, derived from live telemetry or offline fallback.
   const floodPolygonPoints = mapData?.inundation_polygon
     ? mapData.inundation_polygon.map((p) => `${project(p.lat, p.lng).x},${project(p.lat, p.lng).y}`).join(" ")
     : "180,220 750,230 850,480 320,510 120,380";
 
   return (
-    <div className="bg-[#121826] border border-[#1E293B] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
+    <div className="bg-[#111318] border border-[#222634] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
       {/* HUD Header Bar */}
-      <div className="bg-[#0B0F19]/90 border-b border-[#1E293B] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs backdrop-blur-md z-10">
+      <div className="bg-[#08090C]/90 border-b border-[#222634] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs backdrop-blur-md z-10">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Crosshair className="w-4 h-4 text-blue-400 animate-spin" style={{ animationDuration: "12s" }} />
+            <Crosshair className="w-4 h-4 text-amber-400 animate-spin" style={{ animationDuration: "12s" }} />
             <span className="font-bold text-white tracking-wider uppercase font-mono">
               Tactical COP Radar // Sector 4
             </span>
           </div>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/20">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
             WGS84 EPSG:4326
           </span>
           {isRouteFrozen && (
@@ -114,7 +173,7 @@ export default function TacticalCopMap({
             onClick={() => setShowUnits(!showUnits)}
             className={`px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 ${
               showUnits
-                ? "bg-blue-500/20 border-blue-500/40 text-blue-300 font-semibold"
+                ? "bg-amber-500/20 border-amber-500/40 text-amber-300 font-semibold"
                 : "bg-gray-800/40 border-gray-700 text-gray-400"
             }`}
           >
@@ -159,7 +218,7 @@ export default function TacticalCopMap({
           <defs>
             {/* Grid Pattern */}
             <pattern id="tacticalGrid" width="50" height="50" patternUnits="userSpaceOnUse">
-              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#1E293B" strokeWidth="0.5" strokeOpacity="0.6" />
+              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#222634" strokeWidth="0.5" strokeOpacity="0.6" />
             </pattern>
 
             {/* Inundation Striped Pattern */}
@@ -169,9 +228,9 @@ export default function TacticalCopMap({
 
             {/* Gradients */}
             <linearGradient id="riverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0E3A5A" stopOpacity="0.7" />
-              <stop offset="50%" stopColor="#0B2545" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#0E3A5A" stopOpacity="0.7" />
+              <stop offset="0%" stopColor="#0B132B" stopOpacity="0.7" />
+              <stop offset="50%" stopColor="#080C1E" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#0B132B" stopOpacity="0.7" />
             </linearGradient>
 
             <radialGradient id="freezePulse" cx="50%" cy="50%" r="50%">
@@ -184,8 +243,8 @@ export default function TacticalCopMap({
           <rect width="1000" height="650" fill="url(#tacticalGrid)" />
 
           {/* River Brahmaputra Body */}
-          <path d={riverPath} fill="url(#riverGrad)" stroke="#1E4E7A" strokeWidth="1.5" />
-          <text x="360" y="320" fill="#38BDF8" fillOpacity="0.35" fontSize="18" fontWeight="bold" letterSpacing="4">
+          <path d={riverPath} fill="url(#riverGrad)" stroke="#1C2541" strokeWidth="1.5" />
+          <text x="360" y="320" fill="#94A3B8" fillOpacity="0.35" fontSize="18" fontWeight="bold" letterSpacing="4">
             BRAHMAPUTRA RIVER WATERWAY
           </text>
 
@@ -222,7 +281,7 @@ export default function TacticalCopMap({
                   width="90"
                   height="26"
                   rx="6"
-                  fill="#0B0F19"
+                  fill="#08090C"
                   stroke={isRouteFrozen ? "#EF4444" : "#10B981"}
                   strokeWidth="1.5"
                 />
@@ -240,9 +299,9 @@ export default function TacticalCopMap({
 
               {/* Route-4B (Shallow Water Boat Ramp Bypass) */}
               <g>
-                <path d="M 380,240 Q 320,330 360,450" fill="none" stroke="#06B6D4" strokeWidth="3.5" strokeDasharray="4 2" />
-                <rect x="290" y="340" width="80" height="20" rx="4" fill="#0B0F19" stroke="#06B6D4" strokeWidth="1" />
-                <text x="330" y="354" textAnchor="middle" fill="#22D3EE" fontSize="9" fontWeight="bold">
+                <path d="M 380,240 Q 320,330 360,450" fill="none" stroke="#F59E0B" strokeWidth="3.5" strokeDasharray="4 2" />
+                <rect x="290" y="340" width="80" height="20" rx="4" fill="#08090C" stroke="#F59E0B" strokeWidth="1" />
+                <text x="330" y="354" textAnchor="middle" fill="#FBBF24" fontSize="9" fontWeight="bold">
                   ROUTE-4B (BOAT)
                 </text>
               </g>
@@ -262,23 +321,23 @@ export default function TacticalCopMap({
             <g>
               {/* GMCH Hospital */}
               <g transform="translate(720, 520)">
-                <circle cx="0" cy="0" r="14" fill="#0B0F19" stroke="#3B82F6" strokeWidth="2" />
-                <text x="0" y="4" textAnchor="middle" fill="#60A5FA" fontSize="10" fontWeight="bold">
+                <circle cx="0" cy="0" r="14" fill="#08090C" stroke="#F59E0B" strokeWidth="2" />
+                <text x="0" y="4" textAnchor="middle" fill="#FBBF24" fontSize="10" fontWeight="bold">
                   GMCH
                 </text>
-                <rect x="-65" y="18" width="130" height="18" rx="4" fill="#0B0F19" stroke="#1E293B" strokeWidth="1" />
-                <text x="0" y="30" textAnchor="middle" fill="#93C5FD" fontSize="9">
+                <rect x="-65" y="18" width="130" height="18" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
+                <text x="0" y="30" textAnchor="middle" fill="#D1D5DB" fontSize="9">
                   Hospital (38 Beds Avail)
                 </text>
               </g>
 
               {/* Relief Camp #3 */}
               <g transform="translate(240, 150)">
-                <circle cx="0" cy="0" r="14" fill="#0B0F19" stroke="#10B981" strokeWidth="2" />
+                <circle cx="0" cy="0" r="14" fill="#08090C" stroke="#10B981" strokeWidth="2" />
                 <text x="0" y="4" textAnchor="middle" fill="#34D399" fontSize="10" fontWeight="bold">
                   RC-3
                 </text>
-                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#0B0F19" stroke="#1E293B" strokeWidth="1" />
+                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
                 <text x="0" y="30" textAnchor="middle" fill="#A7F3D0" fontSize="9">
                   Relief Camp (320/500)
                 </text>
@@ -286,12 +345,12 @@ export default function TacticalCopMap({
 
               {/* Pandu Port Inflatable Boat Landing Ramp */}
               <g transform="translate(190, 420)">
-                <circle cx="0" cy="0" r="14" fill="#0B0F19" stroke="#F59E0B" strokeWidth="2" />
-                <text x="0" y="4" textAnchor="middle" fill="#FBBF24" fontSize="10" fontWeight="bold">
+                <circle cx="0" cy="0" r="14" fill="#08090C" stroke="#F97316" strokeWidth="2" />
+                <text x="0" y="4" textAnchor="middle" fill="#FB923C" fontSize="10" fontWeight="bold">
                   RAMP
                 </text>
-                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#0B0F19" stroke="#1E293B" strokeWidth="1" />
-                <text x="0" y="30" textAnchor="middle" fill="#FDE68A" fontSize="9">
+                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
+                <text x="0" y="30" textAnchor="middle" fill="#FED7AA" fontSize="9">
                   Boat Staging (6 Boats)
                 </text>
               </g>
@@ -303,23 +362,23 @@ export default function TacticalCopMap({
             <g>
               {/* SDRF Rescue Unit Alpha (IRB Boat 04) */}
               <g transform="translate(430, 360)">
-                <circle cx="0" cy="0" r="16" fill="#1E3A8A" stroke="#3B82F6" strokeWidth="2" />
-                <polygon points="0,-8 6,6 -6,6" fill="#60A5FA" />
-                <rect x="-60" y="20" width="120" height="18" rx="4" fill="#0B0F19" stroke="#3B82F6" strokeWidth="1" />
-                <text x="0" y="32" textAnchor="middle" fill="#93C5FD" fontSize="9" fontWeight="bold">
+                <circle cx="0" cy="0" r="16" fill="#451A03" stroke="#F97316" strokeWidth="2" />
+                <polygon points="0,-8 6,6 -6,6" fill="#FB923C" />
+                <rect x="-60" y="20" width="120" height="18" rx="4" fill="#08090C" stroke="#F97316" strokeWidth="1" />
+                <text x="0" y="32" textAnchor="middle" fill="#FED7AA" fontSize="9" fontWeight="bold">
                   SDRF Boat-04 (87% Bat)
                 </text>
               </g>
 
               {/* Drone Alpha */}
               <g transform="translate(560, 260)">
-                <circle cx="0" cy="0" r="12" fill="#312E81" stroke="#818CF8" strokeWidth="1.5" />
-                <text x="0" y="3" textAnchor="middle" fill="#C7D2FE" fontSize="8" fontWeight="bold">
+                <circle cx="0" cy="0" r="12" fill="#451A03" stroke="#F59E0B" strokeWidth="1.5" />
+                <text x="0" y="3" textAnchor="middle" fill="#FDE68A" fontSize="8" fontWeight="bold">
                   UAV
                 </text>
-                <circle cx="0" cy="0" r="28" fill="none" stroke="#818CF8" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
-                <rect x="-50" y="16" width="100" height="16" rx="4" fill="#0B0F19" stroke="#1E293B" strokeWidth="1" />
-                <text x="0" y="28" textAnchor="middle" fill="#E0E7FF" fontSize="8">
+                <circle cx="0" cy="0" r="28" fill="none" stroke="#F59E0B" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+                <rect x="-50" y="16" width="100" height="16" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
+                <text x="0" y="28" textAnchor="middle" fill="#FED7AA" fontSize="8">
                   Recon Drone (120m)
                 </text>
               </g>
@@ -354,7 +413,7 @@ export default function TacticalCopMap({
                   cx="0"
                   cy="0"
                   r={isSelected ? "14" : "10"}
-                  fill="#0B0F19"
+                  fill="#08090C"
                   stroke={isCritical ? "#EF4444" : "#F59E0B"}
                   strokeWidth={isSelected ? "3" : "2"}
                 />
@@ -374,8 +433,8 @@ export default function TacticalCopMap({
                   width="150"
                   height="22"
                   rx="6"
-                  fill="#0B0F19"
-                  stroke={isSelected ? "#3B82F6" : "#1E293B"}
+                  fill="#08090C"
+                  stroke={isSelected ? "#F59E0B" : "#222634"}
                   strokeWidth={isSelected ? "2" : "1"}
                   className="transition-all"
                 />
@@ -395,13 +454,13 @@ export default function TacticalCopMap({
         </svg>
 
         {/* Bottom HUD Telemetry Overlay */}
-        <div className="absolute bottom-3 left-3 right-3 bg-[#0B0F19]/90 border border-[#1E293B] rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-4 text-xs font-mono backdrop-blur-md">
+        <div className="absolute bottom-3 left-3 right-3 bg-[#08090C]/90 border border-[#222634] rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-4 text-xs font-mono backdrop-blur-md">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1.5 text-red-400">
               <Droplets className="w-3.5 h-3.5 animate-bounce" />
               <span>FLOOD SURGE: +2.45m</span>
             </div>
-            <div className="flex items-center gap-1.5 text-blue-300">
+            <div className="flex items-center gap-1.5 text-amber-300">
               <Compass className="w-3.5 h-3.5" />
               <span>VELOCITY: 3.8 m/s</span>
             </div>

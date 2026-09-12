@@ -1,3 +1,35 @@
+/**
+ * ShiVi Operations Console - Common Operational Picture (COP) Command Center
+ * ===========================================================================
+ *
+ * Briefing:
+ *     Central mission command dashboard page (`CommandCenter`) of the ShiVi platform.
+ *     Unifies real-time disaster situational awareness, offline peer-to-peer sync status,
+ *     causal conflict adjudication, physical asset contention resolution, and compliance audit tracking.
+ *     Features:
+ *     - Multi-Bearer Connectivity Controller (Cellular/Cloud, Offline BLE Mesh, Blackout SQLite Outbox).
+ *     - Dual Operating Modes:
+ *       * Incident Commander COP: Multi-column tactical GIS radar, incident queue, task dispatch board.
+ *       * Tactical Field Responder HUD: High-contrast, rain-resistant, touch-first emergency reporting interface.
+ *     - Interactive Common Operational Picture:
+ *       * Embedded vector SVG geo-radar with hydrological inundation contours and route freeze markers.
+ *       * Live incident feed sorted by multi-factor explainable priority score ($P \in [0, 100]$).
+ *       * Selected incident detail drawer with mathematical component breakdown (severity, people, urgency).
+ *     - Multi-Domain Subsystems (accessible via top navigation tabs):
+ *       * Omni-Bearer Mesh Protocol Inspector (BLE 5.0 GATT framing, MTU slicing, bit-flip injection).
+ *       * 14-Phase Continuous Verified Operational Context Loop (real-time telemetry and invariant health).
+ *       * Causal Conflict Resolution Studio (side-by-side claim comparison, safety freeze unlock).
+ *       * Physical Asset Contention & Custody Leases (NFC physical proof vs virtual claim arbitration).
+ *       * Immutable Cryptographic Audit Ledger (tamper-evident RFC-3161 append-only timeline).
+ *     - Automated Disaster Drill Simulation Suite (Flash Flood Freeze, Asset Contention, Replay Attack, SMS Triage).
+ *
+ * Reason:
+ *     During large-scale natural disasters (such as riverine floods in the Brahmaputra basin), emergency
+ *     response fractures across disparate agencies (SDRF, NDRF, municipal wards, civil defense).
+ *     This single-page command center eliminates siloed coordination by synthesizing sensor inputs,
+ *     volunteer reports, and mesh sync state into a single, mathematically verified ground truth.
+ */
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -48,30 +80,67 @@ import MeshRelaySimulator from "../components/MeshRelaySimulator";
 import FieldResponderHud from "../components/FieldResponderHud";
 import ErrorBoundary from "../components/ErrorBoundary";
 
+/**
+ * Briefing:
+ *     Root mission command center page component.
+ *
+ * Reason:
+ *     Maintains global operational state, polling intervals, simulation orchestration,
+ *     and dynamic switching between tactical command views.
+ */
 export default function CommandCenter() {
-  // Navigation & View State
+  // =========================================================================
+  // Navigation & Operational View State
+  // =========================================================================
+
+  // Explanation: Active domain view tab ('cop', 'mesh', 'pipeline', 'conflicts', 'assets', 'audit').
   const [activeTab, setActiveTab] = useState<"cop" | "mesh" | "pipeline" | "conflicts" | "assets" | "audit">("cop");
+  // Explanation: User role viewport ('commander' for HQ operations, 'field' for wet-screen HUD).
   const [operationalView, setOperationalView] = useState<"commander" | "field">("commander");
+  // Explanation: Currently selected incident UUID highlighted on the tactical map and detail drawer.
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
+  // Explanation: Simulated network transport bearer ('cloud', 'mesh', 'offline').
   const [connectivityMode, setConnectivityMode] = useState<"cloud" | "mesh" | "offline">("cloud");
+  // Explanation: True if the backend FastAPI service is reachable via /health.
   const [backendConnected, setBackendConnected] = useState<boolean>(false);
 
-  // Data State
+  // =========================================================================
+  // Operational Data State
+  // =========================================================================
+
+  // Explanation: Global dashboard KPI summary (incident counts, saturation index, freeze counters).
   const [summary, setSummary] = useState<DashboardSummaryData | null>(null);
+  // Explanation: List of active disaster incidents displayed in the feed and radar map.
   const [incidents, setIncidents] = useState<IncidentItem[]>([]);
+  // Explanation: List of causal contradiction cases requiring supervisor adjudication.
   const [conflicts, setConflicts] = useState<ConflictCaseItem[]>([]);
+  // Explanation: Chronological audit entries recording immutable actions.
   const [auditLogs, setAuditLogs] = useState<AuditRecordItem[]>([]);
+  // Explanation: Vector map layers (inundation polygon, corridors, units, infrastructure).
   const [mapData, setMapData] = useState<TacticalMapData | null>(null);
+  // Explanation: Initial loading state flag.
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // =========================================================================
   // Simulation & Modal State
+  // =========================================================================
+
+  // Explanation: True while an automated disaster drill scenario is executing.
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  // Explanation: Output envelope of the completed simulation drill.
   const [simulationResult, setSimulationResult] = useState<SimulationResponse | null>(null);
+  // Explanation: Visibility toggle for the SimulationModal dialog.
   const [isSimModalOpen, setIsSimModalOpen] = useState<boolean>(false);
+  // Explanation: Visibility toggle for the Governed Multimodal AI Advisory drawer.
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState<boolean>(false);
+  // Explanation: True while conflict resolution is being committed to the backend.
   const [isResolvingConflict, setIsResolvingConflict] = useState<boolean>(false);
 
-  // Fallback initial mock data if backend not yet running
+  // =========================================================================
+  // Resilient Local Fallback Data (Zero-Dependency Offline Operation)
+  // =========================================================================
+
+  // Explanation: Offline baseline incidents used when running disconnected from the core server.
   const mockIncidents: IncidentItem[] = [
     {
       id: "inc-001",
@@ -141,6 +210,7 @@ export default function CommandCenter() {
     },
   ];
 
+  // Explanation: Offline baseline contradiction case demonstrating causal safety freeze.
   const mockConflicts: ConflictCaseItem[] = [
     {
       id: "conf-8801",
@@ -169,6 +239,7 @@ export default function CommandCenter() {
     },
   ];
 
+  // Explanation: Offline baseline audit entries demonstrating append-only history.
   const mockAudit: AuditRecordItem[] = [
     {
       id: "aud-01",
@@ -202,7 +273,14 @@ export default function CommandCenter() {
     },
   ];
 
-  // Fetch live state from Core API with resilient fallback
+  /**
+   * Briefing:
+   *     Polls live operational state from the backend Core API.
+   *
+   * Reason:
+   *     Uses `Promise.allSettled` to prevent partial network failures from aborting the entire fetch.
+   *     Gracefully falls back to offline mock records if the backend is temporarily unreachable.
+   */
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -267,13 +345,19 @@ export default function CommandCenter() {
     }
   }, [selectedIncidentId]);
 
+  // Explanation: Initial fetch and recurring 15-second polling interval for real-time telemetry updates.
   useEffect(() => {
     loadData();
-    const interval = setInterval(loadData, 15000); // 15s refresh
+    const interval = setInterval(loadData, 15000);
     return () => clearInterval(interval);
   }, [loadData]);
 
-  // Run Live Disaster Workflow Simulation
+  /**
+   * Briefing:
+   *     Triggers an end-to-end P0 disaster drill simulation on the backend.
+   *
+   * @param scenarioId Alphanumeric scenario slug (defaults to 'scenario-flood-contradiction').
+   */
   const handleRunSimulation = async (scenarioId: string = "scenario-flood-contradiction") => {
     setIsSimulating(true);
     setIsSimModalOpen(true);
@@ -282,8 +366,7 @@ export default function CommandCenter() {
       setSimulationResult(res);
       await loadData();
     } catch (err) {
-      // Offline fallback simulation trace
-
+      // Explanation: Offline fallback simulation trace if backend simulation endpoint errors out.
       setTimeout(() => {
         setSimulationResult({
           status: "SUCCESS",
@@ -313,7 +396,10 @@ export default function CommandCenter() {
     }
   };
 
-  // Reset Demo State
+  /**
+   * Briefing:
+   *     Resets demo database back to clean initial conditions.
+   */
   const handleResetState = async () => {
     try {
       await api.resetDemo();
@@ -325,14 +411,25 @@ export default function CommandCenter() {
     }
   };
 
-  // Human Adjudication Action
+  /**
+   * Briefing:
+   *     Executes supervisor adjudication of a causal conflict case.
+   *
+   * Reason:
+   *     Releases the safety freeze on Route-88, unlocks suspended tasks, and records
+   *     human justification into the audit ledger.
+   *
+   * @param conflictId Conflict case UUID.
+   * @param value Chosen authoritative state ('BLOCKED' or 'USABLE').
+   * @param reason Human operational rationale.
+   */
   const handleResolveConflict = async (conflictId: string, value: string, reason: string) => {
     setIsResolvingConflict(true);
     try {
       await api.resolveConflict(conflictId, value, reason);
       await loadData();
     } catch (err) {
-      // Update local state gracefully
+      // Explanation: Gracefully update local React state if running in offline mode.
       setConflicts((prev) =>
         prev.map((c) =>
           c.id === conflictId
@@ -348,12 +445,56 @@ export default function CommandCenter() {
     }
   };
 
+  /**
+   * Briefing:
+   *     Simulates or triggers a live route dispute to test the causal safety freeze.
+   */
+  const handleTriggerDispute = async () => {
+    try {
+      await api.triggerConflictDispute();
+      await loadData();
+    } catch (err) {
+      console.warn("Trigger dispute fallback applied:", err);
+      const newDispute: ConflictCaseItem = {
+        id: `conf-sim-${Date.now()}`,
+        entity_type: "route_observation",
+        entity_id: "ROUTE-88",
+        conflicting_field: "status",
+        status: "OPEN",
+        claims: [
+          {
+            actor_id: "00000000-0000-0000-0000-000000000002",
+            device_id: "device-sdrf-01",
+            value: "USABLE",
+            notes: "Scout SDRF Team Alpha reports route passable with minor debris.",
+            occurred_at: new Date().toISOString(),
+            evidence_ids: ["ev-photo-88"],
+          },
+          {
+            actor_id: "00000000-0000-0000-0000-000000000003",
+            device_id: "device-ward-02",
+            value: "BLOCKED",
+            notes: "Local Ward Volunteer reports bridge railing collapse under 4ft surge flow.",
+            occurred_at: new Date().toISOString(),
+            evidence_ids: [],
+          },
+        ],
+        frozen_dependencies: ["task-rescue-88"],
+      };
+      setConflicts((prev) => [newDispute, ...prev.filter((c) => c.entity_id !== "ROUTE-88")]);
+      setIncidents((prev) =>
+        prev.map((inc) => (inc.id === "inc-001" ? { ...inc, is_route_blocked: true } : inc))
+      );
+    }
+  };
+
+  // Explanation: Retrieve currently highlighted incident object for detail rendering.
   const selectedIncident =
     incidents.find((inc) => inc.id === selectedIncidentId) || incidents[0] || null;
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col font-sans">
+      <div className="min-h-screen bg-[#08090C] text-slate-100 flex flex-col font-sans">
         {/* Navbar Header */}
         <Navbar
           backendConnected={backendConnected}
@@ -385,16 +526,16 @@ export default function CommandCenter() {
 
         {/* Connectivity Mode Notice (When Mesh or Offline) */}
         {connectivityMode !== "cloud" && (
-          <div className="bg-blue-950/40 border-b border-blue-500/30 px-4 lg:px-8 py-2 text-xs flex items-center justify-between">
-            <div className="flex items-center gap-2 text-blue-300">
-              <Radio className="w-4 h-4 text-blue-400 animate-pulse" />
+          <div className="bg-amber-950/30 border-b border-amber-500/30 px-4 lg:px-8 py-2 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-300">
+              <Radio className="w-4 h-4 text-amber-400 animate-pulse" />
               <span>
                 {connectivityMode === "mesh"
                   ? "Operating on BLE 5.0 Peer Mesh Relay (Hop Distance: 3). Synchronizing outbox batches via gossip protocol."
                   : "Radio Blackout Mode Active. All observations committed transactionally to local SQLite outbox (Zero Data Loss Invariant)."}
               </span>
             </div>
-            <span className="font-mono text-[10px] text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+            <span className="font-mono text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
               INVARIANT 1 & 2 ACTIVE
             </span>
           </div>
@@ -404,31 +545,31 @@ export default function CommandCenter() {
         <main className="flex-1 p-4 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Top Metrics Ribbon */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-4">
+            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
               <span className="text-[11px] text-gray-400 uppercase font-semibold block">Total Incidents</span>
               <span className="text-2xl font-black text-white">{summary?.total_incidents ?? incidents.length}</span>
             </div>
-            <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-4">
+            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
               <span className="text-[11px] text-gray-400 uppercase font-semibold block">Critical Threats</span>
               <span className="text-2xl font-black text-red-400">
                 {incidents.filter((i) => i.severity === "CRITICAL").length}
               </span>
             </div>
-            <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-4">
+            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
               <span className="text-[11px] text-gray-400 uppercase font-semibold block">Active Tasks</span>
-              <span className="text-2xl font-black text-blue-400">{summary?.active_tasks ?? 3}</span>
+              <span className="text-2xl font-black text-amber-400">{summary?.active_tasks ?? 3}</span>
             </div>
-            <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-4">
+            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
               <span className="text-[11px] text-gray-400 uppercase font-semibold block">Open Conflicts</span>
               <span className="text-2xl font-black text-amber-400">
                 {conflicts.filter((c) => c.status === "OPEN").length}
               </span>
             </div>
-            <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-4">
+            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
               <span className="text-[11px] text-gray-400 uppercase font-semibold block">Active Responders</span>
               <span className="text-2xl font-black text-emerald-400">{summary?.active_responders ?? 8}</span>
             </div>
-            <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-4">
+            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
               <span className="text-[11px] text-gray-400 uppercase font-semibold block">Saturation Index</span>
               <span className="text-2xl font-black text-purple-400">
                 {summary?.resource_saturation_index ?? 0.38}
@@ -437,15 +578,15 @@ export default function CommandCenter() {
           </div>
 
           {/* Operational View Switcher & Drill Launch Ribbon */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#121826] border border-[#1E293B] rounded-2xl px-5 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#111318] border border-[#222634] rounded-2xl px-5 py-3">
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-400 font-mono font-semibold">VIEW MODE:</span>
               <button
                 onClick={() => setOperationalView("commander")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   operationalView === "commander"
-                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                    : "bg-[#0B0F19] text-gray-400 hover:text-white"
+                    ? "bg-amber-500 text-black font-bold shadow-lg shadow-amber-500/30"
+                    : "bg-[#08090C] text-gray-400 hover:text-white"
                 }`}
               >
                 Incident Commander COP
@@ -454,8 +595,8 @@ export default function CommandCenter() {
                 onClick={() => setOperationalView("field")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                   operationalView === "field"
-                    ? "bg-amber-600 border-amber-500 text-white shadow-lg shadow-amber-600/30"
-                    : "bg-[#0B0F19] border-[#1E293B] text-gray-400 hover:text-white"
+                    ? "bg-orange-500 border-orange-400 text-black font-bold shadow-lg shadow-orange-500/30"
+                    : "bg-[#08090C] border-[#222634] text-gray-400 hover:text-white"
                 }`}
               >
                 Tactical Field Responder (Wet-Screen HUD)
@@ -467,19 +608,19 @@ export default function CommandCenter() {
               <button
                 onClick={() => handleRunSimulation("scenario-flood-contradiction")}
                 disabled={isSimulating}
-                className="px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/30 hover:bg-blue-500/20 text-blue-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold flex items-center gap-1 transition-all"
                 title="Run Route-88 Flash Flood Contradiction & Safety Freeze Drill"
               >
-                <Droplets className="w-3 h-3 text-blue-400" />
+                <Droplets className="w-3 h-3 text-amber-400" />
                 <span>Flood Freeze</span>
               </button>
               <button
                 onClick={() => handleRunSimulation("scenario-asset-contention")}
                 disabled={isSimulating}
-                className="px-2.5 py-1 rounded-lg bg-indigo-500/10 border border-indigo-500/30 hover:bg-indigo-500/20 text-indigo-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                className="px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500/20 text-orange-300 text-xs font-semibold flex items-center gap-1 transition-all"
                 title="Run Distributed Heavy Equipment Contention & NFC Lease Drill"
               >
-                <LifeBuoy className="w-3 h-3 text-indigo-400" />
+                <LifeBuoy className="w-3 h-3 text-orange-400" />
                 <span>Asset Lease</span>
               </button>
               <button
@@ -502,7 +643,7 @@ export default function CommandCenter() {
               </button>
               <button
                 onClick={() => setIsSimModalOpen(true)}
-                className="px-3 py-1 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-blue-600/20"
+                className="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-amber-500/20"
                 title="Open Simulation Studio"
               >
                 <Radio className="w-3.5 h-3.5" /> Studio
@@ -510,6 +651,7 @@ export default function CommandCenter() {
             </div>
           </div>
 
+          {/* Conditional Rendering: Field HUD vs Commander Tabs */}
           {operationalView === "field" ? (
             <FieldResponderHud
               onIncidentCreated={(newInc) => {
@@ -520,14 +662,14 @@ export default function CommandCenter() {
           ) : (
             <>
               {/* Navigation Tabs Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#1E293B] pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#222634] pb-3">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveTab("cop")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "cop"
-                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                        ? "bg-amber-500 text-black font-bold shadow-lg shadow-amber-500/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
                     }`}
                   >
                     <Layers className="w-4 h-4" />
@@ -539,7 +681,7 @@ export default function CommandCenter() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "mesh"
                         ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
                     }`}
                   >
                     <Radio className="w-4 h-4" />
@@ -551,7 +693,7 @@ export default function CommandCenter() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "pipeline"
                         ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
                     }`}
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -563,7 +705,7 @@ export default function CommandCenter() {
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
                       activeTab === "conflicts"
                         ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
                     }`}
                   >
                     <Lock className="w-4 h-4" />
@@ -577,8 +719,8 @@ export default function CommandCenter() {
                     onClick={() => setActiveTab("assets")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "assets"
-                        ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                        ? "bg-orange-500 text-black font-bold shadow-lg shadow-orange-500/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
                     }`}
                   >
                     <LifeBuoy className="w-4 h-4" />
@@ -589,8 +731,8 @@ export default function CommandCenter() {
                     onClick={() => setActiveTab("audit")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "audit"
-                        ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#121826]"
+                        ? "bg-amber-500 text-black font-bold shadow-lg shadow-amber-500/30"
+                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
                     }`}
                   >
                     <FileCheck className="w-4 h-4" />
@@ -626,218 +768,218 @@ export default function CommandCenter() {
                         <span className="text-xs text-gray-500 font-mono">Sorted by Multi-Factor Priority</span>
                       </div>
 
-
-                <div className="space-y-3">
-                  {incidents.map((inc) => {
-                    const isSelected = selectedIncident?.id === inc.id;
-                    const isCritical = inc.severity === "CRITICAL";
-                    return (
-                      <div
-                        key={inc.id}
-                        onClick={() => setSelectedIncidentId(inc.id)}
-                        className={`bg-[#121826] border rounded-2xl p-5 cursor-pointer transition-all ${
-                          isSelected
-                            ? "border-blue-500 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500/50"
-                            : "border-[#1E293B] hover:border-gray-700"
-                        }`}
-                      >
-                        <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${
-                                  isCritical
-                                    ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                    : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                                }`}
-                              >
-                                {inc.category}
-                              </span>
-                              <span className="text-xs font-mono text-gray-400">{inc.local_reference}</span>
-                              {inc.is_route_blocked && (
-                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
-                                  <Lock className="w-2.5 h-2.5" /> ROUTE SAFETY FROZEN
-                                </span>
-                              )}
-                            </div>
-                            <h4 className="text-base font-bold text-white">{inc.title}</h4>
-                          </div>
-
-                          <div className="text-right">
-                            <span className="text-[10px] uppercase text-gray-500 font-semibold block">Priority</span>
-                            <span className="text-xl font-black text-amber-400">{inc.priority_score.toFixed(1)}</span>
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[#1E293B] text-xs text-gray-400">
-                          <div className="flex items-center gap-1.5 text-gray-300">
-                            <MapPin className="w-3.5 h-3.5 text-blue-400" />
-                            <span>{inc.location_name || `${inc.latitude}, ${inc.longitude}`}</span>
-                          </div>
-
-                          <div className="flex items-center gap-4">
-                            <span className="flex items-center gap-1 text-gray-300">
-                              <Users className="w-3.5 h-3.5 text-amber-400" />
-                              <span>{inc.people_at_risk} at risk</span>
-                            </span>
-
-                            <span
-                              className={`font-semibold px-2 py-0.5 rounded-md ${
-                                inc.status === "RESOLVED"
-                                  ? "bg-emerald-500/10 text-emerald-400"
-                                  : "bg-blue-500/10 text-blue-300"
+                      <div className="space-y-3">
+                        {incidents.map((inc) => {
+                          const isSelected = selectedIncident?.id === inc.id;
+                          const isCritical = inc.severity === "CRITICAL";
+                          return (
+                            <div
+                              key={inc.id}
+                              onClick={() => setSelectedIncidentId(inc.id)}
+                              className={`bg-[#111318] border rounded-2xl p-5 cursor-pointer transition-all ${
+                                isSelected
+                                  ? "border-amber-500 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/50"
+                                  : "border-[#222634] hover:border-gray-700"
                               }`}
                             >
-                              {inc.status}
-                            </span>
+                              <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${
+                                        isCritical
+                                          ? "bg-red-500/20 text-red-400 border border-red-500/30"
+                                          : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                      }`}
+                                    >
+                                      {inc.category}
+                                    </span>
+                                    <span className="text-xs font-mono text-gray-400">{inc.local_reference}</span>
+                                    {inc.is_route_blocked && (
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
+                                        <Lock className="w-2.5 h-2.5" /> ROUTE SAFETY FROZEN
+                                      </span>
+                                    )}
+                                  </div>
+                                  <h4 className="text-base font-bold text-white">{inc.title}</h4>
+                                </div>
+
+                                <div className="text-right">
+                                  <span className="text-[10px] uppercase text-gray-500 font-semibold block">Priority</span>
+                                  <span className="text-xl font-black text-amber-400">{inc.priority_score.toFixed(1)}</span>
+                                </div>
+                              </div>
+
+                              <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[#222634] text-xs text-gray-400">
+                                <div className="flex items-center gap-1.5 text-gray-300">
+                                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                                  <span>{inc.location_name || `${inc.latitude}, ${inc.longitude}`}</span>
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                  <span className="flex items-center gap-1 text-gray-300">
+                                    <Users className="w-3.5 h-3.5 text-amber-400" />
+                                    <span>{inc.people_at_risk} at risk</span>
+                                  </span>
+
+                                  <span
+                                    className={`font-semibold px-2 py-0.5 rounded-md ${
+                                      inc.status === "RESOLVED"
+                                        ? "bg-emerald-500/10 text-emerald-400"
+                                        : "bg-amber-500/10 text-amber-300"
+                                    }`}
+                                  >
+                                    {inc.status}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Selected Incident Detail & Explainable Priority Drawer */}
+                    {selectedIncident && (
+                      <div className="space-y-4">
+                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                          Incident Operations & Explainability
+                        </h3>
+
+                        <div className="bg-[#111318] border border-[#222634] rounded-2xl p-6 space-y-6 shadow-xl sticky top-24">
+                          <div className="space-y-2">
+                            <span className="text-xs font-mono text-amber-400">{selectedIncident.local_reference}</span>
+                            <h4 className="text-lg font-bold text-white leading-snug">{selectedIncident.title}</h4>
+                            {selectedIncident.description && (
+                              <p className="text-xs text-gray-400">{selectedIncident.description}</p>
+                            )}
                           </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
 
-              {/* Selected Incident Detail & Explainable Priority Drawer */}
-              {selectedIncident && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                    Incident Operations & Explainability
-                  </h3>
-
-                  <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-6 space-y-6 shadow-xl sticky top-24">
-                    <div className="space-y-2">
-                      <span className="text-xs font-mono text-blue-400">{selectedIncident.local_reference}</span>
-                      <h4 className="text-lg font-bold text-white leading-snug">{selectedIncident.title}</h4>
-                      {selectedIncident.description && (
-                        <p className="text-xs text-gray-400">{selectedIncident.description}</p>
-                      )}
-                    </div>
-
-                    {/* Explainable Priority Breakdown */}
-                    <div className="space-y-3 bg-[#0B0F19] rounded-xl p-4 border border-[#1E293B]">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-gray-300 uppercase">Multi-Factor Priority</span>
-                        <span className="text-base font-black text-amber-400">
-                          {selectedIncident.priority_score.toFixed(1)} / 100
-                        </span>
-                      </div>
-
-                      {selectedIncident.priority_breakdown && (
-                        <div className="space-y-2 text-xs">
-                          {selectedIncident.priority_breakdown.severity_component !== undefined && (
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-[11px] text-gray-400">
-                                <span>Severity (30%)</span>
-                                <span className="font-mono text-gray-300">
-                                  {selectedIncident.priority_breakdown.severity_component}
-                                </span>
-                              </div>
-                              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                                <div
-                                  className="bg-red-500 h-full rounded-full"
-                                  style={{
-                                    width: `${(selectedIncident.priority_breakdown.severity_component / 30) * 100}%`,
-                                  }}
-                                />
-                              </div>
+                          {/* Explainable Priority Breakdown */}
+                          <div className="space-y-3 bg-[#08090C] rounded-xl p-4 border border-[#222634]">
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-bold text-gray-300 uppercase">Multi-Factor Priority</span>
+                              <span className="text-base font-black text-amber-400">
+                                {selectedIncident.priority_score.toFixed(1)} / 100
+                              </span>
                             </div>
-                          )}
 
-                          {selectedIncident.priority_breakdown.people_component !== undefined && (
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-[11px] text-gray-400">
-                                <span>People at Risk (25%)</span>
-                                <span className="font-mono text-gray-300">
-                                  {selectedIncident.priority_breakdown.people_component}
-                                </span>
+                            {selectedIncident.priority_breakdown && (
+                              <div className="space-y-2 text-xs">
+                                {selectedIncident.priority_breakdown.severity_component !== undefined && (
+                                  <div className="space-y-1">
+                                    <div className="flex justify-between text-[11px] text-gray-400">
+                                      <span>Severity (30%)</span>
+                                      <span className="font-mono text-gray-300">
+                                        {selectedIncident.priority_breakdown.severity_component}
+                                      </span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                      <div
+                                        className="bg-red-500 h-full rounded-full"
+                                        style={{
+                                          width: `${(selectedIncident.priority_breakdown.severity_component / 30) * 100}%`,
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {selectedIncident.priority_breakdown.people_component !== undefined && (
+                                  <div className="space-y-1">
+                                    <div className="flex justify-between text-[11px] text-gray-400">
+                                      <span>People at Risk (25%)</span>
+                                      <span className="font-mono text-gray-300">
+                                        {selectedIncident.priority_breakdown.people_component}
+                                      </span>
+                                    </div>
+                                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                      <div
+                                        className="bg-amber-500 h-full rounded-full"
+                                        style={{
+                                          width: `${(selectedIncident.priority_breakdown.people_component / 25) * 100}%`,
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                )}
+
+                                {selectedIncident.priority_breakdown.explanation && (
+                                  <p className="text-[11px] text-gray-400 italic pt-1 border-t border-[#222634]/60">
+                                    "{selectedIncident.priority_breakdown.explanation}"
+                                  </p>
+                                )}
                               </div>
-                              <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
-                                <div
-                                  className="bg-amber-500 h-full rounded-full"
-                                  style={{
-                                    width: `${(selectedIncident.priority_breakdown.people_component / 25) * 100}%`,
-                                  }}
-                                />
+                            )}
+                          </div>
+
+                          {/* Route & Safety Freeze State */}
+                          <div className="space-y-2">
+                            <span className="text-xs font-semibold text-gray-400 uppercase">Assigned Route</span>
+                            <div
+                              className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
+                                selectedIncident.is_route_blocked
+                                  ? "bg-red-500/10 border-red-500/30 text-red-300"
+                                  : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Navigation className="w-4 h-4" />
+                                <span className="font-bold">ROUTE-88 (Sector 4 Bridge)</span>
                               </div>
+                              <span className="font-mono font-bold">
+                                {selectedIncident.is_route_blocked ? "BLOCKED" : "OPEN"}
+                              </span>
                             </div>
-                          )}
+                          </div>
 
-                          {selectedIncident.priority_breakdown.explanation && (
-                            <p className="text-[11px] text-gray-400 italic pt-1 border-t border-[#1E293B]/60">
-                              "{selectedIncident.priority_breakdown.explanation}"
-                            </p>
+                          {/* Action Button */}
+                          {selectedIncident.is_route_blocked ? (
+                            <button
+                              onClick={() => setActiveTab("conflicts")}
+                              className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-600/30"
+                            >
+                              <Lock className="w-4 h-4" /> Open Conflict Adjudication Studio
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setActiveTab("audit")}
+                              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/30"
+                            >
+                              <FileCheck className="w-4 h-4" /> Inspect Audit Trail
+                            </button>
                           )}
                         </div>
-                      )}
-                    </div>
-
-                    {/* Route & Safety Freeze State */}
-                    <div className="space-y-2">
-                      <span className="text-xs font-semibold text-gray-400 uppercase">Assigned Route</span>
-                      <div
-                        className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
-                          selectedIncident.is_route_blocked
-                            ? "bg-red-500/10 border-red-500/30 text-red-300"
-                            : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Navigation className="w-4 h-4" />
-                          <span className="font-bold">ROUTE-88 (Sector 4 Bridge)</span>
-                        </div>
-                        <span className="font-mono font-bold">
-                          {selectedIncident.is_route_blocked ? "BLOCKED" : "OPEN"}
-                        </span>
                       </div>
-                    </div>
-
-                    {/* Action Button */}
-                    {selectedIncident.is_route_blocked ? (
-                      <button
-                        onClick={() => setActiveTab("conflicts")}
-                        className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-600/30"
-                      >
-                        <Lock className="w-4 h-4" /> Open Conflict Adjudication Studio
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setActiveTab("audit")}
-                        className="w-full py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/30"
-                      >
-                        <FileCheck className="w-4 h-4" /> Inspect Audit Trail
-                      </button>
                     )}
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
 
-        {/* TAB 2: Omni-Bearer Mesh Protocol (DOC-30) */}
-        {activeTab === "mesh" && <MeshRelaySimulator />}
+              {/* TAB 2: Omni-Bearer Mesh Protocol (DOC-30) */}
+              {activeTab === "mesh" && <MeshRelaySimulator />}
 
-        {/* TAB 3: Conflict Resolution Studio */}
-        {activeTab === "conflicts" && (
-          <ConflictAdjudicator
-            conflicts={conflicts}
-            onResolve={handleResolveConflict}
-            isResolving={isResolvingConflict}
-          />
-        )}
+              {/* TAB 3: Conflict Resolution Studio */}
+              {activeTab === "conflicts" && (
+                <ConflictAdjudicator
+                  conflicts={conflicts}
+                  onResolve={handleResolveConflict}
+                  onTriggerDispute={handleTriggerDispute}
+                  isResolving={isResolvingConflict}
+                />
+              )}
 
-        {/* TAB 4: Physical Asset Contention & Leases */}
-        {activeTab === "assets" && <AssetContentionCard />}
+              {/* TAB 4: Physical Asset Contention & Leases */}
+              {activeTab === "assets" && <AssetContentionCard />}
 
-        {/* TAB 5: Cryptographic Audit Ledger */}
-        {activeTab === "audit" && <AuditLedgerTimeline logs={auditLogs} />}
+              {/* TAB 5: Cryptographic Audit Ledger */}
+              {activeTab === "audit" && <AuditLedgerTimeline logs={auditLogs} />}
 
-        {/* TAB 6: 14-Phase Continuous Operational Context Loop */}
-        {activeTab === "pipeline" && <ContextLoopMonitor />}
-      </>
-    )}
-  </main>
+              {/* TAB 6: 14-Phase Continuous Operational Context Loop */}
+              {activeTab === "pipeline" && <ContextLoopMonitor />}
+            </>
+          )}
+        </main>
 
         {/* Live Disaster Simulation Modal */}
         <SimulationModal

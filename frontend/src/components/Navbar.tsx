@@ -1,3 +1,19 @@
+/**
+ * ShiVi Operations Console - Tactical Header & Mission Bar
+ * ==========================================================
+ *
+ * Briefing:
+ *     Top navigation bar (`Navbar`) for the ShiVi Common Operational Picture (COP).
+ *     Houses platform identity, backend live connection health indicator, multi-bearer network mode
+ *     selector (Cellular/Cloud, BLE Mesh, Blackout), quick links to the SMS gateway, AI advisor drawer toggle,
+ *     and the scenario-based disaster drill simulation menu.
+ *
+ * Reason:
+ *     During emergency coordination, the operator needs instant visibility into whether the dashboard
+ *     is receiving live telemetry or operating from local cache, the ability to test multi-bearer failovers,
+ *     and one-click initiation of scenario drills across different disaster dynamics.
+ */
+
 "use client";
 
 import React from "react";
@@ -15,17 +31,39 @@ import {
   ChevronDown,
 } from "lucide-react";
 
+/**
+ * Briefing:
+ *     Component properties controlling navigation bar state and drill handlers.
+ */
 interface NavbarProps {
+  // Explanation: True if the backend FastAPI /health probe succeeds; false if in standalone fallback.
   backendConnected: boolean;
+  // Explanation: Currently selected network bearer simulation mode.
   connectivityMode: "cloud" | "mesh" | "offline";
+  // Explanation: Callback invoked when changing active connectivity mode.
   onConnectivityChange: (mode: "cloud" | "mesh" | "offline") => void;
+  // Explanation: Trigger for the default P0 flash flood simulation drill.
   onRunSimulation: () => void;
+  // Explanation: Handler resetting database state to initial conditions.
   onResetState: () => void;
+  // Explanation: Handler opening/closing the NDMA AI SOP Advisory drawer.
   onToggleAiDrawer: () => void;
+  // Explanation: Boolean flag indicating if a simulation drill is actively running.
   isSimulating: boolean;
+  // Explanation: Optional handler to run a specific disaster scenario by ID.
   onRunScenario?: (scenarioId: string) => void;
 }
 
+/**
+ * Briefing:
+ *     Tactical header component providing mission status indicators and drill triggers.
+ *
+ * Reason:
+ *     Acts as the command anchor across all subviews. Features a sticky top-bar with
+ *     backdrop blur to remain accessible while scrolling through dense incident and task feeds.
+ *
+ * @param props Configuration and action handler properties.
+ */
 export function Navbar({
   backendConnected,
   connectivityMode,
@@ -36,21 +74,23 @@ export function Navbar({
   isSimulating,
   onRunScenario,
 }: NavbarProps) {
+  // Explanation: Local state toggling the scenario drill selection dropdown menu.
   const [showDrillMenu, setShowDrillMenu] = React.useState(false);
+
   return (
-    <header className="sticky top-0 z-40 bg-[#0B0F19]/90 backdrop-blur-md border-b border-[#1E293B] px-4 lg:px-8 py-3">
+    <header className="sticky top-0 z-40 bg-[#08090C]/90 backdrop-blur-md border-b border-[#222634] px-4 lg:px-8 py-3">
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Logo & Platform Info */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 p-[2px] shadow-lg shadow-blue-500/20">
-            <div className="w-full h-full bg-[#0B0F19] rounded-[10px] flex items-center justify-center">
-              <Shield className="w-5 h-5 text-blue-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 p-[2px] shadow-lg shadow-amber-500/20">
+            <div className="w-full h-full bg-[#08090C] rounded-[10px] flex items-center justify-center">
+              <Shield className="w-5 h-5 text-amber-400" />
             </div>
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black tracking-wider text-white">SHIVI</h1>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30">
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
                 शिवी • IOC v1.0
               </span>
               <span
@@ -77,12 +117,12 @@ export function Navbar({
         {/* Multi-Bearer Mesh & Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Bearer Connectivity Selector */}
-          <div className="flex items-center bg-[#121826] border border-[#1E293B] rounded-xl p-1 text-xs">
+          <div className="flex items-center bg-[#111318] border border-[#222634] rounded-xl p-1 text-xs">
             <button
               onClick={() => onConnectivityChange("cloud")}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all ${
                 connectivityMode === "cloud"
-                  ? "bg-blue-600 text-white font-medium shadow-md shadow-blue-600/30"
+                  ? "bg-amber-500 text-black font-bold shadow-md shadow-amber-500/30"
                   : "text-gray-400 hover:text-gray-200"
               }`}
               title="Full Cellular 4G/5G and Cloud Connectivity"
@@ -94,7 +134,7 @@ export function Navbar({
               onClick={() => onConnectivityChange("mesh")}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all ${
                 connectivityMode === "mesh"
-                  ? "bg-amber-600 text-white font-medium shadow-md shadow-amber-600/30"
+                  ? "bg-orange-500 text-black font-bold shadow-md shadow-orange-500/30"
                   : "text-gray-400 hover:text-gray-200"
               }`}
               title="Offline BLE 5.0 & Wi-Fi Direct Mesh Gossip"
@@ -119,10 +159,10 @@ export function Navbar({
           {/* SMS Gateway Link */}
           <Link
             href="/sms"
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-cyan-600/10 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-600/20 transition-all"
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-all"
             title="Emergency SMS & Satellite Broadcast Gateway"
           >
-            <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
+            <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden sm:inline">SMS Gateway</span>
           </Link>
 
@@ -138,7 +178,7 @@ export function Navbar({
           {/* Reset Demo State Button */}
           <button
             onClick={onResetState}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-[#121826] text-gray-300 border border-[#1E293B] hover:bg-[#1E293B] transition-all"
+            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-[#111318] text-gray-300 border border-[#222634] hover:bg-[#222634] transition-all"
             title="Reset database to fresh default accounts"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -150,10 +190,10 @@ export function Navbar({
             <button
               onClick={onRunSimulation}
               disabled={isSimulating}
-              className={`flex items-center gap-2 text-xs font-semibold px-3.5 py-2 rounded-l-xl shadow-lg transition-all ${
+              className={`flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-l-xl shadow-lg transition-all ${
                 isSimulating
-                  ? "bg-blue-800 text-blue-200 cursor-not-allowed opacity-75"
-                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-blue-500/25 active:scale-95"
+                  ? "bg-amber-950/60 text-amber-200 cursor-not-allowed opacity-75"
+                  : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black shadow-amber-500/25 active:scale-95"
               }`}
               title="Run P0 Disaster Loop (Flash Flood & Route-88 Safety Freeze)"
             >
@@ -163,10 +203,10 @@ export function Navbar({
             <button
               onClick={() => setShowDrillMenu(!showDrillMenu)}
               disabled={isSimulating}
-              className={`px-2 py-2 rounded-r-xl border-l border-blue-400/30 text-white transition-all ${
+              className={`px-2 py-2 rounded-r-xl border-l border-amber-400/30 text-black font-bold transition-all ${
                 isSimulating
-                  ? "bg-blue-800 cursor-not-allowed opacity-75"
-                  : "bg-indigo-600 hover:bg-indigo-500"
+                  ? "bg-amber-950/60 text-amber-200 cursor-not-allowed opacity-75"
+                  : "bg-orange-500 hover:bg-orange-400"
               }`}
               title="Select Specific Disaster Drill Scenario"
             >
@@ -175,7 +215,7 @@ export function Navbar({
 
             {/* Dropdown Menu */}
             {showDrillMenu && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-[#121826] border border-[#1E293B] rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
+              <div className="absolute right-0 top-full mt-2 w-72 bg-[#111318] border border-[#222634] rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
                 <span className="text-[10px] text-gray-400 uppercase font-mono px-2.5 py-1 block">
                   Select Disaster Drill Scenario
                 </span>
@@ -188,9 +228,9 @@ export function Navbar({
                       onRunSimulation();
                     }
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-blue-600/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-amber-500/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
                 >
-                  <span className="font-bold text-blue-300">1. Flash Flood & Route Freeze</span>
+                  <span className="font-bold text-amber-300">1. Flash Flood & Route Freeze</span>
                   <span className="text-[11px] text-gray-400">Contradiction, Safety Freeze & Supervisor Adjudication</span>
                 </button>
                 <button
@@ -202,9 +242,9 @@ export function Navbar({
                       onRunSimulation();
                     }
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-indigo-600/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-orange-500/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
                 >
-                  <span className="font-bold text-indigo-300">2. Asset Contention & NFC Lease</span>
+                  <span className="font-bold text-orange-300">2. Asset Contention & NFC Lease</span>
                   <span className="text-[11px] text-gray-400">Multi-Team USAR Cutter Contention & Zero Deadlock</span>
                 </button>
                 <button

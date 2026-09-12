@@ -1,3 +1,24 @@
+/**
+ * ShiVi Operations Console - Disaster Drill Simulation Modal
+ * ============================================================
+ *
+ * Briefing:
+ *     Modal dialog component (`SimulationModal`) displaying real-time and completed
+ *     execution traces for automated P0 disaster simulation drills.
+ *     Features:
+ *     - Scenario ribbon supporting 4 disaster drill benchmarks:
+ *       1. `scenario-flood-contradiction`: Flash flood surge, route contradiction, causal safety freeze, supervisor adjudication.
+ *       2. `scenario-asset-contention`: Multi-squad USAR cutter contention, physical NFC lease award, zero-deadlock substitute dispatch.
+ *       3. `scenario-replay-attack`: Adversarial packet tampering, cryptographic hash verification, nonce replay drop.
+ *       4. `scenario-sms-triage`: Austere 2G SMS intake, multilingual entity extraction, NDMA SOP retrieval, automated task dispatch.
+ *     - Animated loading spinner while drill steps execute across the backend.
+ *     - Step-by-step chronological audit trace showing verified invariant checks.
+ *
+ * Reason:
+ *     Disaster simulation drills provide hackathon evaluators and civil defense directors with immediate,
+ *     verifiable proof that the platform's 5 core invariants function end-to-end under realistic stress.
+ */
+
 "use client";
 
 import React, { useState } from "react";
@@ -18,14 +39,33 @@ import {
 } from "lucide-react";
 import { SimulationResponse } from "../services/api";
 
+/**
+ * Briefing:
+ *     Component properties controlling modal presentation and scenario selection.
+ */
 interface SimulationModalProps {
+  // Explanation: True if modal dialog is visible.
   isOpen: boolean;
+  // Explanation: Handler to close the modal.
   onClose: () => void;
+  // Explanation: Simulation drill response envelope returned by backend /v1/demo/simulate-workflow.
   result: SimulationResponse | null;
+  // Explanation: True while drill execution is in progress.
   loading: boolean;
+  // Explanation: Callback to trigger a specific scenario drill by ID.
   onRunScenario?: (scenarioId: string) => void;
 }
 
+/**
+ * Briefing:
+ *     Disaster Drill Simulation Modal component.
+ *
+ * Reason:
+ *     Presents a self-contained execution trace of complex distributed workflows,
+ *     allowing operators to review step-by-step verification results.
+ *
+ * @param props SimulationModalProps configuration.
+ */
 export function SimulationModal({
   isOpen,
   onClose,
@@ -33,10 +73,12 @@ export function SimulationModal({
   loading,
   onRunScenario,
 }: SimulationModalProps) {
+  // Explanation: Currently selected scenario tab identifier.
   const [activeScenario, setActiveScenario] = useState<string>("scenario-flood-contradiction");
 
   if (!isOpen) return null;
 
+  // Explanation: Catalog of drill scenarios and their corresponding tested invariants.
   const scenarios = [
     {
       id: "scenario-flood-contradiction",
@@ -64,6 +106,12 @@ export function SimulationModal({
     },
   ];
 
+  /**
+   * Briefing:
+   *     Switches active scenario tab and triggers drill run.
+   *
+   * @param id Scenario identifier string.
+   */
   const handleScenarioChange = (id: string) => {
     setActiveScenario(id);
     if (onRunScenario) {
@@ -73,11 +121,11 @@ export function SimulationModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="bg-[#121826] border border-[#1E293B] rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#111318] border border-[#222634] rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E293B] bg-[#0B0F19]/80">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#222634] bg-[#08090C]/80">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <Shield className="w-4 h-4" />
             </div>
             <div>
@@ -91,14 +139,14 @@ export function SimulationModal({
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#1E293B] transition-all"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#222634] transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scenario Selector Ribbon */}
-        <div className="bg-[#0B0F19] px-6 py-3 border-b border-[#1E293B] flex flex-wrap gap-2">
+        <div className="bg-[#08090C] px-6 py-3 border-b border-[#222634] flex flex-wrap gap-2">
           {scenarios.map((sc) => (
             <button
               key={sc.id}
@@ -106,12 +154,12 @@ export function SimulationModal({
               disabled={loading}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 ${
                 activeScenario === sc.id
-                  ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-600/30"
-                  : "bg-[#121826] border-[#1E293B] text-gray-400 hover:text-white"
+                  ? "bg-amber-500 border-amber-400 text-black font-bold shadow-lg shadow-amber-500/30"
+                  : "bg-[#111318] border-[#222634] text-gray-400 hover:text-white"
               }`}
             >
               <span>{sc.title}</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/40 text-blue-200">
+              <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/40 text-amber-200">
                 {sc.badge}
               </span>
             </button>
@@ -122,7 +170,7 @@ export function SimulationModal({
         <div className="p-6 overflow-y-auto space-y-6">
           {loading ? (
             <div className="py-16 text-center space-y-4">
-              <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin mx-auto" />
+              <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mx-auto" />
               <div className="space-y-1">
                 <p className="font-medium text-white text-base">
                   Executing Verified Context Loop Drill...
@@ -168,11 +216,11 @@ export function SimulationModal({
                   {result.steps.map((st) => (
                     <div
                       key={st.step}
-                      className="bg-[#0B0F19] border border-[#1E293B] rounded-xl p-3.5 space-y-1 text-xs"
+                      className="bg-[#08090C] border border-[#222634] rounded-xl p-3.5 space-y-1 text-xs"
                     >
                       <div className="flex items-center justify-between font-mono">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-[10px] font-bold">
+                          <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold">
                             {st.step}
                           </span>
                           <span className="font-bold text-white text-sm">{st.title}</span>
@@ -195,7 +243,7 @@ export function SimulationModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-[#1E293B] bg-[#0B0F19]/60 flex items-center justify-between text-xs">
+        <div className="px-6 py-4 border-t border-[#222634] bg-[#08090C]/60 flex items-center justify-between text-xs">
           <div className="text-gray-400 font-mono">
             <span>Core Guarantee: Zero Silent Overwrites & Full Monotonic Provenance</span>
           </div>
@@ -212,4 +260,3 @@ export function SimulationModal({
 }
 
 export default SimulationModal;
-

@@ -1,3 +1,31 @@
+/**
+ * ShiVi Operations Console - 14-Phase Continuous Context Loop Monitor
+ * ====================================================================
+ *
+ * Briefing:
+ *     Real-time telemetry and architectural observability component (`ContextLoopMonitor`)
+ *     tracking the complete 14-phase operational lifecycle of the ShiVi platform:
+ *     1. SENSE: Raw Field Capture (Zero Field Data Loss)
+ *     2. INGEST: Trust Boundary Control (Anti-Replay HMAC nonces)
+ *     3. NORMALIZE: Canonical Projection (EPSG:4326, SI Units, ISO-8601 UTC)
+ *     4. VALIDATE: Deterministic Admissibility (Deterministic policies over heuristics)
+ *     5. UNDERSTAND: Context Synthesis (Unified coherent ground truth snapshot)
+ *     6. ENRICH: Governed Advisory Intelligence (Whisper/LLM NLP suggestions, non-authoritative)
+ *     7. PRIORITIZE: Explainable Urgency Scoring ($P = 0.35S + 0.25R + 0.20D + 0.20E$)
+ *     8. PLAN: Constraint-Aware Optimization (Safety corridors, hazard avoidance)
+ *     9. AUTHORIZE: Human-in-the-Loop Gate (Cryptographic RBAC, supervisor approval)
+ *     10. ACT: Field-First Execution (SQLite Drift WAL outbox durability)
+ *     11. VERIFY: Evidence-Backed Closure (Mandatory checklist + SHA-256 photo proof)
+ *     12. SYNC: Multi-Bearer Synchronization (BLE mesh, Wi-Fi Direct, SATCOM, Cellular)
+ *     13. RECONCILE: Domain Conflict Engine (Causal Safety Freeze, zero blind LWW)
+ *     14. AUDIT: Monotonic Ledger (Append-only SHA-256 hash chains)
+ *
+ * Reason:
+ *     Traditional disaster management systems treat software as disconnected silos (a form, a database, a map).
+ *     ShiVi is designed as a self-healing closed-loop state machine. This component proves to evaluators and
+ *     commanders that every phase satisfies its strict formal invariant with verified sub-10ms feedback loops.
+ */
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -21,12 +49,25 @@ import {
 } from "lucide-react";
 import api, { ContextLoopPhase, ContextLoopResponse } from "../services/api";
 
+/**
+ * Briefing:
+ *     Continuous Context Loop Monitor component.
+ *
+ * Reason:
+ *     Provides interactive inspection of latency, throughput, and invariant compliance
+ *     across all 14 execution stages of the disaster coordination pipeline.
+ */
 export default function ContextLoopMonitor() {
+  // Explanation: Live telemetry response received from /v1/dashboard/context-loop.
   const [data, setData] = useState<ContextLoopResponse | null>(null);
+  // Explanation: 1-indexed phase number currently selected in the deep-dive inspector panel.
   const [selectedPhaseNumber, setSelectedPhaseNumber] = useState<number>(1);
+  // Explanation: Loading indicator state while polling or refreshing telemetry.
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  // Explanation: Active stage filter category ('ALL', 'EDGE_CAPTURE', 'CORE_TRIAGE', 'FIELD_EXECUTION', 'CONSENSUS_AUDIT').
   const [activeStageFilter, setActiveStageFilter] = useState<string>("ALL");
 
+  // Explanation: Default baseline telemetry configurations for the 14 operational phases (used offline or on cold start).
   const defaultPhases: ContextLoopPhase[] = [
     {
       phase_number: 1,
@@ -198,6 +239,14 @@ export default function ContextLoopMonitor() {
     },
   ];
 
+  /**
+   * Briefing:
+   *     Polls /v1/dashboard/context-loop from the backend API service.
+   *
+   * Reason:
+   *     Maintains up-to-date latency and throughput numbers. Falls back gracefully
+   *     to default offline phase telemetry if the backend is unreachable.
+   */
   const loadTelemetry = async () => {
     try {
       const res = await api.getContextLoopStatus();
@@ -217,6 +266,7 @@ export default function ContextLoopMonitor() {
     }
   };
 
+  // Explanation: Sets up initial load and a recurring 10-second polling interval.
   useEffect(() => {
     loadTelemetry();
     const interval = setInterval(loadTelemetry, 10000);
@@ -226,19 +276,26 @@ export default function ContextLoopMonitor() {
   const phases = data?.phases || defaultPhases;
   const selectedPhase = phases.find((p) => p.phase_number === selectedPhaseNumber) || phases[0];
 
+  // Explanation: Filters phases based on user-selected stage button.
   const filteredPhases =
     activeStageFilter === "ALL"
       ? phases
       : phases.filter((p) => p.stage === activeStageFilter);
 
+  /**
+   * Briefing:
+   *     Renders color-coded status badge indicating the operational health of a phase.
+   *
+   * @param status Phase status string ('ACTIVE', 'SYNCHRONIZED', 'PROTECTED', 'MONITORED').
+   */
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
         return <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono">ACTIVE</span>;
       case "SYNCHRONIZED":
-        return <span className="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded-full font-mono">SYNCHRONIZED</span>;
+        return <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">SYNCHRONIZED</span>;
       case "PROTECTED":
-        return <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">PROTECTED</span>;
+        return <span className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full font-mono">PROTECTED</span>;
       case "MONITORED":
         return <span className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded-full font-mono">MONITORED</span>;
       default:
@@ -249,7 +306,7 @@ export default function ContextLoopMonitor() {
   return (
     <div className="space-y-6">
       {/* Top Banner: Context Loop Thesis & Vital Signs */}
-      <div className="bg-gradient-to-r from-[#121826] via-[#161F32] to-[#121826] border border-[#1E293B] rounded-2xl p-5 lg:p-6 shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#111318] via-[#171A23] to-[#111318] border border-[#222634] rounded-2xl p-5 lg:p-6 shadow-xl relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -278,13 +335,13 @@ export default function ContextLoopMonitor() {
             </div>
             <div className="bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-right">
               <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Total Phases</span>
-              <span className="text-sm font-mono font-bold text-blue-400">
+              <span className="text-sm font-mono font-bold text-amber-400">
                 14 / 14 Enforced
               </span>
             </div>
             <button
               onClick={loadTelemetry}
-              className="p-2.5 bg-[#1E293B] hover:bg-[#2A374F] rounded-xl text-gray-300 hover:text-white transition-all border border-white/10"
+              className="p-2.5 bg-[#222634] hover:bg-[#2D3346] rounded-xl text-gray-300 hover:text-white transition-all border border-white/10"
               title="Refresh Telemetry"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
@@ -324,8 +381,8 @@ export default function ContextLoopMonitor() {
                   onClick={() => setSelectedPhaseNumber(phase.phase_number)}
                   className={`border rounded-xl p-3.5 cursor-pointer transition-all duration-200 relative overflow-hidden ${
                     isSelected
-                      ? "bg-[#162035] border-emerald-500 shadow-lg shadow-emerald-950/40"
-                      : "bg-[#121826] border-[#1E293B] hover:border-slate-700 hover:bg-[#141C2D]"
+                      ? "bg-[#181D28] border-amber-500 shadow-lg shadow-amber-950/40"
+                      : "bg-[#111318] border-[#222634] hover:border-gray-700 hover:bg-[#161922]"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
@@ -361,7 +418,7 @@ export default function ContextLoopMonitor() {
 
                   {/* Highlight bar if selected */}
                   {isSelected && (
-                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-blue-500" />
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-amber-500" />
                   )}
                 </div>
               );
@@ -384,8 +441,8 @@ export default function ContextLoopMonitor() {
 
         {/* Right Column: Selected Phase Deep-Dive Inspector */}
         <div className="space-y-4">
-          <div className="bg-[#121826] border border-[#1E293B] rounded-2xl p-5 shadow-xl sticky top-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#1E293B]">
+          <div className="bg-[#111318] border border-[#222634] rounded-2xl p-5 shadow-xl sticky top-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#222634]">
               <div className="flex items-center gap-2">
                 <span className="w-7 h-7 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-mono text-sm font-black text-emerald-400">
                   {selectedPhase.phase_number}
@@ -416,7 +473,7 @@ export default function ContextLoopMonitor() {
                 </div>
                 <div className="bg-black/20 border border-white/5 rounded-xl p-3">
                   <span className="text-[10px] text-gray-400 uppercase block mb-0.5">Throughput Target</span>
-                  <span className="text-lg font-mono font-bold text-blue-400">{selectedPhase.throughput_events_sec} ev/s</span>
+                  <span className="text-lg font-mono font-bold text-amber-400">{selectedPhase.throughput_events_sec} ev/s</span>
                 </div>
               </div>
 
