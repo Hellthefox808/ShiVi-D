@@ -291,35 +291,35 @@ export default function ContextLoopMonitor() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full font-mono">ACTIVE</span>;
+        return <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full font-mono font-bold">ACTIVE</span>;
       case "SYNCHRONIZED":
-        return <span className="text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full font-mono">SYNCHRONIZED</span>;
+        return <span className="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-full font-mono font-bold">SYNCHRONIZED</span>;
       case "PROTECTED":
-        return <span className="text-[10px] bg-orange-500/10 text-orange-400 border border-orange-500/30 px-2 py-0.5 rounded-full font-mono">PROTECTED</span>;
+        return <span className="text-[10px] bg-orange-50 text-orange-800 border border-orange-200 px-2 py-0.5 rounded-full font-mono font-bold">PROTECTED</span>;
       case "MONITORED":
-        return <span className="text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/30 px-2 py-0.5 rounded-full font-mono">MONITORED</span>;
+        return <span className="text-[10px] bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full font-mono font-bold">MONITORED</span>;
       default:
-        return <span className="text-[10px] bg-gray-500/10 text-gray-400 border border-gray-500/30 px-2 py-0.5 rounded-full font-mono">{status}</span>;
+        return <span className="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-full font-mono font-bold">{status}</span>;
     }
   };
 
   return (
     <div className="space-y-6">
       {/* Top Banner: Context Loop Thesis & Vital Signs */}
-      <div className="bg-gradient-to-r from-[#111318] via-[#171A23] to-[#111318] border border-[#222634] rounded-2xl p-5 lg:p-6 shadow-xl relative overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 lg:p-6 shadow-sm relative overflow-hidden">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <RotateCcw className="w-5 h-5 text-emerald-400 animate-spin-slow" />
-              <h2 className="text-lg font-black tracking-wide text-white">
+              <RotateCcw className="w-5 h-5 text-emerald-600 animate-spin-slow" />
+              <h2 className="text-lg font-black tracking-wide text-slate-900">
                 14-Phase Continuous Verified Operational Context Loop
               </h2>
-              <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-mono px-2 py-0.5 rounded-full flex items-center gap-1 font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 CLOSED LOOP ACTIVE
               </span>
             </div>
-            <p className="text-xs text-gray-400 max-w-3xl">
+            <p className="text-xs text-slate-600 max-w-3xl font-medium">
               ShiVi operates as an adaptive operational state engine. Field captures feed edge normalization and triage;
               consequential actions require human authorization; verified outcomes and causal reconciliations continuously
               feed back into the initial SENSE phase as updated context.
@@ -327,21 +327,21 @@ export default function ContextLoopMonitor() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-right">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Loop Feedback Latency</span>
-              <span className="text-sm font-mono font-bold text-emerald-400">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-right shadow-sm">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Loop Feedback Latency</span>
+              <span className="text-sm font-mono font-bold text-emerald-600">
                 {data?.feedback_latency_ms ?? 8.5} ms
               </span>
             </div>
-            <div className="bg-black/30 border border-white/10 rounded-xl px-4 py-2 text-right">
-              <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Total Phases</span>
-              <span className="text-sm font-mono font-bold text-amber-400">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-right shadow-sm">
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider block font-semibold">Total Phases</span>
+              <span className="text-sm font-mono font-bold text-amber-600">
                 14 / 14 Enforced
               </span>
             </div>
             <button
               onClick={loadTelemetry}
-              className="p-2.5 bg-[#222634] hover:bg-[#2D3346] rounded-xl text-gray-300 hover:text-white transition-all border border-white/10"
+              className="p-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 transition-all border border-slate-200 shadow-sm"
               title="Refresh Telemetry"
             >
               <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
@@ -350,16 +350,16 @@ export default function ContextLoopMonitor() {
         </div>
 
         {/* Stage Filter Buttons */}
-        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/5">
-          <span className="text-[11px] text-gray-400 font-semibold mr-1">Lifecycle Stage:</span>
+        <div className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t border-slate-200">
+          <span className="text-[11px] text-slate-600 font-semibold mr-1">Lifecycle Stage:</span>
           {["ALL", "EDGE_CAPTURE", "CORE_TRIAGE", "FIELD_EXECUTION", "CONSENSUS_AUDIT"].map((st) => (
             <button
               key={st}
               onClick={() => setActiveStageFilter(st)}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border ${
                 activeStageFilter === st
-                  ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
-                  : "bg-black/20 text-gray-400 hover:text-white hover:bg-black/40"
+                  ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                  : "bg-slate-100 text-slate-600 border-slate-200 hover:text-slate-900 hover:bg-slate-200"
               }`}
             >
               {st.replace("_", " ")}
@@ -379,40 +379,40 @@ export default function ContextLoopMonitor() {
                 <div
                   key={phase.phase_number}
                   onClick={() => setSelectedPhaseNumber(phase.phase_number)}
-                  className={`border rounded-xl p-3.5 cursor-pointer transition-all duration-200 relative overflow-hidden ${
+                  className={`border rounded-xl p-3.5 cursor-pointer transition-all duration-200 relative overflow-hidden shadow-sm ${
                     isSelected
-                      ? "bg-[#181D28] border-amber-500 shadow-lg shadow-amber-950/40"
-                      : "bg-[#111318] border-[#222634] hover:border-gray-700 hover:bg-[#161922]"
+                      ? "bg-amber-50/70 border-amber-400 shadow-sm ring-1 ring-amber-400/40"
+                      : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center font-mono text-xs font-black text-gray-300">
+                      <span className="w-6 h-6 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center font-mono text-xs font-black text-slate-700">
                         {phase.phase_number}
                       </span>
                       <div>
-                        <h4 className="text-xs font-black tracking-wide text-white flex items-center gap-1.5">
+                        <h4 className="text-xs font-black tracking-wide text-slate-900 flex items-center gap-1.5">
                           {phase.code}
-                          <span className="text-gray-400 font-normal">· {phase.name}</span>
+                          <span className="text-slate-500 font-normal">· {phase.name}</span>
                         </h4>
-                        <span className="text-[10px] font-mono text-gray-400">{phase.stage}</span>
+                        <span className="text-[10px] font-mono text-slate-500 font-semibold">{phase.stage}</span>
                       </div>
                     </div>
                     {getStatusBadge(phase.status)}
                   </div>
 
-                  <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-white/5 text-[11px] font-mono">
+                  <div className="grid grid-cols-3 gap-2 mt-3 pt-2.5 border-t border-slate-100 text-[11px] font-mono">
                     <div>
-                      <span className="text-[9px] text-gray-400 uppercase block">Latency</span>
-                      <span className="text-gray-200 font-bold">{phase.latency_ms} ms</span>
+                      <span className="text-[9px] text-slate-500 uppercase block font-semibold">Latency</span>
+                      <span className="text-slate-800 font-bold">{phase.latency_ms} ms</span>
                     </div>
                     <div>
-                      <span className="text-[9px] text-gray-400 uppercase block">Rate</span>
-                      <span className="text-gray-200 font-bold">{phase.throughput_events_sec} e/s</span>
+                      <span className="text-[9px] text-slate-500 uppercase block font-semibold">Rate</span>
+                      <span className="text-slate-800 font-bold">{phase.throughput_events_sec} e/s</span>
                     </div>
                     <div>
-                      <span className="text-[9px] text-gray-400 uppercase block">Records</span>
-                      <span className="text-emerald-400 font-bold">{phase.active_records}</span>
+                      <span className="text-[9px] text-slate-500 uppercase block font-semibold">Records</span>
+                      <span className="text-emerald-700 font-bold">{phase.active_records}</span>
                     </div>
                   </div>
 
@@ -426,14 +426,14 @@ export default function ContextLoopMonitor() {
           </div>
 
           {/* Loop Feedback Invariant Callout */}
-          <div className="bg-emerald-950/20 border border-emerald-500/30 rounded-xl p-4 flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2.5 text-emerald-300">
-              <RotateCcw className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center justify-between text-xs shadow-sm">
+            <div className="flex items-center gap-2.5 text-emerald-900 font-medium">
+              <RotateCcw className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
                 <strong>Context Loop Invariant:</strong> Phase 14 (AUDIT) & Phase 13 (RECONCILE) directly update the operational context snapshot, streaming to edge devices as fresh observations for Phase 1 (SENSE).
               </span>
             </div>
-            <span className="font-mono text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 shrink-0 ml-2">
+            <span className="font-mono text-[10px] text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300 shrink-0 ml-2 font-bold">
               ZERO DISCONNECT
             </span>
           </div>
@@ -441,15 +441,15 @@ export default function ContextLoopMonitor() {
 
         {/* Right Column: Selected Phase Deep-Dive Inspector */}
         <div className="space-y-4">
-          <div className="bg-[#111318] border border-[#222634] rounded-2xl p-5 shadow-xl sticky top-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#222634]">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm sticky top-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <div className="flex items-center gap-2">
-                <span className="w-7 h-7 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-mono text-sm font-black text-emerald-400">
+                <span className="w-7 h-7 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center font-mono text-sm font-black text-emerald-800">
                   {selectedPhase.phase_number}
                 </span>
                 <div>
-                  <h3 className="text-sm font-black text-white">{selectedPhase.code}</h3>
-                  <span className="text-[11px] text-gray-400">{selectedPhase.name}</span>
+                  <h3 className="text-sm font-black text-slate-900">{selectedPhase.code}</h3>
+                  <span className="text-[11px] text-slate-500 font-medium">{selectedPhase.name}</span>
                 </div>
               </div>
               {getStatusBadge(selectedPhase.status)}
@@ -457,44 +457,44 @@ export default function ContextLoopMonitor() {
 
             <div className="space-y-4 mt-4">
               <div>
-                <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1">
+                <span className="text-[10px] text-slate-500 uppercase font-semibold block mb-1">
                   Enforced System Invariant
                 </span>
-                <div className="bg-black/30 border border-white/10 rounded-xl p-3 text-xs font-semibold text-emerald-300 flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-xs font-semibold text-emerald-900 flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span>{selectedPhase.invariant}</span>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-black/20 border border-white/5 rounded-xl p-3">
-                  <span className="text-[10px] text-gray-400 uppercase block mb-0.5">Execution Latency</span>
-                  <span className="text-lg font-mono font-bold text-white">{selectedPhase.latency_ms} ms</span>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm">
+                  <span className="text-[10px] text-slate-500 uppercase block mb-0.5 font-semibold">Execution Latency</span>
+                  <span className="text-lg font-mono font-bold text-slate-900">{selectedPhase.latency_ms} ms</span>
                 </div>
-                <div className="bg-black/20 border border-white/5 rounded-xl p-3">
-                  <span className="text-[10px] text-gray-400 uppercase block mb-0.5">Throughput Target</span>
-                  <span className="text-lg font-mono font-bold text-amber-400">{selectedPhase.throughput_events_sec} ev/s</span>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 shadow-sm">
+                  <span className="text-[10px] text-slate-500 uppercase block mb-0.5 font-semibold">Throughput Target</span>
+                  <span className="text-lg font-mono font-bold text-amber-600">{selectedPhase.throughput_events_sec} ev/s</span>
                 </div>
               </div>
 
               <div>
-                <span className="text-[10px] text-gray-400 uppercase font-semibold block mb-1.5">
+                <span className="text-[10px] text-slate-500 uppercase font-semibold block mb-1.5">
                   Subsystem Telemetry & Configuration
                 </span>
-                <div className="bg-black/40 border border-white/10 rounded-xl p-3 font-mono text-xs text-gray-300 space-y-1.5">
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 font-mono text-xs text-slate-700 space-y-1.5 shadow-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Stage:</span>
-                    <span className="text-white">{selectedPhase.stage}</span>
+                    <span className="text-slate-500">Stage:</span>
+                    <span className="text-slate-900 font-bold">{selectedPhase.stage}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-400">Active Records:</span>
-                    <span className="text-emerald-400">{selectedPhase.active_records}</span>
+                    <span className="text-slate-500">Active Records:</span>
+                    <span className="text-emerald-700 font-bold">{selectedPhase.active_records}</span>
                   </div>
                   {selectedPhase.details &&
                     Object.entries(selectedPhase.details).map(([k, v]) => (
-                      <div key={k} className="flex justify-between text-[11px] border-t border-white/5 pt-1">
-                        <span className="text-gray-400">{k.replace("_", " ")}:</span>
-                        <span className="text-gray-200 text-right max-w-[180px] truncate">
+                      <div key={k} className="flex justify-between text-[11px] border-t border-slate-200 pt-1">
+                        <span className="text-slate-500">{k.replace("_", " ")}:</span>
+                        <span className="text-slate-800 font-medium text-right max-w-[180px] truncate">
                           {Array.isArray(v) ? v.join(", ") : String(v)}
                         </span>
                       </div>
@@ -502,10 +502,10 @@ export default function ContextLoopMonitor() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-white/10">
-                <div className="flex items-center justify-between text-[11px] text-gray-400">
+              <div className="pt-2 border-t border-slate-200">
+                <div className="flex items-center justify-between text-[11px] text-slate-600">
                   <span>Cycle Verification:</span>
-                  <span className="text-emerald-400 font-mono font-bold">100% Cryptographic Match</span>
+                  <span className="text-emerald-700 font-mono font-bold">100% Cryptographic Match</span>
                 </div>
               </div>
             </div>

@@ -228,39 +228,39 @@ export default function SmsGatewayPage() {
   const charCount = `SHIVI ALERT [${broadcastSector.split(" - ")[0]}]: ${broadcastHazard.toUpperCase()}. ${broadcastInstruction.trim()} Dial 112/1070.`.length;
 
   return (
-    <div className="min-h-screen bg-[#08090C] text-gray-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-[#08090C]/90 backdrop-blur-md border-b border-[#222634] px-4 lg:px-8 py-3">
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 lg:px-8 py-3 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/"
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-white px-2.5 py-1.5 rounded-lg bg-[#111318] border border-[#222634] transition-all"
+              className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 px-2.5 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 transition-all font-medium"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to COP</span>
             </Link>
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 p-[2px]">
-              <div className="w-full h-full bg-[#08090C] rounded-[10px] flex items-center justify-center">
-                <Radio className="w-4 h-4 text-amber-400" />
+              <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center shadow-sm">
+                <Radio className="w-4 h-4 text-amber-600" />
               </div>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-black tracking-wider text-white">DISASTER SMS & SATELLITE GATEWAY</h1>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                <h1 className="text-lg font-black tracking-wider text-slate-900">DISASTER SMS & SATELLITE GATEWAY</h1>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
                   ZERO-DATA RELAY
                 </span>
               </div>
-              <p className="text-[11px] text-gray-400">
+              <p className="text-[11px] text-slate-500">
                 Cellular GSM • CDAC CAP v1.2 Webhook • Satellite 140B Burst Framing
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               GSM Modem: ACTIVE
             </span>
           </div>
@@ -271,51 +271,51 @@ export default function SmsGatewayPage() {
       <main className="flex-1 p-4 lg:p-8 max-w-7xl mx-auto w-full space-y-6">
         {/* Metric Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-[#111318] border border-[#222634] p-4 rounded-xl">
-            <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
+          <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
               <span>Carrier Radio Channel</span>
-              <Radio className="w-4 h-4 text-amber-400" />
+              <Radio className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-lg font-bold text-white">GSM 900/1800</div>
-            <div className="text-[11px] text-emerald-400 mt-1">Multi-Carrier Relay Ready</div>
+            <div className="text-lg font-bold text-slate-900">GSM 900/1800</div>
+            <div className="text-[11px] text-emerald-600 font-semibold mt-1">Multi-Carrier Relay Ready</div>
           </div>
 
-          <div className="bg-[#111318] border border-[#222634] p-4 rounded-xl">
-            <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
+          <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
               <span>Auto-Reply Triage</span>
-              <Sparkles className="w-4 h-4 text-purple-400" />
+              <Sparkles className="w-4 h-4 text-purple-600" />
             </div>
-            <div className="text-lg font-bold text-white">NLP Deterministic</div>
-            <div className="text-[11px] text-purple-400 mt-1">English, Hindi & Assamese</div>
+            <div className="text-lg font-bold text-slate-900">NLP Deterministic</div>
+            <div className="text-[11px] text-purple-600 font-semibold mt-1">English, Hindi & Assamese</div>
           </div>
 
-          <div className="bg-[#111318] border border-[#222634] p-4 rounded-xl">
-            <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
+          <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
               <span>Satellite Burst Budget</span>
-              <Satellite className="w-4 h-4 text-amber-400" />
+              <Satellite className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-lg font-bold text-white">&le; 140 Bytes</div>
-            <div className="text-[11px] text-amber-400 mt-1">IEEE 802.3 CRC-32 Frame</div>
+            <div className="text-lg font-bold text-slate-900">&le; 140 Bytes</div>
+            <div className="text-[11px] text-amber-600 font-semibold mt-1">IEEE 802.3 CRC-32 Frame</div>
           </div>
 
-          <div className="bg-[#111318] border border-[#222634] p-4 rounded-xl">
-            <div className="flex items-center justify-between text-gray-400 text-xs mb-1">
+          <div className="bg-white border border-slate-200 p-4 rounded-xl shadow-sm">
+            <div className="flex items-center justify-between text-slate-500 text-xs mb-1">
               <span>Total Transmissions</span>
-              <Activity className="w-4 h-4 text-amber-400" />
+              <Activity className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-lg font-bold text-white">{logs.length} Logged</div>
-            <div className="text-[11px] text-amber-400 mt-1">Audit Ledger Chained</div>
+            <div className="text-lg font-bold text-slate-900">{logs.length} Logged</div>
+            <div className="text-[11px] text-amber-600 font-semibold mt-1">Audit Ledger Chained</div>
           </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center border-b border-[#222634] gap-4">
+        <div className="flex items-center border-b border-slate-200 gap-4">
           <button
             onClick={() => setActiveTab("inbound")}
             className={`pb-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${
               activeTab === "inbound"
-                ? "border-amber-400 text-amber-400"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+                ? "border-amber-500 text-amber-600 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-900"
             }`}
           >
             <MessageSquare className="w-4 h-4" />
@@ -325,8 +325,8 @@ export default function SmsGatewayPage() {
             onClick={() => setActiveTab("broadcast")}
             className={`pb-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${
               activeTab === "broadcast"
-                ? "border-amber-400 text-amber-400"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+                ? "border-amber-500 text-amber-600 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-900"
             }`}
           >
             <Send className="w-4 h-4" />
@@ -336,8 +336,8 @@ export default function SmsGatewayPage() {
             onClick={() => setActiveTab("satellite")}
             className={`pb-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${
               activeTab === "satellite"
-                ? "border-amber-400 text-amber-400"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+                ? "border-amber-500 text-amber-600 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-900"
             }`}
           >
             <Satellite className="w-4 h-4" />
@@ -347,8 +347,8 @@ export default function SmsGatewayPage() {
             onClick={() => setActiveTab("logs")}
             className={`pb-3 text-sm font-semibold flex items-center gap-2 border-b-2 transition-all ${
               activeTab === "logs"
-                ? "border-amber-400 text-amber-400"
-                : "border-transparent text-gray-400 hover:text-gray-200"
+                ? "border-amber-500 text-amber-600 font-bold"
+                : "border-transparent text-slate-500 hover:text-slate-900"
             }`}
           >
             <Clock className="w-4 h-4" />
@@ -359,12 +359,12 @@ export default function SmsGatewayPage() {
         {/* Tab 1: Inbound Citizen Emergency SOS */}
         {activeTab === "inbound" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-[#111318] border border-[#222634] rounded-xl p-6">
-              <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <PhoneCall className="w-4 h-4 text-amber-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <PhoneCall className="w-4 h-4 text-amber-600" />
                 Simulate Citizen Emergency SMS Ingestion
               </h2>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-xs text-slate-600 mb-4">
                 Test how the backend parses unstructured citizen distress SMS, extracts casualties & coordinates, computes priority, and generates automated safety advice.
               </p>
 
@@ -376,7 +376,7 @@ export default function SmsGatewayPage() {
                     setInboundText("SOS RESCUE 6 SECTOR 4 TRAPPED ROOFTOP RAPID FLOOD WATER RISE");
                     setInboundPhone("+919876543212");
                   }}
-                  className="text-[11px] px-2.5 py-1 rounded bg-[#222634] text-amber-300 hover:bg-[#2D3346] border border-amber-500/30"
+                  className="text-[11px] px-2.5 py-1 rounded bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 font-medium"
                 >
                   Preset: 6 Trapped Sector 4
                 </button>
@@ -386,7 +386,7 @@ export default function SmsGatewayPage() {
                     setInboundText("बाढ़ में 4 लोग फंसे हैं तुरंत नाव चाहिए सेक्टर 2 ब्रह्मपुत्र");
                     setInboundPhone("+919876543215");
                   }}
-                  className="text-[11px] px-2.5 py-1 rounded bg-[#222634] text-purple-300 hover:bg-[#2D3346] border border-purple-500/30"
+                  className="text-[11px] px-2.5 py-1 rounded bg-purple-50 text-purple-800 hover:bg-purple-100 border border-purple-200 font-medium"
                 >
                   Preset: Hindi Distress (4 लोग)
                 </button>
@@ -396,7 +396,7 @@ export default function SmsGatewayPage() {
                     setInboundText("CRITICAL MEDICAL 2 INJURED GPS 26.1433, 91.7898 DISPUR CLINIC");
                     setInboundPhone("+919876543216");
                   }}
-                  className="text-[11px] px-2.5 py-1 rounded bg-[#222634] text-orange-300 hover:bg-[#2D3346] border border-orange-500/30"
+                  className="text-[11px] px-2.5 py-1 rounded bg-orange-50 text-orange-800 hover:bg-orange-100 border border-orange-200 font-medium"
                 >
                   Preset: GPS Coordinates
                 </button>
@@ -404,34 +404,34 @@ export default function SmsGatewayPage() {
 
               <form onSubmit={handleInboundSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">Citizen Sender Phone Number</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Citizen Sender Phone Number</label>
                   <input
                     type="text"
                     value={inboundPhone}
                     onChange={(e) => setInboundPhone(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#08090C] border border-[#222634] rounded-lg text-sm text-white font-mono focus:border-amber-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 font-mono focus:bg-white focus:border-amber-500 focus:outline-none"
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">Inbound SMS Body (Unstructured Text)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Inbound SMS Body (Unstructured Text)</label>
                   <textarea
                     rows={3}
                     value={inboundText}
                     onChange={(e) => setInboundText(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#08090C] border border-[#222634] rounded-lg text-sm text-white focus:border-amber-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                     required
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">Gateway Channel</label>
+                    <label className="block text-xs font-semibold text-slate-700 mb-1">Gateway Channel</label>
                     <select
                       value={inboundGateway}
                       onChange={(e) => setInboundGateway(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#08090C] border border-[#222634] rounded-lg text-sm text-white focus:border-amber-500 focus:outline-none"
+                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                     >
                       <option value="GSM_GATEWAY">GSM 900/1800 Modem</option>
                       <option value="TWILIO">Twilio Disaster Webhook</option>
@@ -443,7 +443,7 @@ export default function SmsGatewayPage() {
                 <button
                   type="submit"
                   disabled={isIngesting}
-                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black font-bold text-sm shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold text-sm shadow-md shadow-amber-500/20 transition-all flex items-center justify-center gap-2"
                 >
                   <Send className={`w-4 h-4 ${isIngesting ? "animate-spin" : ""}`} />
                   {isIngesting ? "Ingesting & Parsing..." : "Ingest Citizen Emergency SMS"}
@@ -452,65 +452,65 @@ export default function SmsGatewayPage() {
             </div>
 
             {/* Inbound Result Card */}
-            <div className="bg-[#111318] border border-[#222634] rounded-xl p-6">
-              <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
                 Live Incident Resolution & Auto-Reply Dispatch
               </h2>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-xs text-slate-600 mb-4">
                 Shows parsed entities, calculated priority score, and the life-safety response SMS transmitted back to the citizen.
               </p>
 
               {inboundResult ? (
                 <div className="space-y-4">
-                  <div className="bg-[#08090C] p-4 rounded-xl border border-[#222634] space-y-3">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-amber-400 font-mono">
+                      <span className="text-xs font-bold text-amber-800 font-mono">
                         {inboundResult.local_reference}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 font-bold">
+                      <span className="text-xs px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200 font-bold">
                         P{inboundResult.priority_score.toFixed(0)} • {inboundResult.category}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div>
-                        <span className="text-gray-400">Location:</span>{" "}
-                        <span className="text-white font-medium">{inboundResult.location_name}</span>
+                        <span className="text-slate-500">Location:</span>{" "}
+                        <span className="text-slate-900 font-medium">{inboundResult.location_name}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Casualties:</span>{" "}
-                        <span className="text-white font-medium">{inboundResult.people_at_risk} at Risk</span>
+                        <span className="text-slate-500">Casualties:</span>{" "}
+                        <span className="text-slate-900 font-medium">{inboundResult.people_at_risk} at Risk</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Coordinates:</span>{" "}
-                        <span className="text-white font-mono">{inboundResult.latitude.toFixed(4)}, {inboundResult.longitude.toFixed(4)}</span>
+                        <span className="text-slate-500">Coordinates:</span>{" "}
+                        <span className="text-slate-900 font-mono">{inboundResult.latitude.toFixed(4)}, {inboundResult.longitude.toFixed(4)}</span>
                       </div>
                       <div>
-                        <span className="text-gray-400">Severity:</span>{" "}
-                        <span className="text-amber-400 font-semibold">{inboundResult.severity}</span>
+                        <span className="text-slate-500">Severity:</span>{" "}
+                        <span className="text-amber-800 font-semibold">{inboundResult.severity}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Outbound SMS Text */}
-                  <div className="bg-[#111318] border border-amber-500/30 rounded-xl p-4">
-                    <div className="flex items-center justify-between text-xs text-amber-400 font-semibold mb-1">
+                  <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-4">
+                    <div className="flex items-center justify-between text-xs text-amber-800 font-semibold mb-1">
                       <span>AUTOMATED LIFE-SAFETY SMS REPLY</span>
-                      <span className="font-mono">{inboundResult.auto_reply_sms.length}/160 Chars</span>
+                      <span className="font-mono text-slate-500">{inboundResult.auto_reply_sms.length}/160 Chars</span>
                     </div>
-                    <div className="text-xs text-gray-200 font-mono bg-[#08090C] p-3 rounded-lg border border-[#222634]">
+                    <div className="text-xs text-slate-800 font-mono bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                       "{inboundResult.auto_reply_sms}"
                     </div>
-                    <div className="text-[11px] text-emerald-400 mt-2 flex items-center gap-1">
+                    <div className="text-[11px] text-emerald-700 font-medium mt-2 flex items-center gap-1">
                       <CheckCircle className="w-3.5 h-3.5" />
                       Dispatched via GSM Modem to {inboundResult.sender_phone}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="h-64 flex flex-col items-center justify-center text-gray-500 text-xs text-center border border-dashed border-[#222634] rounded-xl">
-                  <MessageSquare className="w-8 h-8 text-gray-600 mb-2" />
+                <div className="h-64 flex flex-col items-center justify-center text-slate-400 text-xs text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                  <MessageSquare className="w-8 h-8 text-slate-300 mb-2" />
                   Submit an inbound SMS to inspect live entity extraction and auto-reply dispatch.
                 </div>
               )}
@@ -521,12 +521,12 @@ export default function SmsGatewayPage() {
         {/* Tab 2: Sector Broadcast */}
         {activeTab === "broadcast" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-[#111318] border border-[#222634] rounded-xl p-6">
-              <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <Send className="w-4 h-4 text-amber-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <Send className="w-4 h-4 text-amber-600" />
                 Dispatch Emergency Sector Broadcast
               </h2>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-xs text-slate-600 mb-4">
                 Transmits targeted SMS alerts to all citizen and volunteer phones within an affected geographic sector.
               </p>
 
@@ -539,7 +539,7 @@ export default function SmsGatewayPage() {
                     setBroadcastHazard("Flash Flood Evacuation");
                     setBroadcastInstruction("Route-88 Bridge Breached. Water rising. Move to Primary School High Ground. Detour via Boat Ramp active.");
                   }}
-                  className="text-[11px] px-2.5 py-1 rounded bg-[#222634] text-amber-300 hover:bg-[#2D3346] border border-amber-500/30"
+                  className="text-[11px] px-2.5 py-1 rounded bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 font-medium"
                 >
                   Preset: Route-88 Breach Evacuation
                 </button>
@@ -550,7 +550,7 @@ export default function SmsGatewayPage() {
                     setBroadcastHazard("Contaminated Water Advisory");
                     setBroadcastInstruction("Flood water mixed with supply lines. Boil water for 10 mins. Medical kits at Sector 2 Camp.");
                   }}
-                  className="text-[11px] px-2.5 py-1 rounded bg-[#222634] text-orange-300 hover:bg-[#2D3346] border border-orange-500/30"
+                  className="text-[11px] px-2.5 py-1 rounded bg-orange-50 text-orange-800 hover:bg-orange-100 border border-orange-200 font-medium"
                 >
                   Preset: Boil Water Advisory
                 </button>
@@ -558,11 +558,11 @@ export default function SmsGatewayPage() {
 
               <form onSubmit={handleBroadcastSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">Target Geographic Sector</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Target Geographic Sector</label>
                   <select
                     value={broadcastSector}
                     onChange={(e) => setBroadcastSector(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#08090C] border border-[#222634] rounded-lg text-sm text-white focus:border-amber-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                   >
                     <option value="Sector 4 - Guwahati Basin">Sector 4 - Guwahati Basin (High Risk)</option>
                     <option value="Sector 2 - Brahmaputra Flood Wall">Sector 2 - Flood Wall (Inundated)</option>
@@ -571,20 +571,20 @@ export default function SmsGatewayPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">Hazard Title</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">Hazard Title</label>
                   <input
                     type="text"
                     value={broadcastHazard}
                     onChange={(e) => setBroadcastHazard(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#08090C] border border-[#222634] rounded-lg text-sm text-white focus:border-amber-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                     required
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-xs font-semibold text-gray-300">Actionable Instruction</label>
-                    <span className={`text-[11px] font-mono ${charCount <= 160 ? "text-emerald-400" : "text-red-400 font-bold"}`}>
+                    <label className="block text-xs font-semibold text-slate-700">Actionable Instruction</label>
+                    <span className={`text-[11px] font-mono ${charCount <= 160 ? "text-emerald-700" : "text-red-600 font-bold"}`}>
                       {charCount}/160 Chars {charCount <= 160 ? "(1 Segment)" : "(Multi-part SMS)"}
                     </span>
                   </div>
@@ -592,7 +592,7 @@ export default function SmsGatewayPage() {
                     rows={3}
                     value={broadcastInstruction}
                     onChange={(e) => setBroadcastInstruction(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#08090C] border border-[#222634] rounded-lg text-sm text-white focus:border-amber-500 focus:outline-none"
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                     required
                   />
                 </div>
@@ -600,7 +600,7 @@ export default function SmsGatewayPage() {
                 <button
                   type="submit"
                   disabled={isBroadcasting}
-                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-500 hover:to-orange-500 text-white font-bold text-sm shadow-lg shadow-red-500/20 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-bold text-sm shadow-md shadow-red-500/20 transition-all flex items-center justify-center gap-2"
                 >
                   <Send className={`w-4 h-4 ${isBroadcasting ? "animate-spin" : ""}`} />
                   {isBroadcasting ? "Broadcasting..." : "Broadcast Emergency SMS Alert"}
@@ -609,40 +609,40 @@ export default function SmsGatewayPage() {
             </div>
 
             {/* Broadcast Result */}
-            <div className="bg-[#111318] border border-[#222634] rounded-xl p-6">
-              <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
                 Transmission Status & Cell Broadcast Ledger
               </h2>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-xs text-slate-600 mb-4">
                 Verified delivery receipts and carrier queuing state across cellular towers.
               </p>
 
               {broadcastResult ? (
                 <div className="space-y-4">
-                  <div className="bg-[#08090C] p-4 rounded-xl border border-emerald-500/30 space-y-3">
+                  <div className="bg-slate-50 p-4 rounded-xl border border-emerald-200 space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-mono font-bold text-emerald-400">
+                      <span className="text-xs font-mono font-bold text-emerald-800">
                         {broadcastResult.broadcast_id}
                       </span>
-                      <span className="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">
+                      <span className="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">
                         {broadcastResult.delivery_status}
                       </span>
                     </div>
 
-                    <div className="text-xs text-gray-300 font-mono bg-[#08090C] p-3 rounded-lg border border-[#222634]">
+                    <div className="text-xs text-slate-800 font-mono bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
                       "{broadcastResult.primary_sms_text}"
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs text-gray-400">
-                      <div>Recipients Queued: <span className="text-white font-bold">{broadcastResult.recipients_queued} Phones</span></div>
-                      <div>GSM Segment: <span className="text-emerald-400 font-bold">Single (160B)</span></div>
+                    <div className="grid grid-cols-2 gap-2 text-xs text-slate-600">
+                      <div>Recipients Queued: <span className="text-slate-900 font-bold">{broadcastResult.recipients_queued} Phones</span></div>
+                      <div>GSM Segment: <span className="text-emerald-700 font-bold">Single (160B)</span></div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="h-64 flex flex-col items-center justify-center text-gray-500 text-xs text-center border border-dashed border-[#222634] rounded-xl">
-                  <Send className="w-8 h-8 text-gray-600 mb-2" />
+                <div className="h-64 flex flex-col items-center justify-center text-slate-400 text-xs text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/50">
+                  <Send className="w-8 h-8 text-slate-300 mb-2" />
                   Dispatch an alert to view broadcast delivery status and character count metrics.
                 </div>
               )}
@@ -654,31 +654,31 @@ export default function SmsGatewayPage() {
         {activeTab === "satellite" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Encoder */}
-            <div className="bg-[#111318] border border-[#222634] rounded-xl p-6">
-              <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <Satellite className="w-4 h-4 text-amber-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <Satellite className="w-4 h-4 text-amber-600" />
                 Satellite 140-Byte Burst Encoder
               </h2>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-xs text-slate-600 mb-4">
                 Compresses incident envelopes into compact alphanumeric bursts for Iridium, Garmin inReach, or C-DOT satellite communicators with CRC-32 checksums.
               </p>
 
               <div className="grid grid-cols-2 gap-3 mb-3 text-xs">
                 <div>
-                  <label className="text-gray-400 block mb-1">Event ID</label>
+                  <label className="text-slate-600 block mb-1 font-semibold">Event ID</label>
                   <input
                     type="text"
                     value={satEventId}
                     onChange={(e) => setSatEventId(e.target.value)}
-                    className="w-full px-2 py-1.5 bg-[#08090C] border border-[#222634] rounded font-mono text-white"
+                    className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-400 block mb-1">Category</label>
+                  <label className="text-slate-600 block mb-1 font-semibold">Category</label>
                   <select
                     value={satCategory}
                     onChange={(e) => setSatCategory(e.target.value)}
-                    className="w-full px-2 py-1.5 bg-[#08090C] border border-[#222634] rounded text-white"
+                    className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                   >
                     <option value="RESCUE">RESCUE</option>
                     <option value="MEDICAL">MEDICAL</option>
@@ -687,11 +687,11 @@ export default function SmsGatewayPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-gray-400 block mb-1">Severity</label>
+                  <label className="text-slate-600 block mb-1 font-semibold">Severity</label>
                   <select
                     value={satSeverity}
                     onChange={(e) => setSatSeverity(e.target.value)}
-                    className="w-full px-2 py-1.5 bg-[#08090C] border border-[#222634] rounded text-white"
+                    className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                   >
                     <option value="CRITICAL">CRITICAL</option>
                     <option value="HIGH">HIGH</option>
@@ -699,112 +699,112 @@ export default function SmsGatewayPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-gray-400 block mb-1">People at Risk</label>
+                  <label className="text-slate-600 block mb-1 font-semibold">People at Risk</label>
                   <input
                     type="number"
                     value={satPeople}
                     onChange={(e) => setSatPeople(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-[#08090C] border border-[#222634] rounded font-mono text-white"
+                    className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-400 block mb-1">Latitude</label>
+                  <label className="text-slate-600 block mb-1 font-semibold">Latitude</label>
                   <input
                     type="number"
                     step="0.001"
                     value={satLat}
                     onChange={(e) => setSatLat(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-[#08090C] border border-[#222634] rounded font-mono text-white"
+                    className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="text-gray-400 block mb-1">Longitude</label>
+                  <label className="text-slate-600 block mb-1 font-semibold">Longitude</label>
                   <input
                     type="number"
                     step="0.001"
                     value={satLon}
                     onChange={(e) => setSatLon(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-[#08090C] border border-[#222634] rounded font-mono text-white"
+                    className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded font-mono text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="mb-4">
-                <label className="text-xs text-gray-400 block mb-1">Short Description (&le; 24 chars)</label>
+                <label className="text-xs text-slate-600 block mb-1 font-semibold">Short Description (&le; 24 chars)</label>
                 <input
                   type="text"
                   value={satDesc}
                   onChange={(e) => setSatDesc(e.target.value)}
-                  className="w-full px-2 py-1.5 bg-[#08090C] border border-[#222634] rounded text-xs text-white"
+                  className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded text-xs text-slate-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={handleEncodeSatellite}
-                className="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs shadow-md transition-all"
+                className="w-full py-2 px-3 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-md transition-all"
               >
                 Encode Compact Satellite Burst
               </button>
 
               {encodedBurst && (
-                <div className="mt-4 bg-[#08090C] p-3 rounded-lg border border-amber-500/30 text-xs font-mono space-y-1">
-                  <div className="text-gray-400">WIRE STRING:</div>
-                  <div className="text-amber-300 break-all select-all">{encodedBurst.burst_string}</div>
-                  <div className="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-[#222634]">
+                <div className="mt-4 bg-slate-50 p-3 rounded-lg border border-amber-200 text-xs font-mono space-y-1">
+                  <div className="text-slate-500 font-semibold">WIRE STRING:</div>
+                  <div className="text-amber-900 font-bold break-all select-all">{encodedBurst.burst_string}</div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-600 pt-2 border-t border-slate-200">
                     <span>Length: {encodedBurst.byte_length} Bytes / 140B</span>
-                    <span className="text-emerald-400 font-bold">CRC32: {encodedBurst.crc32_checksum}</span>
+                    <span className="text-emerald-700 font-bold">CRC32: {encodedBurst.crc32_checksum}</span>
                   </div>
                 </div>
               )}
             </div>
 
             {/* Decoder */}
-            <div className="bg-[#111318] border border-[#222634] rounded-xl p-6">
-              <h2 className="text-base font-bold text-white mb-2 flex items-center gap-2">
-                <CheckCircle className="w-4 h-4 text-emerald-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <h2 className="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
                 Satellite Burst Decoder & CRC Verification
               </h2>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-xs text-slate-600 mb-4">
                 Validates and reconstitutes an incoming 140-byte satellite burst packet back into an operational event.
               </p>
 
               <div className="mb-4">
-                <label className="text-xs text-gray-400 block mb-1">Satellite Wire Burst String</label>
+                <label className="text-xs text-slate-600 block mb-1 font-semibold">Satellite Wire Burst String</label>
                 <textarea
                   rows={2}
                   value={decodeInput}
                   onChange={(e) => setDecodeInput(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#08090C] border border-[#222634] rounded-lg text-xs font-mono text-amber-300 focus:outline-none"
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono text-amber-900 focus:bg-white focus:border-amber-500 focus:outline-none"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={handleDecodeSatellite}
-                className="w-full py-2 px-3 rounded-lg bg-orange-500 hover:bg-orange-400 text-black font-bold text-xs shadow-md transition-all mb-4"
+                className="w-full py-2 px-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs shadow-md transition-all mb-4"
               >
                 Decode & Verify Checksum
               </button>
 
               {decodedResult && (
-                <div className="bg-[#08090C] p-4 rounded-lg border border-emerald-500/30 text-xs space-y-2">
+                <div className="bg-slate-50 p-4 rounded-lg border border-emerald-200 text-xs space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-white font-mono">{decodedResult.event_id}</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${decodedResult.crc32_valid ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"}`}>
+                    <span className="font-bold text-slate-900 font-mono">{decodedResult.event_id}</span>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${decodedResult.crc32_valid ? "bg-emerald-100 text-emerald-800 border border-emerald-200" : "bg-red-100 text-red-800 border border-red-200"}`}>
                       {decodedResult.crc32_valid ? "CRC-32 VALID" : "CRC-32 CORRUPTED"}
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 text-gray-300">
-                    <div>Category: <span className="text-amber-400 font-bold">{decodedResult.category}</span></div>
-                    <div>Severity: <span className="text-orange-400 font-bold">{decodedResult.severity}</span></div>
-                    <div>Casualties: <span className="text-white font-bold">{decodedResult.people_at_risk}</span></div>
-                    <div>Coordinates: <span className="text-white font-mono">{decodedResult.latitude}, {decodedResult.longitude}</span></div>
+                  <div className="grid grid-cols-2 gap-2 text-slate-700">
+                    <div>Category: <span className="text-amber-800 font-bold">{decodedResult.category}</span></div>
+                    <div>Severity: <span className="text-orange-800 font-bold">{decodedResult.severity}</span></div>
+                    <div>Casualties: <span className="text-slate-900 font-bold">{decodedResult.people_at_risk}</span></div>
+                    <div>Coordinates: <span className="text-slate-900 font-mono">{decodedResult.latitude}, {decodedResult.longitude}</span></div>
                   </div>
 
-                  <div className="pt-2 border-t border-[#222634] text-gray-400">
-                    Description: <span className="text-gray-200">{decodedResult.short_desc}</span>
+                  <div className="pt-2 border-t border-slate-200 text-slate-600">
+                    Description: <span className="text-slate-900 font-medium">{decodedResult.short_desc}</span>
                   </div>
                 </div>
               )}
@@ -814,16 +814,16 @@ export default function SmsGatewayPage() {
 
         {/* Tab 4: Logs */}
         {activeTab === "logs" && (
-          <div className="bg-[#111318] border border-[#222634] rounded-xl p-6">
+          <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-base font-bold text-white">Transmission Audit Ledger</h2>
-                <p className="text-xs text-gray-400">Complete log of inbound citizen SOS, outbound replies, and broadcasts.</p>
+                <h2 className="text-base font-bold text-slate-900">Transmission Audit Ledger</h2>
+                <p className="text-xs text-slate-500">Complete log of inbound citizen SOS, outbound replies, and broadcasts.</p>
               </div>
               <button
                 onClick={fetchLogs}
                 disabled={isLoadingLogs}
-                className="flex items-center gap-1 text-xs text-amber-400 hover:text-amber-300"
+                className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-bold"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isLoadingLogs ? "animate-spin" : ""}`} />
                 Refresh
@@ -831,11 +831,11 @@ export default function SmsGatewayPage() {
             </div>
 
             {logs.length === 0 ? (
-              <div className="py-12 text-center text-gray-500 text-xs">No transmissions recorded yet.</div>
+              <div className="py-12 text-center text-slate-400 text-xs">No transmissions recorded yet.</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#08090C] text-gray-400 border-b border-[#222634]">
+                  <thead className="bg-slate-50 text-slate-700 border-b border-slate-200">
                     <tr>
                       <th className="p-2.5">Time</th>
                       <th className="p-2.5">Direction</th>
@@ -845,30 +845,30 @@ export default function SmsGatewayPage() {
                       <th className="p-2.5">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#222634]">
+                  <tbody className="divide-y divide-slate-200">
                     {logs.map((log) => (
-                      <tr key={log.id} className="hover:bg-[#161922]">
-                        <td className="p-2.5 text-gray-400 whitespace-nowrap font-mono text-[11px]">
+                      <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
+                        <td className="p-2.5 text-slate-500 whitespace-nowrap font-mono text-[11px]">
                           {new Date(log.timestamp).toLocaleTimeString()}
                         </td>
                         <td className="p-2.5">
                           <span
-                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                            className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${
                               log.direction === "INBOUND"
-                                ? "bg-amber-500/20 text-amber-400"
+                                ? "bg-amber-100 text-amber-800 border-amber-200"
                                 : log.direction === "BROADCAST"
-                                ? "bg-orange-500/20 text-orange-400"
-                                : "bg-emerald-500/20 text-emerald-400"
+                                ? "bg-orange-100 text-orange-800 border-orange-200"
+                                : "bg-emerald-100 text-emerald-800 border-emerald-200"
                             }`}
                           >
                             {log.direction}
                           </span>
                         </td>
-                        <td className="p-2.5 font-mono text-gray-300">{log.sender_or_recipient}</td>
-                        <td className="p-2.5 max-w-md truncate text-gray-200 font-mono text-[11px]">{log.text}</td>
-                        <td className="p-2.5 text-gray-400 font-mono text-[11px]">{log.related_ref || "-"}</td>
+                        <td className="p-2.5 font-mono text-slate-700">{log.sender_or_recipient}</td>
+                        <td className="p-2.5 max-w-md truncate text-slate-800 font-mono text-[11px]">{log.text}</td>
+                        <td className="p-2.5 text-slate-500 font-mono text-[11px]">{log.related_ref || "-"}</td>
                         <td className="p-2.5">
-                          <span className="text-emerald-400 text-[10px] font-semibold">{log.status}</span>
+                          <span className="text-emerald-700 text-[10px] font-semibold">{log.status}</span>
                         </td>
                       </tr>
                     ))}

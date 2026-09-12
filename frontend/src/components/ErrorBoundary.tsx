@@ -97,24 +97,24 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-[#08090C] text-white flex items-center justify-center p-6">
-          <div className="bg-[#111318] border border-red-500/30 rounded-2xl p-8 max-w-lg w-full text-center shadow-2xl">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-red-400">
+        <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-6">
+          <div className="bg-white border border-red-200 rounded-2xl p-8 max-w-lg w-full text-center shadow-xl">
+            <div className="w-16 h-16 bg-red-50 border border-red-200 rounded-full flex items-center justify-center mx-auto mb-6 text-red-600">
               <AlertTriangle className="w-8 h-8" />
             </div>
-            <h2 className="text-2xl font-bold mb-2">Common Operational Picture Error</h2>
-            <p className="text-gray-400 text-sm mb-6">
+            <h2 className="text-2xl font-bold mb-2 text-slate-900">Common Operational Picture Error</h2>
+            <p className="text-slate-600 text-sm mb-6">
               A critical rendering or telemetry synchronization anomaly occurred. The local SQLite outbox and
               audit integrity remain protected.
             </p>
             {this.state.error && (
-              <div className="bg-black/40 rounded-lg p-3 text-left font-mono text-xs text-red-300 mb-6 overflow-x-auto">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-left font-mono text-xs text-red-800 mb-6 overflow-x-auto">
                 {this.state.error.message}
               </div>
             )}
             <button
               onClick={this.handleReset}
-              className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl shadow-lg shadow-amber-500/25 transition-all"
+              className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md shadow-amber-500/20 transition-all"
             >
               <RotateCcw className="w-4 h-4" /> Reload Operational Picture
             </button>

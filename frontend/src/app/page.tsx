@@ -494,7 +494,7 @@ export default function CommandCenter() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#08090C] text-slate-100 flex flex-col font-sans">
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
         {/* Navbar Header */}
         <Navbar
           backendConnected={backendConnected}
@@ -508,34 +508,34 @@ export default function CommandCenter() {
         />
 
         {/* Official Warning & Disaster Context Alert Banner */}
-        <div className="bg-gradient-to-r from-amber-600/20 via-red-600/20 to-amber-600/20 border-y border-amber-500/30 px-4 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="bg-amber-50 border-y border-amber-200 px-4 lg:px-8 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs text-amber-950 shadow-sm">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
-            <span className="font-bold text-amber-300 uppercase tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+            <span className="font-bold text-amber-800 uppercase tracking-wider">
               NDMA SACHET / CAP ACTIVE ALERT:
             </span>
-            <span className="text-gray-200">
+            <span className="text-slate-800 font-medium">
               Extreme Riverine Flood Surge in Brahmaputra Basin (Guwahati Urban & Rural). 4 bridges under safety review.
             </span>
           </div>
-          <div className="flex items-center gap-4 text-gray-400 font-mono text-[11px]">
+          <div className="flex items-center gap-4 text-slate-600 font-mono text-[11px]">
             <span>CAP ID: IN-AS-2026-FL-088</span>
-            <span>Severity: SEVERE (Level 3)</span>
+            <span className="font-semibold text-red-700">Severity: SEVERE (Level 3)</span>
           </div>
         </div>
 
         {/* Connectivity Mode Notice (When Mesh or Offline) */}
         {connectivityMode !== "cloud" && (
-          <div className="bg-amber-950/30 border-b border-amber-500/30 px-4 lg:px-8 py-2 text-xs flex items-center justify-between">
-            <div className="flex items-center gap-2 text-amber-300">
-              <Radio className="w-4 h-4 text-amber-400 animate-pulse" />
+          <div className="bg-amber-50 border-b border-amber-200 px-4 lg:px-8 py-2 text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2 text-amber-900 font-medium">
+              <Radio className="w-4 h-4 text-amber-600 animate-pulse" />
               <span>
                 {connectivityMode === "mesh"
                   ? "Operating on BLE 5.0 Peer Mesh Relay (Hop Distance: 3). Synchronizing outbox batches via gossip protocol."
                   : "Radio Blackout Mode Active. All observations committed transactionally to local SQLite outbox (Zero Data Loss Invariant)."}
               </span>
             </div>
-            <span className="font-mono text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+            <span className="font-mono text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-200 font-bold">
               INVARIANT 1 & 2 ACTIVE
             </span>
           </div>
@@ -545,48 +545,48 @@ export default function CommandCenter() {
         <main className="flex-1 p-4 lg:p-8 space-y-6 max-w-[1600px] w-full mx-auto">
           {/* Top Metrics Ribbon */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
-              <span className="text-[11px] text-gray-400 uppercase font-semibold block">Total Incidents</span>
-              <span className="text-2xl font-black text-white">{summary?.total_incidents ?? incidents.length}</span>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-[11px] text-slate-500 uppercase font-semibold block">Total Incidents</span>
+              <span className="text-2xl font-black text-slate-900">{summary?.total_incidents ?? incidents.length}</span>
             </div>
-            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
-              <span className="text-[11px] text-gray-400 uppercase font-semibold block">Critical Threats</span>
-              <span className="text-2xl font-black text-red-400">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-[11px] text-slate-500 uppercase font-semibold block">Critical Threats</span>
+              <span className="text-2xl font-black text-red-600">
                 {incidents.filter((i) => i.severity === "CRITICAL").length}
               </span>
             </div>
-            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
-              <span className="text-[11px] text-gray-400 uppercase font-semibold block">Active Tasks</span>
-              <span className="text-2xl font-black text-amber-400">{summary?.active_tasks ?? 3}</span>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-[11px] text-slate-500 uppercase font-semibold block">Active Tasks</span>
+              <span className="text-2xl font-black text-amber-600">{summary?.active_tasks ?? 3}</span>
             </div>
-            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
-              <span className="text-[11px] text-gray-400 uppercase font-semibold block">Open Conflicts</span>
-              <span className="text-2xl font-black text-amber-400">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-[11px] text-slate-500 uppercase font-semibold block">Open Conflicts</span>
+              <span className="text-2xl font-black text-amber-600">
                 {conflicts.filter((c) => c.status === "OPEN").length}
               </span>
             </div>
-            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
-              <span className="text-[11px] text-gray-400 uppercase font-semibold block">Active Responders</span>
-              <span className="text-2xl font-black text-emerald-400">{summary?.active_responders ?? 8}</span>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-[11px] text-slate-500 uppercase font-semibold block">Active Responders</span>
+              <span className="text-2xl font-black text-emerald-600">{summary?.active_responders ?? 8}</span>
             </div>
-            <div className="bg-[#111318] border border-[#222634] rounded-2xl p-4">
-              <span className="text-[11px] text-gray-400 uppercase font-semibold block">Saturation Index</span>
-              <span className="text-2xl font-black text-purple-400">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <span className="text-[11px] text-slate-500 uppercase font-semibold block">Saturation Index</span>
+              <span className="text-2xl font-black text-purple-600">
                 {summary?.resource_saturation_index ?? 0.38}
               </span>
             </div>
           </div>
 
           {/* Operational View Switcher & Drill Launch Ribbon */}
-          <div className="flex flex-wrap items-center justify-between gap-3 bg-[#111318] border border-[#222634] rounded-2xl px-5 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl px-5 py-3 shadow-sm">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-400 font-mono font-semibold">VIEW MODE:</span>
+              <span className="text-xs text-slate-500 font-mono font-semibold">VIEW MODE:</span>
               <button
                 onClick={() => setOperationalView("commander")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   operationalView === "commander"
-                    ? "bg-amber-500 text-black font-bold shadow-lg shadow-amber-500/30"
-                    : "bg-[#08090C] text-gray-400 hover:text-white"
+                    ? "bg-amber-500 text-slate-950 font-bold shadow-sm"
+                    : "bg-slate-100 text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Incident Commander COP
@@ -595,8 +595,8 @@ export default function CommandCenter() {
                 onClick={() => setOperationalView("field")}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                   operationalView === "field"
-                    ? "bg-orange-500 border-orange-400 text-black font-bold shadow-lg shadow-orange-500/30"
-                    : "bg-[#08090C] border-[#222634] text-gray-400 hover:text-white"
+                    ? "bg-orange-500 border-orange-400 text-slate-950 font-bold shadow-sm"
+                    : "bg-slate-100 border-slate-200 text-slate-600 hover:text-slate-900"
                 }`}
               >
                 Tactical Field Responder (Wet-Screen HUD)
@@ -604,46 +604,46 @@ export default function CommandCenter() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-gray-400 font-mono hidden md:inline">DRILLS:</span>
+              <span className="text-xs text-slate-500 font-mono hidden md:inline font-semibold">DRILLS:</span>
               <button
                 onClick={() => handleRunSimulation("scenario-flood-contradiction")}
                 disabled={isSimulating}
-                className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 hover:bg-amber-500/20 text-amber-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                className="px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-800 text-xs font-semibold flex items-center gap-1 transition-all shadow-sm"
                 title="Run Route-88 Flash Flood Contradiction & Safety Freeze Drill"
               >
-                <Droplets className="w-3 h-3 text-amber-400" />
+                <Droplets className="w-3 h-3 text-amber-600" />
                 <span>Flood Freeze</span>
               </button>
               <button
                 onClick={() => handleRunSimulation("scenario-asset-contention")}
                 disabled={isSimulating}
-                className="px-2.5 py-1 rounded-lg bg-orange-500/10 border border-orange-500/30 hover:bg-orange-500/20 text-orange-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                className="px-2.5 py-1 rounded-lg bg-orange-50 border border-orange-200 hover:bg-orange-100 text-orange-800 text-xs font-semibold flex items-center gap-1 transition-all shadow-sm"
                 title="Run Distributed Heavy Equipment Contention & NFC Lease Drill"
               >
-                <LifeBuoy className="w-3 h-3 text-orange-400" />
+                <LifeBuoy className="w-3 h-3 text-orange-600" />
                 <span>Asset Lease</span>
               </button>
               <button
                 onClick={() => handleRunSimulation("scenario-replay-attack")}
                 disabled={isSimulating}
-                className="px-2.5 py-1 rounded-lg bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 text-red-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                className="px-2.5 py-1 rounded-lg bg-red-50 border border-red-200 hover:bg-red-100 text-red-800 text-xs font-semibold flex items-center gap-1 transition-all shadow-sm"
                 title="Run Adversarial Poison Packet & Anti-Replay Mitigation Drill"
               >
-                <Shield className="w-3 h-3 text-red-400" />
+                <Shield className="w-3 h-3 text-red-600" />
                 <span>Replay Attack</span>
               </button>
               <button
                 onClick={() => handleRunSimulation("scenario-sms-triage")}
                 disabled={isSimulating}
-                className="px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold flex items-center gap-1 transition-all"
+                className="px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold flex items-center gap-1 transition-all shadow-sm"
                 title="Run Multilingual SMS Ingestion & Governed NLP Triage Drill"
               >
-                <Sparkles className="w-3 h-3 text-emerald-400" />
+                <Sparkles className="w-3 h-3 text-emerald-600" />
                 <span>SMS Triage</span>
               </button>
               <button
                 onClick={() => setIsSimModalOpen(true)}
-                className="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-amber-500/20"
+                className="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 shadow-sm"
                 title="Open Simulation Studio"
               >
                 <Radio className="w-3.5 h-3.5" /> Studio
@@ -662,14 +662,14 @@ export default function CommandCenter() {
           ) : (
             <>
               {/* Navigation Tabs Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#222634] pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-3">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setActiveTab("cop")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "cop"
-                        ? "bg-amber-500 text-black font-bold shadow-lg shadow-amber-500/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
+                        ? "bg-amber-500 text-slate-950 font-bold shadow-sm"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     <Layers className="w-4 h-4" />
@@ -680,8 +680,8 @@ export default function CommandCenter() {
                     onClick={() => setActiveTab("mesh")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "mesh"
-                        ? "bg-teal-600 text-white shadow-lg shadow-teal-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
+                        ? "bg-teal-600 text-white shadow-sm font-bold"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     <Radio className="w-4 h-4" />
@@ -692,8 +692,8 @@ export default function CommandCenter() {
                     onClick={() => setActiveTab("pipeline")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "pipeline"
-                        ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
+                        ? "bg-purple-600 text-white shadow-sm font-bold"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     <RotateCcw className="w-4 h-4" />
@@ -704,14 +704,14 @@ export default function CommandCenter() {
                     onClick={() => setActiveTab("conflicts")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all relative ${
                       activeTab === "conflicts"
-                        ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
+                        ? "bg-amber-600 text-white shadow-sm font-bold"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     <Lock className="w-4 h-4" />
                     <span>Conflict Resolution & Safety Freezes</span>
                     {conflicts.filter((c) => c.status === "OPEN").length > 0 && (
-                      <span className="w-2 h-2 rounded-full bg-red-400 animate-ping absolute -top-1 -right-1" />
+                      <span className="w-2 h-2 rounded-full bg-red-500 animate-ping absolute -top-1 -right-1" />
                     )}
                   </button>
 
@@ -719,8 +719,8 @@ export default function CommandCenter() {
                     onClick={() => setActiveTab("assets")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "assets"
-                        ? "bg-orange-500 text-black font-bold shadow-lg shadow-orange-500/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
+                        ? "bg-orange-500 text-slate-950 font-bold shadow-sm"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     <LifeBuoy className="w-4 h-4" />
@@ -731,8 +731,8 @@ export default function CommandCenter() {
                     onClick={() => setActiveTab("audit")}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                       activeTab === "audit"
-                        ? "bg-amber-500 text-black font-bold shadow-lg shadow-amber-500/30"
-                        : "text-gray-400 hover:text-white hover:bg-[#111318]"
+                        ? "bg-slate-800 text-white font-bold shadow-sm"
+                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
                     <FileCheck className="w-4 h-4" />
@@ -740,8 +740,8 @@ export default function CommandCenter() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   <span>Causal Clock: {new Date().toLocaleTimeString()}</span>
                 </div>
               </div>
@@ -762,10 +762,10 @@ export default function CommandCenter() {
                     {/* Incidents Feed */}
                     <div className="lg:col-span-2 space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                           Live Field Incidents Feed ({incidents.length})
                         </h3>
-                        <span className="text-xs text-gray-500 font-mono">Sorted by Multi-Factor Priority</span>
+                        <span className="text-xs text-slate-500 font-mono font-medium">Sorted by Multi-Factor Priority</span>
                       </div>
 
                       <div className="space-y-3">
@@ -776,10 +776,10 @@ export default function CommandCenter() {
                             <div
                               key={inc.id}
                               onClick={() => setSelectedIncidentId(inc.id)}
-                              className={`bg-[#111318] border rounded-2xl p-5 cursor-pointer transition-all ${
+                              className={`bg-white border rounded-2xl p-5 cursor-pointer transition-all shadow-sm ${
                                 isSelected
-                                  ? "border-amber-500 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500/50"
-                                  : "border-[#222634] hover:border-gray-700"
+                                  ? "border-amber-500 shadow-md ring-2 ring-amber-500/30"
+                                  : "border-slate-200 hover:border-slate-300 hover:shadow"
                               }`}
                             >
                               <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
@@ -788,45 +788,45 @@ export default function CommandCenter() {
                                     <span
                                       className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-full ${
                                         isCritical
-                                          ? "bg-red-500/20 text-red-400 border border-red-500/30"
-                                          : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                          ? "bg-red-50 text-red-700 border border-red-200"
+                                          : "bg-amber-50 text-amber-800 border border-amber-200"
                                       }`}
                                     >
                                       {inc.category}
                                     </span>
-                                    <span className="text-xs font-mono text-gray-400">{inc.local_reference}</span>
+                                    <span className="text-xs font-mono text-slate-500 font-medium">{inc.local_reference}</span>
                                     {inc.is_route_blocked && (
-                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
+                                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-700 border border-red-200 flex items-center gap-1">
                                         <Lock className="w-2.5 h-2.5" /> ROUTE SAFETY FROZEN
                                       </span>
                                     )}
                                   </div>
-                                  <h4 className="text-base font-bold text-white">{inc.title}</h4>
+                                  <h4 className="text-base font-bold text-slate-900">{inc.title}</h4>
                                 </div>
 
                                 <div className="text-right">
-                                  <span className="text-[10px] uppercase text-gray-500 font-semibold block">Priority</span>
-                                  <span className="text-xl font-black text-amber-400">{inc.priority_score.toFixed(1)}</span>
+                                  <span className="text-[10px] uppercase text-slate-500 font-semibold block">Priority</span>
+                                  <span className="text-xl font-black text-amber-600">{inc.priority_score.toFixed(1)}</span>
                                 </div>
                               </div>
 
-                              <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[#222634] text-xs text-gray-400">
-                                <div className="flex items-center gap-1.5 text-gray-300">
-                                  <MapPin className="w-3.5 h-3.5 text-amber-400" />
+                              <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-100 text-xs text-slate-600">
+                                <div className="flex items-center gap-1.5 text-slate-700 font-medium">
+                                  <MapPin className="w-3.5 h-3.5 text-amber-600" />
                                   <span>{inc.location_name || `${inc.latitude}, ${inc.longitude}`}</span>
                                 </div>
 
                                 <div className="flex items-center gap-4">
-                                  <span className="flex items-center gap-1 text-gray-300">
-                                    <Users className="w-3.5 h-3.5 text-amber-400" />
+                                  <span className="flex items-center gap-1 text-slate-700 font-medium">
+                                    <Users className="w-3.5 h-3.5 text-amber-600" />
                                     <span>{inc.people_at_risk} at risk</span>
                                   </span>
 
                                   <span
                                     className={`font-semibold px-2 py-0.5 rounded-md ${
                                       inc.status === "RESOLVED"
-                                        ? "bg-emerald-500/10 text-emerald-400"
-                                        : "bg-amber-500/10 text-amber-300"
+                                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                        : "bg-amber-50 text-amber-800 border border-amber-200"
                                     }`}
                                   >
                                     {inc.status}
@@ -842,24 +842,24 @@ export default function CommandCenter() {
                     {/* Selected Incident Detail & Explainable Priority Drawer */}
                     {selectedIncident && (
                       <div className="space-y-4">
-                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
                           Incident Operations & Explainability
                         </h3>
 
-                        <div className="bg-[#111318] border border-[#222634] rounded-2xl p-6 space-y-6 shadow-xl sticky top-24">
+                        <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-6 shadow-sm sticky top-24">
                           <div className="space-y-2">
-                            <span className="text-xs font-mono text-amber-400">{selectedIncident.local_reference}</span>
-                            <h4 className="text-lg font-bold text-white leading-snug">{selectedIncident.title}</h4>
+                            <span className="text-xs font-mono text-amber-700 font-bold">{selectedIncident.local_reference}</span>
+                            <h4 className="text-lg font-bold text-slate-900 leading-snug">{selectedIncident.title}</h4>
                             {selectedIncident.description && (
-                              <p className="text-xs text-gray-400">{selectedIncident.description}</p>
+                              <p className="text-xs text-slate-600">{selectedIncident.description}</p>
                             )}
                           </div>
 
                           {/* Explainable Priority Breakdown */}
-                          <div className="space-y-3 bg-[#08090C] rounded-xl p-4 border border-[#222634]">
+                          <div className="space-y-3 bg-slate-50 rounded-xl p-4 border border-slate-200">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-gray-300 uppercase">Multi-Factor Priority</span>
-                              <span className="text-base font-black text-amber-400">
+                              <span className="text-xs font-bold text-slate-800 uppercase">Multi-Factor Priority</span>
+                              <span className="text-base font-black text-amber-600">
                                 {selectedIncident.priority_score.toFixed(1)} / 100
                               </span>
                             </div>
@@ -868,13 +868,13 @@ export default function CommandCenter() {
                               <div className="space-y-2 text-xs">
                                 {selectedIncident.priority_breakdown.severity_component !== undefined && (
                                   <div className="space-y-1">
-                                    <div className="flex justify-between text-[11px] text-gray-400">
+                                    <div className="flex justify-between text-[11px] text-slate-600">
                                       <span>Severity (30%)</span>
-                                      <span className="font-mono text-gray-300">
+                                      <span className="font-mono text-slate-800 font-semibold">
                                         {selectedIncident.priority_breakdown.severity_component}
                                       </span>
                                     </div>
-                                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                    <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                                       <div
                                         className="bg-red-500 h-full rounded-full"
                                         style={{
@@ -887,13 +887,13 @@ export default function CommandCenter() {
 
                                 {selectedIncident.priority_breakdown.people_component !== undefined && (
                                   <div className="space-y-1">
-                                    <div className="flex justify-between text-[11px] text-gray-400">
+                                    <div className="flex justify-between text-[11px] text-slate-600">
                                       <span>People at Risk (25%)</span>
-                                      <span className="font-mono text-gray-300">
+                                      <span className="font-mono text-slate-800 font-semibold">
                                         {selectedIncident.priority_breakdown.people_component}
                                       </span>
                                     </div>
-                                    <div className="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                                    <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
                                       <div
                                         className="bg-amber-500 h-full rounded-full"
                                         style={{
@@ -905,7 +905,7 @@ export default function CommandCenter() {
                                 )}
 
                                 {selectedIncident.priority_breakdown.explanation && (
-                                  <p className="text-[11px] text-gray-400 italic pt-1 border-t border-[#222634]/60">
+                                  <p className="text-[11px] text-slate-600 italic pt-1 border-t border-slate-200">
                                     "{selectedIncident.priority_breakdown.explanation}"
                                   </p>
                                 )}
@@ -915,12 +915,12 @@ export default function CommandCenter() {
 
                           {/* Route & Safety Freeze State */}
                           <div className="space-y-2">
-                            <span className="text-xs font-semibold text-gray-400 uppercase">Assigned Route</span>
+                            <span className="text-xs font-semibold text-slate-600 uppercase">Assigned Route</span>
                             <div
                               className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
                                 selectedIncident.is_route_blocked
-                                  ? "bg-red-500/10 border-red-500/30 text-red-300"
-                                  : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                                  ? "bg-red-50 border-red-200 text-red-800 font-medium"
+                                  : "bg-emerald-50 border-emerald-200 text-emerald-800 font-medium"
                               }`}
                             >
                               <div className="flex items-center gap-2">
@@ -937,14 +937,14 @@ export default function CommandCenter() {
                           {selectedIncident.is_route_blocked ? (
                             <button
                               onClick={() => setActiveTab("conflicts")}
-                              className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-600/30"
+                              className="w-full py-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
                             >
                               <Lock className="w-4 h-4" /> Open Conflict Adjudication Studio
                             </button>
                           ) : (
                             <button
                               onClick={() => setActiveTab("audit")}
-                              className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/30"
+                              className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
                             >
                               <FileCheck className="w-4 h-4" /> Inspect Audit Trail
                             </button>

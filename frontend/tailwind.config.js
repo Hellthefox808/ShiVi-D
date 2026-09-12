@@ -11,14 +11,15 @@ module.exports = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         shivi: {
-          dark: "#08090C",
-          card: "#111318",
-          border: "#222634",
-          accent: "#F59E0B",
-          warning: "#F97316",
-          danger: "#EF4444",
-          success: "#10B981",
+          dark: "#0F172A",
+          card: "#FFFFFF",
+          border: "#E2E8F0",
+          accent: "#D97706",
+          warning: "#EA580C",
+          danger: "#DC2626",
+          success: "#16A34A",
         }
+
       },
     },
   },

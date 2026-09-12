@@ -16,15 +16,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tactical color variables for the emergency operations theme */
+/* Modern high-contrast light theme design tokens */
 :root {
-  /* Explanation: Pitch carbon background matching field tactical console */
-  --background: #08090C;
-  /* Explanation: Crisp high-contrast off-white for legible typography */
-  --foreground: #F8FAFC;
-  --accent: #F59E0B;
-  --card: #111318;
-  --border: #222634;
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --accent: #D97706;
+  --card: #FFFFFF;
+  --border: #E2E8F0;
 }
 
 body {
@@ -34,18 +32,19 @@ body {
   overflow-x: hidden;
 }
 
-/* Custom low-profile scrollbar designed for high-density dark-mode operations feeds */
+/* Custom low-profile scrollbar styled for high-density light operations feeds */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #08090C;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #222634;
+  background: #CBD5E1;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #94A3B8;
 }
+

@@ -175,22 +175,22 @@ export default function MeshRelaySimulator() {
   return (
     <div className="space-y-6">
       {/* Header Info */}
-      <div className="bg-[#111318] border border-amber-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm relative overflow-hidden">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
               <Radio className="w-6 h-6 animate-pulse" />
             </div>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-slate-900">
                   Omni-Bearer Mesh Protocol & BLE Packet Framing Inspector
                 </h3>
-                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
                   SPEC: DOC-30
                 </span>
               </div>
-              <p className="text-xs text-gray-400 max-w-3xl">
+              <p className="text-xs text-slate-600 max-w-3xl">
                 In collapsed network conditions, ShiVi dynamically fragments large operational events into ≤496-byte
                 BLE 5.0 GATT MTU frames with individual CRC32 checksums, multi-hop hop tracking, and SHA-256 payload assembly.
               </p>
@@ -213,8 +213,8 @@ export default function MeshRelaySimulator() {
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border ${
                   bearerType === b.id
-                    ? "bg-amber-500 border-amber-400 text-black font-bold shadow-lg shadow-amber-500/30"
-                    : "bg-[#08090C] border-[#222634] text-gray-400 hover:text-white"
+                    ? "bg-amber-500 border-amber-500 text-white font-bold shadow-md shadow-amber-500/20"
+                    : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
                 {b.label} ({b.mtu}B)
@@ -225,27 +225,27 @@ export default function MeshRelaySimulator() {
       </div>
 
       {/* Mesh Relay Hop Architecture Diagram */}
-      <div className="bg-[#111318] border border-[#222634] rounded-2xl p-5 space-y-3">
-        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider font-mono">
+      <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3 shadow-sm">
+        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider font-mono">
           Live Mesh Relay Topology // 3-Hop Multi-Bearer Gossip Route
         </h4>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 relative">
           {[
-            { name: "Node Alpha (Citizen Device)", role: "Originator", bearer: "BLE 5.0", range: "Local 80m", color: "border-amber-500 text-amber-400" },
-            { name: "Node Bravo (SDRF Volunteer)", role: "Hop 1 Repeater", bearer: "BLE / Wi-Fi", range: "Relay 150m", color: "border-orange-500 text-orange-400" },
-            { name: "Node Charlie (IRB Boat Unit)", role: "Hop 2 Repeater", bearer: "VHF Tactical", range: "Corridor 1.2km", color: "border-purple-500 text-purple-400" },
-            { name: "Node Delta (SEOC Operations Hub)", role: "Destination Sink", bearer: "Satellite / Fiber", range: "Permanent", color: "border-emerald-500 text-emerald-400" },
+            { name: "Node Alpha (Citizen Device)", role: "Originator", bearer: "BLE 5.0", range: "Local 80m", color: "border-amber-300 text-amber-800" },
+            { name: "Node Bravo (SDRF Volunteer)", role: "Hop 1 Repeater", bearer: "BLE / Wi-Fi", range: "Relay 150m", color: "border-orange-300 text-orange-800" },
+            { name: "Node Charlie (IRB Boat Unit)", role: "Hop 2 Repeater", bearer: "VHF Tactical", range: "Corridor 1.2km", color: "border-purple-300 text-purple-800" },
+            { name: "Node Delta (SEOC Operations Hub)", role: "Destination Sink", bearer: "Satellite / Fiber", range: "Permanent", color: "border-emerald-300 text-emerald-800" },
           ].map((node, i) => (
-            <div key={i} className={`bg-[#08090C] border ${node.color} rounded-xl p-3.5 space-y-2 relative`}>
+            <div key={i} className={`bg-slate-50 border ${node.color} rounded-xl p-3.5 space-y-2 relative shadow-sm`}>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-gray-500">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
                   HOP {i}
                 </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               </div>
-              <div className="font-bold text-white text-xs">{node.name}</div>
-              <div className="text-[11px] text-gray-400 font-mono flex justify-between">
+              <div className="font-bold text-slate-900 text-xs">{node.name}</div>
+              <div className="text-[11px] text-slate-600 font-mono flex justify-between">
                 <span>{node.role}</span>
                 <span>{node.bearer}</span>
               </div>
@@ -257,26 +257,26 @@ export default function MeshRelaySimulator() {
       {/* Interactive Packet Slicing Studio */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Input Payload & Controls */}
-        <div className="bg-[#111318] border border-[#222634] rounded-2xl p-5 space-y-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Binary className="w-4 h-4 text-amber-400" /> Operational Event Payload (Raw)
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <Binary className="w-4 h-4 text-amber-600" /> Operational Event Payload (Raw)
             </h4>
-            <span className="text-[11px] font-mono text-gray-400">{payloadText.length} bytes</span>
+            <span className="text-[11px] font-mono text-slate-500">{payloadText.length} bytes</span>
           </div>
 
           <textarea
             value={payloadText}
             onChange={(e) => setPayloadText(e.target.value)}
             rows={10}
-            className="w-full bg-[#08090C] border border-[#222634] rounded-xl p-3 text-xs font-mono text-gray-300 focus:outline-none focus:border-amber-500"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs font-mono text-slate-800 focus:outline-none focus:border-amber-500 focus:bg-white"
           />
 
           <div className="flex flex-wrap gap-3">
             <button
               onClick={handlePacketize}
               disabled={isPacketizing}
-              className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/30 disabled:opacity-50"
+              className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md shadow-amber-500/20 disabled:opacity-50"
             >
               {isPacketizing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Layers className="w-4 h-4" />}
               <span>Slice into ≤{mtuBytes}B Frames</span>
@@ -287,7 +287,7 @@ export default function MeshRelaySimulator() {
                 <button
                   onClick={() => handleReassemble(false)}
                   disabled={isReassembling}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 transition-all"
+                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
                 >
                   <CheckCircle2 className="w-4 h-4" /> Reassemble
                 </button>
@@ -295,7 +295,7 @@ export default function MeshRelaySimulator() {
                 <button
                   onClick={() => handleReassemble(true)}
                   disabled={isReassembling}
-                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold flex items-center gap-2 transition-all"
+                  className="px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
                   title="Test out-of-order frame delivery"
                 >
                   <Shuffle className="w-4 h-4" /> Out-of-Order
@@ -304,7 +304,7 @@ export default function MeshRelaySimulator() {
                 <button
                   onClick={handleTamperBit}
                   disabled={isReassembling}
-                  className="px-4 py-2.5 rounded-xl bg-red-600/80 hover:bg-red-500 text-white text-xs font-bold flex items-center gap-2 transition-all"
+                  className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
                   title="Test CRC32 / SHA-256 corruption detection"
                 >
                   <AlertOctagon className="w-4 h-4" /> Inject Bit Flip
@@ -315,14 +315,14 @@ export default function MeshRelaySimulator() {
         </div>
 
         {/* Right: Sliced Frames & Reassembly Status */}
-        <div className="bg-[#111318] border border-[#222634] rounded-2xl p-5 space-y-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-              <Cpu className="w-4 h-4 text-emerald-400" /> Sliced Mesh Frames (
+            <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-emerald-600" /> Sliced Mesh Frames (
               {packetResult ? packetResult.total_frames : 0})
             </h4>
             {packetResult && (
-              <span className="text-[11px] font-mono text-emerald-400">
+              <span className="text-[11px] font-mono text-emerald-700 font-bold">
                 Packet ID: {packetResult.packet_id}
               </span>
             )}
@@ -333,14 +333,14 @@ export default function MeshRelaySimulator() {
             <div
               className={`p-3.5 rounded-xl border flex items-start gap-3 text-xs ${
                 reassembleResult.status === "REASSEMBLED_VERIFIED"
-                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                  : "bg-red-500/10 border-red-500/30 text-red-300"
+                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                  : "bg-red-50 border-red-200 text-red-800"
               }`}
             >
               {reassembleResult.status === "REASSEMBLED_VERIFIED" ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
               ) : (
-                <AlertOctagon className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                <AlertOctagon className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
               )}
               <div className="space-y-1 overflow-hidden">
                 <div className="font-bold uppercase tracking-wider">
@@ -349,7 +349,7 @@ export default function MeshRelaySimulator() {
                 <div className="font-mono text-[11px] truncate">
                   SHA-256: {reassembleResult.integrity_hash_sha256 || "<CORRUPTED_DISCARDED>"}
                 </div>
-                <div className="text-[10px] text-gray-400">
+                <div className="text-[10px] text-slate-600">
                   CRC32 Integrity Check: {reassembleResult.crc32_verified ? "PASSED (100%)" : "FAILED (Tampered)"} | Frames:{" "}
                   {reassembleResult.received_frames} of {reassembleResult.total_frames}
                 </div>
@@ -360,26 +360,26 @@ export default function MeshRelaySimulator() {
           {/* Frame Cards List */}
           <div className="space-y-2.5 max-h-[340px] overflow-y-auto pr-1">
             {!packetResult ? (
-              <div className="text-center py-12 text-xs text-gray-500 font-mono">
+              <div className="text-center py-12 text-xs text-slate-400 font-mono">
                 Click "Slice into ≤{mtuBytes}B Frames" to inspect BLE 5.0 GATT framing.
               </div>
             ) : (
               packetResult.frames.map((frame) => (
                 <div
                   key={frame.chunk_index}
-                  className="bg-[#08090C] border border-[#222634] rounded-xl p-3 space-y-1.5 font-mono text-xs"
+                  className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-1.5 font-mono text-xs shadow-sm"
                 >
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-amber-400 font-bold">
+                    <span className="text-amber-800 font-bold">
                       FRAME [{frame.chunk_index + 1}/{frame.total_chunks}]
                     </span>
-                    <span className="text-gray-400 text-[10px]">{frame.chunk_bytes} bytes</span>
-                    <span className="text-amber-400 text-[10px] bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                    <span className="text-slate-500 text-[10px]">{frame.chunk_bytes} bytes</span>
+                    <span className="text-amber-800 text-[10px] bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200 font-bold">
                       CRC: 0x{frame.crc32.toUpperCase()}
                     </span>
                   </div>
 
-                  <div className="bg-[#111318] p-2 rounded text-[11px] text-gray-300 truncate font-mono">
+                  <div className="bg-white border border-slate-200 p-2 rounded text-[11px] text-slate-800 truncate font-mono">
                     {frame.chunk_payload_text}
                   </div>
                 </div>

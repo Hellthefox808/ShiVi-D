@@ -120,33 +120,33 @@ export function SimulationModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="bg-[#111318] border border-[#222634] rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+      <div className="bg-white border border-slate-200 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#222634] bg-[#08090C]/80">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600">
               <Shield className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-white text-base">
+              <h3 className="font-bold text-slate-900 text-base">
                 ShiVi Operational Simulation Studio — Verified Invariant Drills
               </h3>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-slate-600">
                 End-to-end transactional disaster coordination across all 5 non-negotiable invariants
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-white hover:bg-[#222634] transition-all"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scenario Selector Ribbon */}
-        <div className="bg-[#08090C] px-6 py-3 border-b border-[#222634] flex flex-wrap gap-2">
+        <div className="bg-slate-50 px-6 py-3 border-b border-slate-200 flex flex-wrap gap-2">
           {scenarios.map((sc) => (
             <button
               key={sc.id}
@@ -154,12 +154,14 @@ export function SimulationModal({
               disabled={loading}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border flex items-center gap-2 ${
                 activeScenario === sc.id
-                  ? "bg-amber-500 border-amber-400 text-black font-bold shadow-lg shadow-amber-500/30"
-                  : "bg-[#111318] border-[#222634] text-gray-400 hover:text-white"
+                  ? "bg-amber-500 border-amber-500 text-white font-bold shadow-md shadow-amber-500/20"
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900"
               }`}
             >
               <span>{sc.title}</span>
-              <span className="text-[9px] px-1.5 py-0.2 rounded bg-black/40 text-amber-200">
+              <span className={`text-[9px] px-1.5 py-0.5 rounded font-mono ${
+                activeScenario === sc.id ? "bg-amber-600 text-white" : "bg-slate-100 text-slate-600"
+              }`}>
                 {sc.badge}
               </span>
             </button>
@@ -170,12 +172,12 @@ export function SimulationModal({
         <div className="p-6 overflow-y-auto space-y-6">
           {loading ? (
             <div className="py-16 text-center space-y-4">
-              <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mx-auto" />
+              <div className="w-12 h-12 border-4 border-amber-200 border-t-amber-500 rounded-full animate-spin mx-auto" />
               <div className="space-y-1">
-                <p className="font-medium text-white text-base">
+                <p className="font-medium text-slate-900 text-base">
                   Executing Verified Context Loop Drill...
                 </p>
-                <p className="text-xs text-gray-400 max-w-md mx-auto">
+                <p className="text-xs text-slate-600 max-w-md mx-auto">
                   Exercising offline outbox commits, vector clocks, Causal Conflict Engine safety freezes,
                   adjudication, cryptographic photo proofs, and immutable audit reconstruction.
                 </p>
@@ -184,23 +186,23 @@ export function SimulationModal({
           ) : result ? (
             <>
               {/* Summary Banner */}
-              <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-emerald-300 text-sm">
+                    <h4 className="font-bold text-emerald-900 text-sm">
                       Verified Context Loop Completed (100% Invariant Guarantees)
                     </h4>
-                    <p className="text-xs text-emerald-400/80">
+                    <p className="text-xs text-emerald-700 font-medium">
                       Simulation ID: <span className="font-mono">{result.simulation_id.slice(0, 12)}...</span> •
                       Executed at: {new Date(result.executed_at).toLocaleTimeString()}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono px-2.5 py-1 bg-black/40 rounded-lg text-emerald-300 border border-emerald-500/30">
+                  <span className="text-xs font-mono px-2.5 py-1 bg-white rounded-lg text-emerald-800 border border-emerald-200 font-bold shadow-sm">
                     STATUS: {result.status}
                   </span>
                 </div>
@@ -208,7 +210,7 @@ export function SimulationModal({
 
               {/* Steps Timeline */}
               <div className="space-y-3">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider font-mono">
+                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider font-mono">
                   Execution Trace Steps ({result.steps.length})
                 </h4>
 
@@ -216,40 +218,40 @@ export function SimulationModal({
                   {result.steps.map((st) => (
                     <div
                       key={st.step}
-                      className="bg-[#08090C] border border-[#222634] rounded-xl p-3.5 space-y-1 text-xs"
+                      className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-1 text-xs shadow-sm"
                     >
                       <div className="flex items-center justify-between font-mono">
                         <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px] font-bold">
+                          <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center text-[10px] font-bold border border-amber-200">
                             {st.step}
                           </span>
-                          <span className="font-bold text-white text-sm">{st.title}</span>
+                          <span className="font-bold text-slate-900 text-sm">{st.title}</span>
                         </div>
-                        <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                        <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded">
                           VERIFIED
                         </span>
                       </div>
-                      <p className="text-gray-400 text-xs pl-7">{st.detail}</p>
+                      <p className="text-slate-600 text-xs pl-7">{st.detail}</p>
                     </div>
                   ))}
                 </div>
               </div>
             </>
           ) : (
-            <div className="py-12 text-center text-xs text-gray-500">
+            <div className="py-12 text-center text-xs text-slate-500">
               Select a scenario above to run the drill.
             </div>
           )}
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 border-t border-[#222634] bg-[#08090C]/60 flex items-center justify-between text-xs">
-          <div className="text-gray-400 font-mono">
+        <div className="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs">
+          <div className="text-slate-600 font-mono font-medium">
             <span>Core Guarantee: Zero Silent Overwrites & Full Monotonic Provenance</span>
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-white font-bold transition-all"
+            className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold transition-all"
           >
             Close Trace
           </button>

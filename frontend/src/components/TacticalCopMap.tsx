@@ -125,21 +125,21 @@ export default function TacticalCopMap({
     : "180,220 750,230 850,480 320,510 120,380";
 
   return (
-    <div className="bg-[#111318] border border-[#222634] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col">
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm relative flex flex-col">
       {/* HUD Header Bar */}
-      <div className="bg-[#08090C]/90 border-b border-[#222634] px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs backdrop-blur-md z-10">
+      <div className="bg-slate-50 border-b border-slate-200 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs z-10">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <Crosshair className="w-4 h-4 text-amber-400 animate-spin" style={{ animationDuration: "12s" }} />
-            <span className="font-bold text-white tracking-wider uppercase font-mono">
+            <Crosshair className="w-4 h-4 text-amber-600 animate-spin" style={{ animationDuration: "12s" }} />
+            <span className="font-bold text-slate-900 tracking-wider uppercase font-mono">
               Tactical COP Radar // Sector 4
             </span>
           </div>
-          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
+          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-semibold">
             WGS84 EPSG:4326
           </span>
           {isRouteFrozen && (
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1 animate-pulse">
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-red-50 text-red-700 border border-red-200 flex items-center gap-1 animate-pulse">
               <Lock className="w-2.5 h-2.5" /> ROUTE-88 FROZEN
             </span>
           )}
@@ -151,56 +151,56 @@ export default function TacticalCopMap({
             onClick={() => setShowFloodPolygon(!showFloodPolygon)}
             className={`px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 ${
               showFloodPolygon
-                ? "bg-red-500/20 border-red-500/40 text-red-300 font-semibold"
-                : "bg-gray-800/40 border-gray-700 text-gray-400"
+                ? "bg-red-50 border-red-200 text-red-700 font-bold shadow-sm"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
             }`}
           >
-            <Droplets className="w-3 h-3" /> Flood Surge
+            <Droplets className="w-3 h-3 text-red-600" /> Flood Surge
           </button>
 
           <button
             onClick={() => setShowRoutes(!showRoutes)}
             className={`px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 ${
               showRoutes
-                ? "bg-amber-500/20 border-amber-500/40 text-amber-300 font-semibold"
-                : "bg-gray-800/40 border-gray-700 text-gray-400"
+                ? "bg-amber-50 border-amber-200 text-amber-800 font-bold shadow-sm"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
             }`}
           >
-            <Navigation className="w-3 h-3" /> Corridors
+            <Navigation className="w-3 h-3 text-amber-600" /> Corridors
           </button>
 
           <button
             onClick={() => setShowUnits(!showUnits)}
             className={`px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 ${
               showUnits
-                ? "bg-amber-500/20 border-amber-500/40 text-amber-300 font-semibold"
-                : "bg-gray-800/40 border-gray-700 text-gray-400"
+                ? "bg-orange-50 border-orange-200 text-orange-800 font-bold shadow-sm"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
             }`}
           >
-            <Radio className="w-3 h-3" /> Responders
+            <Radio className="w-3 h-3 text-orange-600" /> Responders
           </button>
 
           <button
             onClick={() => setShowInfrastructure(!showInfrastructure)}
             className={`px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 ${
               showInfrastructure
-                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300 font-semibold"
-                : "bg-gray-800/40 border-gray-700 text-gray-400"
+                ? "bg-emerald-50 border-emerald-200 text-emerald-700 font-bold shadow-sm"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
             }`}
           >
-            <Shield className="w-3 h-3" /> Shelters/Hospitals
+            <Shield className="w-3 h-3 text-emerald-600" /> Shelters/Hospitals
           </button>
 
-          <div className="flex items-center gap-1 pl-2 border-l border-gray-800">
+          <div className="flex items-center gap-1 pl-2 border-l border-slate-200">
             <button
               onClick={() => setZoomLevel((z) => Math.min(z + 0.15, 1.4))}
-              className="p-1 rounded hover:bg-gray-800 text-gray-400 hover:text-white"
+              className="p-1 rounded hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setZoomLevel((z) => Math.max(z - 0.15, 0.85))}
-              className="p-1 rounded hover:bg-gray-800 text-gray-400 hover:text-white"
+              className="p-1 rounded hover:bg-slate-200 text-slate-600 hover:text-slate-900 transition-all"
             >
               <Minus className="w-3.5 h-3.5" />
             </button>
@@ -209,7 +209,7 @@ export default function TacticalCopMap({
       </div>
 
       {/* Main SVG Radar Canvas */}
-      <div className="relative w-full aspect-[16/9] max-h-[520px] bg-[#070A12] overflow-hidden select-none">
+      <div className="relative w-full aspect-[16/9] max-h-[520px] bg-slate-50 overflow-hidden select-none border-t border-slate-200">
         <svg
           viewBox="0 0 1000 650"
           className="w-full h-full transition-transform duration-300 ease-out"
@@ -218,41 +218,42 @@ export default function TacticalCopMap({
           <defs>
             {/* Grid Pattern */}
             <pattern id="tacticalGrid" width="50" height="50" patternUnits="userSpaceOnUse">
-              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#222634" strokeWidth="0.5" strokeOpacity="0.6" />
+              <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#E2E8F0" strokeWidth="0.8" />
             </pattern>
 
             {/* Inundation Striped Pattern */}
             <pattern id="floodHatch" width="12" height="12" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
-              <line x1="0" y1="0" x2="0" y2="12" stroke="#EF4444" strokeWidth="2.5" strokeOpacity="0.35" />
+              <line x1="0" y1="0" x2="0" y2="12" stroke="#DC2626" strokeWidth="2.5" strokeOpacity="0.22" />
             </pattern>
 
             {/* Gradients */}
             <linearGradient id="riverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0B132B" stopOpacity="0.7" />
-              <stop offset="50%" stopColor="#080C1E" stopOpacity="0.85" />
-              <stop offset="100%" stopColor="#0B132B" stopOpacity="0.7" />
+              <stop offset="0%" stopColor="#BAE6FD" stopOpacity="0.7" />
+              <stop offset="50%" stopColor="#93C5FD" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#BAE6FD" stopOpacity="0.7" />
             </linearGradient>
 
             <radialGradient id="freezePulse" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#EF4444" stopOpacity="0.6" />
+              <stop offset="0%" stopColor="#EF4444" stopOpacity="0.4" />
               <stop offset="100%" stopColor="#EF4444" stopOpacity="0" />
             </radialGradient>
           </defs>
 
-          {/* Background Coordinate Grid */}
+          {/* Background Cartographic Fill & Grid */}
+          <rect width="1000" height="650" fill="#F8FAFC" />
           <rect width="1000" height="650" fill="url(#tacticalGrid)" />
 
           {/* River Brahmaputra Body */}
-          <path d={riverPath} fill="url(#riverGrad)" stroke="#1C2541" strokeWidth="1.5" />
-          <text x="360" y="320" fill="#94A3B8" fillOpacity="0.35" fontSize="18" fontWeight="bold" letterSpacing="4">
+          <path d={riverPath} fill="url(#riverGrad)" stroke="#0284C7" strokeWidth="1.5" />
+          <text x="360" y="320" fill="#0369A1" fillOpacity="0.5" fontSize="16" fontWeight="bold" letterSpacing="4">
             BRAHMAPUTRA RIVER WATERWAY
           </text>
 
           {/* Flood Inundation Polygon Layer */}
           {showFloodPolygon && (
             <g>
-              <polygon points={floodPolygonPoints} fill="url(#floodHatch)" stroke="#EF4444" strokeWidth="2" strokeDasharray="6 4" />
-              <text x="460" y="470" fill="#EF4444" fontSize="11" fontWeight="bold" letterSpacing="1.5">
+              <polygon points={floodPolygonPoints} fill="url(#floodHatch)" stroke="#DC2626" strokeWidth="2" strokeDasharray="6 4" />
+              <text x="460" y="470" fill="#B91C1C" fontSize="11" fontWeight="bold" letterSpacing="1.5">
                 ACTIVE FLOOD SURGE ZONE (+2.45m)
               </text>
             </g>
@@ -268,7 +269,7 @@ export default function TacticalCopMap({
                   y1="220"
                   x2="520"
                   y2="400"
-                  stroke={isRouteFrozen ? "#EF4444" : "#10B981"}
+                  stroke={isRouteFrozen ? "#DC2626" : "#16A34A"}
                   strokeWidth="6"
                   strokeDasharray={isRouteFrozen ? "8 4" : "none"}
                 />
@@ -281,15 +282,15 @@ export default function TacticalCopMap({
                   width="90"
                   height="26"
                   rx="6"
-                  fill="#08090C"
-                  stroke={isRouteFrozen ? "#EF4444" : "#10B981"}
+                  fill="#FFFFFF"
+                  stroke={isRouteFrozen ? "#DC2626" : "#16A34A"}
                   strokeWidth="1.5"
                 />
                 <text
                   x="500"
                   y="312"
                   textAnchor="middle"
-                  fill={isRouteFrozen ? "#F87171" : "#34D399"}
+                  fill={isRouteFrozen ? "#991B1B" : "#166534"}
                   fontSize="10"
                   fontWeight="bold"
                 >
@@ -299,17 +300,17 @@ export default function TacticalCopMap({
 
               {/* Route-4B (Shallow Water Boat Ramp Bypass) */}
               <g>
-                <path d="M 380,240 Q 320,330 360,450" fill="none" stroke="#F59E0B" strokeWidth="3.5" strokeDasharray="4 2" />
-                <rect x="290" y="340" width="80" height="20" rx="4" fill="#08090C" stroke="#F59E0B" strokeWidth="1" />
-                <text x="330" y="354" textAnchor="middle" fill="#FBBF24" fontSize="9" fontWeight="bold">
+                <path d="M 380,240 Q 320,330 360,450" fill="none" stroke="#D97706" strokeWidth="3.5" strokeDasharray="4 2" />
+                <rect x="290" y="340" width="80" height="20" rx="4" fill="#FFFFFF" stroke="#D97706" strokeWidth="1" />
+                <text x="330" y="354" textAnchor="middle" fill="#B45309" fontSize="9" fontWeight="bold">
                   ROUTE-4B (BOAT)
                 </text>
               </g>
 
               {/* North Elevated Ring Road Bypass */}
               <g>
-                <path d="M 100,120 Q 500,80 900,140" fill="none" stroke="#10B981" strokeWidth="3" opacity="0.8" />
-                <text x="500" y="95" textAnchor="middle" fill="#34D399" fontSize="10" fontWeight="bold">
+                <path d="M 100,120 Q 500,80 900,140" fill="none" stroke="#16A34A" strokeWidth="3" opacity="0.8" />
+                <text x="500" y="95" textAnchor="middle" fill="#15803D" fontSize="10" fontWeight="bold">
                   NORTH ELEVATED BYPASS (CLEAR)
                 </text>
               </g>
@@ -321,36 +322,36 @@ export default function TacticalCopMap({
             <g>
               {/* GMCH Hospital */}
               <g transform="translate(720, 520)">
-                <circle cx="0" cy="0" r="14" fill="#08090C" stroke="#F59E0B" strokeWidth="2" />
-                <text x="0" y="4" textAnchor="middle" fill="#FBBF24" fontSize="10" fontWeight="bold">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#D97706" strokeWidth="2" />
+                <text x="0" y="4" textAnchor="middle" fill="#B45309" fontSize="10" fontWeight="bold">
                   GMCH
                 </text>
-                <rect x="-65" y="18" width="130" height="18" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
-                <text x="0" y="30" textAnchor="middle" fill="#D1D5DB" fontSize="9">
+                <rect x="-65" y="18" width="130" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1" />
+                <text x="0" y="30" textAnchor="middle" fill="#334155" fontSize="9" fontWeight="medium">
                   Hospital (38 Beds Avail)
                 </text>
               </g>
 
               {/* Relief Camp #3 */}
               <g transform="translate(240, 150)">
-                <circle cx="0" cy="0" r="14" fill="#08090C" stroke="#10B981" strokeWidth="2" />
-                <text x="0" y="4" textAnchor="middle" fill="#34D399" fontSize="10" fontWeight="bold">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#16A34A" strokeWidth="2" />
+                <text x="0" y="4" textAnchor="middle" fill="#15803D" fontSize="10" fontWeight="bold">
                   RC-3
                 </text>
-                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
-                <text x="0" y="30" textAnchor="middle" fill="#A7F3D0" fontSize="9">
+                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1" />
+                <text x="0" y="30" textAnchor="middle" fill="#166534" fontSize="9" fontWeight="medium">
                   Relief Camp (320/500)
                 </text>
               </g>
 
               {/* Pandu Port Inflatable Boat Landing Ramp */}
               <g transform="translate(190, 420)">
-                <circle cx="0" cy="0" r="14" fill="#08090C" stroke="#F97316" strokeWidth="2" />
-                <text x="0" y="4" textAnchor="middle" fill="#FB923C" fontSize="10" fontWeight="bold">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#EA580C" strokeWidth="2" />
+                <text x="0" y="4" textAnchor="middle" fill="#C2410C" fontSize="10" fontWeight="bold">
                   RAMP
                 </text>
-                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
-                <text x="0" y="30" textAnchor="middle" fill="#FED7AA" fontSize="9">
+                <rect x="-60" y="18" width="120" height="18" rx="4" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1" />
+                <text x="0" y="30" textAnchor="middle" fill="#9A3412" fontSize="9" fontWeight="medium">
                   Boat Staging (6 Boats)
                 </text>
               </g>
@@ -362,23 +363,23 @@ export default function TacticalCopMap({
             <g>
               {/* SDRF Rescue Unit Alpha (IRB Boat 04) */}
               <g transform="translate(430, 360)">
-                <circle cx="0" cy="0" r="16" fill="#451A03" stroke="#F97316" strokeWidth="2" />
-                <polygon points="0,-8 6,6 -6,6" fill="#FB923C" />
-                <rect x="-60" y="20" width="120" height="18" rx="4" fill="#08090C" stroke="#F97316" strokeWidth="1" />
-                <text x="0" y="32" textAnchor="middle" fill="#FED7AA" fontSize="9" fontWeight="bold">
+                <circle cx="0" cy="0" r="16" fill="#FFEDD5" stroke="#EA580C" strokeWidth="2" />
+                <polygon points="0,-8 6,6 -6,6" fill="#EA580C" />
+                <rect x="-60" y="20" width="120" height="18" rx="4" fill="#FFFFFF" stroke="#EA580C" strokeWidth="1" />
+                <text x="0" y="32" textAnchor="middle" fill="#9A3412" fontSize="9" fontWeight="bold">
                   SDRF Boat-04 (87% Bat)
                 </text>
               </g>
 
               {/* Drone Alpha */}
               <g transform="translate(560, 260)">
-                <circle cx="0" cy="0" r="12" fill="#451A03" stroke="#F59E0B" strokeWidth="1.5" />
-                <text x="0" y="3" textAnchor="middle" fill="#FDE68A" fontSize="8" fontWeight="bold">
+                <circle cx="0" cy="0" r="12" fill="#FEF3C7" stroke="#D97706" strokeWidth="1.5" />
+                <text x="0" y="3" textAnchor="middle" fill="#92400E" fontSize="8" fontWeight="bold">
                   UAV
                 </text>
-                <circle cx="0" cy="0" r="28" fill="none" stroke="#F59E0B" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
-                <rect x="-50" y="16" width="100" height="16" rx="4" fill="#08090C" stroke="#222634" strokeWidth="1" />
-                <text x="0" y="28" textAnchor="middle" fill="#FED7AA" fontSize="8">
+                <circle cx="0" cy="0" r="28" fill="none" stroke="#D97706" strokeWidth="1" strokeDasharray="3 3" opacity="0.6" />
+                <rect x="-50" y="16" width="100" height="16" rx="4" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1" />
+                <text x="0" y="28" textAnchor="middle" fill="#475569" fontSize="8" fontWeight="medium">
                   Recon Drone (120m)
                 </text>
               </g>
@@ -403,8 +404,8 @@ export default function TacticalCopMap({
                   cx="0"
                   cy="0"
                   r={isSelected ? "26" : "18"}
-                  fill={isCritical ? "#EF4444" : "#F59E0B"}
-                  opacity="0.25"
+                  fill={isCritical ? "#DC2626" : "#D97706"}
+                  opacity="0.2"
                   className="animate-ping"
                 />
 
@@ -413,8 +414,8 @@ export default function TacticalCopMap({
                   cx="0"
                   cy="0"
                   r={isSelected ? "14" : "10"}
-                  fill="#08090C"
-                  stroke={isCritical ? "#EF4444" : "#F59E0B"}
+                  fill="#FFFFFF"
+                  stroke={isCritical ? "#DC2626" : "#D97706"}
                   strokeWidth={isSelected ? "3" : "2"}
                 />
 
@@ -423,7 +424,7 @@ export default function TacticalCopMap({
                   cx="0"
                   cy="0"
                   r={isSelected ? "6" : "4"}
-                  fill={isCritical ? "#EF4444" : "#F59E0B"}
+                  fill={isCritical ? "#DC2626" : "#D97706"}
                 />
 
                 {/* Pin Label Tag */}
@@ -433,16 +434,16 @@ export default function TacticalCopMap({
                   width="150"
                   height="22"
                   rx="6"
-                  fill="#08090C"
-                  stroke={isSelected ? "#F59E0B" : "#222634"}
+                  fill="#FFFFFF"
+                  stroke={isSelected ? "#D97706" : "#CBD5E1"}
                   strokeWidth={isSelected ? "2" : "1"}
-                  className="transition-all"
+                  className="transition-all shadow-sm"
                 />
                 <text
                   x="0"
                   y="-20"
                   textAnchor="middle"
-                  fill="#FFFFFF"
+                  fill="#0F172A"
                   fontSize="9.5"
                   fontWeight="bold"
                 >
@@ -454,28 +455,29 @@ export default function TacticalCopMap({
         </svg>
 
         {/* Bottom HUD Telemetry Overlay */}
-        <div className="absolute bottom-3 left-3 right-3 bg-[#08090C]/90 border border-[#222634] rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-4 text-xs font-mono backdrop-blur-md">
+        <div className="absolute bottom-3 left-3 right-3 bg-white/95 border border-slate-200 rounded-xl px-4 py-2 flex flex-wrap items-center justify-between gap-4 text-xs font-mono shadow-sm">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1.5 text-red-400">
+            <div className="flex items-center gap-1.5 text-red-700 font-semibold">
               <Droplets className="w-3.5 h-3.5 animate-bounce" />
               <span>FLOOD SURGE: +2.45m</span>
             </div>
-            <div className="flex items-center gap-1.5 text-amber-300">
+            <div className="flex items-center gap-1.5 text-amber-800 font-semibold">
               <Compass className="w-3.5 h-3.5" />
               <span>VELOCITY: 3.8 m/s</span>
             </div>
-            <div className="flex items-center gap-1.5 text-amber-300">
+            <div className="flex items-center gap-1.5 text-amber-800 font-semibold">
               <AlertTriangle className="w-3.5 h-3.5" />
               <span>TREND: RISING (+0.15m/hr)</span>
             </div>
           </div>
 
-          <div className="text-[11px] text-gray-400 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="text-[11px] text-slate-500 flex items-center gap-2 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>GEO-RADAR REFRESH: REALTIME (BLE/MESH)</span>
           </div>
         </div>
       </div>
     </div>
+
   );
 }

@@ -78,37 +78,37 @@ export function Navbar({
   const [showDrillMenu, setShowDrillMenu] = React.useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-[#08090C]/90 backdrop-blur-md border-b border-[#222634] px-4 lg:px-8 py-3">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 lg:px-8 py-3 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         {/* Logo & Platform Info */}
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 p-[2px] shadow-lg shadow-amber-500/20">
-            <div className="w-full h-full bg-[#08090C] rounded-[10px] flex items-center justify-center">
-              <Shield className="w-5 h-5 text-amber-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 p-[2px] shadow-md shadow-amber-500/20">
+            <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
+              <Shield className="w-5 h-5 text-amber-600" />
             </div>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-black tracking-wider text-white">SHIVI</h1>
-              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+              <h1 className="text-xl font-black tracking-wider text-slate-900">SHIVI</h1>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
                 शिवी • IOC v1.0
               </span>
               <span
                 className={`flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full border ${
                   backendConnected
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                    : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold"
+                    : "bg-amber-50 text-amber-800 border-amber-200 font-semibold"
                 }`}
               >
                 <span
                   className={`w-1.5 h-1.5 rounded-full ${
-                    backendConnected ? "bg-emerald-400 animate-pulse" : "bg-amber-400"
+                    backendConnected ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
                   }`}
                 />
                 {backendConnected ? "LIVE CORE API" : "STANDALONE CACHE"}
               </span>
             </div>
-            <p className="text-[11px] text-gray-400 hidden sm:block">
+            <p className="text-[11px] text-slate-500 hidden sm:block font-medium">
               Local-First Disaster Coordination & Common Operational Picture (COP)
             </p>
           </div>
@@ -117,37 +117,37 @@ export function Navbar({
         {/* Multi-Bearer Mesh & Action Controls */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Bearer Connectivity Selector */}
-          <div className="flex items-center bg-[#111318] border border-[#222634] rounded-xl p-1 text-xs">
+          <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl p-1 text-xs">
             <button
               onClick={() => onConnectivityChange("cloud")}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all ${
                 connectivityMode === "cloud"
-                  ? "bg-amber-500 text-black font-bold shadow-md shadow-amber-500/30"
-                  : "text-gray-400 hover:text-gray-200"
+                  ? "bg-white text-amber-900 font-bold shadow-sm border border-amber-200"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
               title="Full Cellular 4G/5G and Cloud Connectivity"
             >
-              <Wifi className="w-3.5 h-3.5" />
+              <Wifi className="w-3.5 h-3.5 text-amber-600" />
               <span className="hidden md:inline">Cellular / Cloud</span>
             </button>
             <button
               onClick={() => onConnectivityChange("mesh")}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all ${
                 connectivityMode === "mesh"
-                  ? "bg-orange-500 text-black font-bold shadow-md shadow-orange-500/30"
-                  : "text-gray-400 hover:text-gray-200"
+                  ? "bg-white text-orange-900 font-bold shadow-sm border border-orange-200"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
               title="Offline BLE 5.0 & Wi-Fi Direct Mesh Gossip"
             >
-              <Radio className="w-3.5 h-3.5" />
+              <Radio className="w-3.5 h-3.5 text-orange-600" />
               <span className="hidden md:inline">BLE Mesh</span>
             </button>
             <button
               onClick={() => onConnectivityChange("offline")}
               className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all ${
                 connectivityMode === "offline"
-                  ? "bg-red-600 text-white font-medium shadow-md shadow-red-600/30"
-                  : "text-gray-400 hover:text-gray-200"
+                  ? "bg-red-600 text-white font-bold shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
               }`}
               title="Radio Blackout: Local SQLite Outbox Storage"
             >
@@ -159,41 +159,41 @@ export function Navbar({
           {/* SMS Gateway Link */}
           <Link
             href="/sms"
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 transition-all"
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition-all shadow-sm"
             title="Emergency SMS & Satellite Broadcast Gateway"
           >
-            <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+            <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
             <span className="hidden sm:inline">SMS Gateway</span>
           </Link>
 
           {/* AI Advisory Drawer Button */}
           <button
             onClick={onToggleAiDrawer}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-purple-600/10 text-purple-300 border border-purple-500/30 hover:bg-purple-600/20 transition-all"
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-all shadow-sm"
           >
-            <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <Sparkles className="w-3.5 h-3.5 text-purple-600" />
             <span className="hidden sm:inline">AI Advisor</span>
           </button>
 
           {/* Reset Demo State Button */}
           <button
             onClick={onResetState}
-            className="flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-[#111318] text-gray-300 border border-[#222634] hover:bg-[#222634] transition-all"
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-100 transition-all shadow-sm"
             title="Reset database to fresh default accounts"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3.5 h-3.5 text-slate-500" />
             <span className="hidden sm:inline">Reset</span>
           </button>
 
           {/* Run Live P0 Disaster Simulation Button Group */}
-          <div className="relative flex items-center">
+          <div className="relative flex items-center shadow-sm">
             <button
               onClick={onRunSimulation}
               disabled={isSimulating}
-              className={`flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-l-xl shadow-lg transition-all ${
+              className={`flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-l-xl transition-all ${
                 isSimulating
-                  ? "bg-amber-950/60 text-amber-200 cursor-not-allowed opacity-75"
-                  : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-black shadow-amber-500/25 active:scale-95"
+                  ? "bg-amber-100 text-amber-800 cursor-not-allowed opacity-75"
+                  : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-sm active:scale-95"
               }`}
               title="Run P0 Disaster Loop (Flash Flood & Route-88 Safety Freeze)"
             >
@@ -203,9 +203,9 @@ export function Navbar({
             <button
               onClick={() => setShowDrillMenu(!showDrillMenu)}
               disabled={isSimulating}
-              className={`px-2 py-2 rounded-r-xl border-l border-amber-400/30 text-black font-bold transition-all ${
+              className={`px-2 py-2 rounded-r-xl border-l border-amber-400/50 text-slate-950 font-bold transition-all ${
                 isSimulating
-                  ? "bg-amber-950/60 text-amber-200 cursor-not-allowed opacity-75"
+                  ? "bg-amber-100 text-amber-800 cursor-not-allowed opacity-75"
                   : "bg-orange-500 hover:bg-orange-400"
               }`}
               title="Select Specific Disaster Drill Scenario"
@@ -215,8 +215,8 @@ export function Navbar({
 
             {/* Dropdown Menu */}
             {showDrillMenu && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-[#111318] border border-[#222634] rounded-xl shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
-                <span className="text-[10px] text-gray-400 uppercase font-mono px-2.5 py-1 block">
+              <div className="absolute right-0 top-full mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-xl p-2 z-50 animate-in fade-in zoom-in-95">
+                <span className="text-[10px] text-slate-500 uppercase font-mono px-2.5 py-1 block font-semibold">
                   Select Disaster Drill Scenario
                 </span>
                 <button
@@ -228,10 +228,10 @@ export function Navbar({
                       onRunSimulation();
                     }
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-amber-500/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-amber-50 text-xs flex flex-col gap-0.5 transition-all"
                 >
-                  <span className="font-bold text-amber-300">1. Flash Flood & Route Freeze</span>
-                  <span className="text-[11px] text-gray-400">Contradiction, Safety Freeze & Supervisor Adjudication</span>
+                  <span className="font-bold text-amber-700">1. Flash Flood & Route Freeze</span>
+                  <span className="text-[11px] text-slate-500">Contradiction, Safety Freeze & Supervisor Adjudication</span>
                 </button>
                 <button
                   onClick={() => {
@@ -242,10 +242,10 @@ export function Navbar({
                       onRunSimulation();
                     }
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-orange-500/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-orange-50 text-xs flex flex-col gap-0.5 transition-all"
                 >
-                  <span className="font-bold text-orange-300">2. Asset Contention & NFC Lease</span>
-                  <span className="text-[11px] text-gray-400">Multi-Team USAR Cutter Contention & Zero Deadlock</span>
+                  <span className="font-bold text-orange-700">2. Asset Contention & NFC Lease</span>
+                  <span className="text-[11px] text-slate-500">Multi-Team USAR Cutter Contention & Zero Deadlock</span>
                 </button>
                 <button
                   onClick={() => {
@@ -256,10 +256,10 @@ export function Navbar({
                       onRunSimulation();
                     }
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-red-600/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-red-50 text-xs flex flex-col gap-0.5 transition-all"
                 >
-                  <span className="font-bold text-red-300">3. Adversarial Poison & Anti-Replay</span>
-                  <span className="text-[11px] text-gray-400">Tampered Packet Detection & Nonce Replay Drop</span>
+                  <span className="font-bold text-red-700">3. Adversarial Poison & Anti-Replay</span>
+                  <span className="text-[11px] text-slate-500">Tampered Packet Detection & Nonce Replay Drop</span>
                 </button>
                 <button
                   onClick={() => {
@@ -270,10 +270,10 @@ export function Navbar({
                       onRunSimulation();
                     }
                   }}
-                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-emerald-600/20 text-xs text-gray-200 hover:text-white flex flex-col gap-0.5 transition-all"
+                  className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-emerald-50 text-xs flex flex-col gap-0.5 transition-all"
                 >
-                  <span className="font-bold text-emerald-300">4. Multilingual SMS Triage</span>
-                  <span className="text-[11px] text-gray-400">Austere Ingestion, NLP Entity Extraction & Task Dispatch</span>
+                  <span className="font-bold text-emerald-700">4. Multilingual SMS Triage</span>
+                  <span className="text-[11px] text-slate-500">Austere Ingestion, NLP Entity Extraction & Task Dispatch</span>
                 </button>
               </div>
             )}
