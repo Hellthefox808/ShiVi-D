@@ -1,16 +1,32 @@
 """
 ShiVi Incident Operations Center (IOC) & Common Operational Picture (COP)
-Optimized High-Performance Dashboard Endpoints:
-1. In-Memory Summary Cache with dynamic TTL & sync invalidation.
-2. Viewport-constrained spatial bounding-box (bbox) queries.
-3. Real-time operational metrics (resource saturation, triage velocity, safety freezes).
-4. IoC Container dependency injection integration.
+=========================================================================
+
+Briefing:
+    Provides the central executive summary and geospatial mapping endpoints for the ShiVi
+    Incident Operations Center (IOC) and tactical field displays. Powers the Common Operational
+    Picture (COP) with real-time incident counters, resource saturation metrics, and interactive GIS layers.
+
+Reason:
+    During acute disaster surges, hundreds of dispatchers, field supervisors, and external agency
+    liaisons query the dashboard simultaneously. Uncached queries joining incident tables,
+    conflict cases, and audit logs would overwhelm SQLite or PostgreSQL database engines.
+    This router implements:
+    1. In-Memory Summary Cache (`IOCCacheManager`): 5-second TTL cache with dynamic sync-driven
+       invalidation, enabling the API to sustain 1,000+ requests/second under disaster load.
+    2. Viewport-Constrained Spatial Clipping (`/geojson`): Filters incidents by bounding box (bbox)
+       coordinates so field radios only download points visible on their current zoom window.
+    3. 14-Phase Continuous Verified Context Loop (`/context-loop`): Real-time operational telemetry
+       proving unbroken closed-loop execution from edge sensing to audit ledger verification.
+    4. Tactical Map Layers (`/map-layers`): Geospatial feeds representing flood surge inundation
+       polygons, critical facilities, responder squad GPS telemetry, and route safety freezes.
 """
+
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import func, and_, or_
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, Any, List, Optional
 from datetime import datetime, timezone, timedelta
 
@@ -24,6 +40,8 @@ from app.modules.identity.models import User
 from app.modules.assets.models import PhysicalAsset
 from app.modules.audit.models import AuditEntry, OperationalEvent
 
+# Briefing: FastAPI Router mounted under `/dashboard` for executive monitoring and COP feeds.
+# Reason: Centralizes high-performance analytics, caching, and spatial mapping queries.
 router = APIRouter(prefix="/dashboard", tags=["Incident Operations Center (IOC) & COP"])
 
 
@@ -32,27 +50,57 @@ router = APIRouter(prefix="/dashboard", tags=["Incident Operations Center (IOC) 
 # ==============================================================================
 
 class DashboardSummary(BaseModel):
+    """
+    Briefing:
+        Executive situational summary aggregated across all operational domains.
+
+    Reason:
+        Transmits high-level command metrics in a single lightweight JSON payload,
+        including resource saturation indices, safety freeze counts, and circuit breaker health.
+    """
+    # Explanation: Total historical and active incidents
     total_incidents: int
+    # Explanation: Incidents currently requiring response or in progress
     open_incidents: int
+    # Explanation: Formally verified and closed incidents
     resolved_incidents: int
+    # Explanation: Incidents with priority >= 75.0 or severity 'CRITICAL'
     critical_incidents: int
+    # Explanation: Tasks currently dispatched, en route, or active on site
     active_tasks: int
+    # Explanation: Active synchronization contradictions requiring supervisor adjudication
     open_conflicts: int
+    # Explanation: Qualified personnel currently available or operating in the field
     active_responders: int
+    # Explanation: Unassigned physical assets in staging depots
     available_assets: int
-    resource_saturation_index: float  # (active_tasks / max(active_responders, 1))
+    # Explanation: Ratio of active tasks to active responders (active_tasks / max(responders, 1))
+    resource_saturation_index: float
+    # Explanation: Corridors or entities locked under safety freeze
     active_safety_freezes: int
+    # Explanation: Health status of synchronization gateway ('HEALTHY' or 'DEGRADED')
     sync_health_status: str
+    # Explanation: True if payload was served from in-memory cache
     cached: bool = False
+    # Explanation: Generation timestamp in UTC ISO format
     generated_at: str
 
 
 class GeoJSONFeatureGeometry(BaseModel):
+    """
+    Briefing:
+        GeoJSON RFC 7946 geometry element.
+    """
     type: str = "Point"
+    # Explanation: Coordinates formatted as [longitude, latitude] per GeoJSON standard
     coordinates: List[float]
 
 
 class GeoJSONFeatureProperties(BaseModel):
+    """
+    Briefing:
+        GeoJSON feature properties containing incident dispatch metadata.
+    """
     id: str
     title: str
     category: str
@@ -64,12 +112,20 @@ class GeoJSONFeatureProperties(BaseModel):
 
 
 class GeoJSONFeature(BaseModel):
+    """
+    Briefing:
+        Individual GeoJSON Feature object.
+    """
     type: str = "Feature"
     geometry: GeoJSONFeatureGeometry
     properties: GeoJSONFeatureProperties
 
 
 class GeoJSONFeatureCollection(BaseModel):
+    """
+    Briefing:
+        Standard GeoJSON FeatureCollection containing tactical incident points.
+    """
     type: str = "FeatureCollection"
     features: List[GeoJSONFeature]
     total_count: int
@@ -77,6 +133,10 @@ class GeoJSONFeatureCollection(BaseModel):
 
 
 class ContextLoopPhaseTelemetry(BaseModel):
+    """
+    Briefing:
+        Telemetry and status metrics for an individual phase of the 14-Phase Context Loop.
+    """
     phase_number: int
     code: str
     name: str
@@ -90,6 +150,10 @@ class ContextLoopPhaseTelemetry(BaseModel):
 
 
 class ContextLoopStatusResponse(BaseModel):
+    """
+    Briefing:
+        Comprehensive status response confirming verified closed-loop execution.
+    """
     loop_status: str
     total_phases: int
     loop_closure_verified: bool
@@ -104,13 +168,30 @@ class ContextLoopStatusResponse(BaseModel):
 # ==============================================================================
 
 class IOCCacheManager:
-    """Thread-safe TTL caching for Incident Operations Center summaries and context loop telemetry."""
+    """
+    Briefing:
+        Thread-safe in-memory cache manager for IOC executive summaries and context loop telemetry.
+
+    Reason:
+        Disaster command hubs experience intense query spikes. Under 1,000 simultaneous clients,
+        repeated database aggregate scans (counting incidents, calculating saturation) introduce
+        severe lock contention on SQLite/Postgres. The cache preserves summaries for a 5-second
+        window (`CACHE_TTL_SECONDS`), but invalidates instantly whenever new synchronization events
+        arrive, providing both high throughput and instant data consistency.
+    """
+    # Explanation: Tenant ID -> {"data": DashboardSummary, "expires_at": datetime}
     _cache: Dict[str, Dict[str, Any]] = {}
+    # Explanation: Tenant ID -> {"data": ContextLoopStatusResponse, "expires_at": datetime}
     _context_cache: Dict[str, Dict[str, Any]] = {}
-    CACHE_TTL_SECONDS = 5  # 5-second freshness window under crisis load
+    # Explanation: Freshness window in seconds before background eviction
+    CACHE_TTL_SECONDS = 5
 
     @classmethod
     def get(cls, tenant_id: str) -> Optional[DashboardSummary]:
+        """
+        Briefing:
+            Retrieves cached summary if present and unexpired.
+        """
         entry = cls._cache.get(tenant_id)
         if not entry:
             return None
@@ -123,6 +204,10 @@ class IOCCacheManager:
 
     @classmethod
     def set(cls, tenant_id: str, summary: DashboardSummary):
+        """
+        Briefing:
+            Stores freshly calculated summary with future expiration timestamp.
+        """
         cls._cache[tenant_id] = {
             "data": summary,
             "expires_at": datetime.now(timezone.utc) + timedelta(seconds=cls.CACHE_TTL_SECONDS),
@@ -130,6 +215,10 @@ class IOCCacheManager:
 
     @classmethod
     def get_context(cls, tenant_id: str) -> Optional[ContextLoopStatusResponse]:
+        """
+        Briefing:
+            Retrieves cached context loop telemetry for the tenant.
+        """
         entry = cls._context_cache.get(tenant_id)
         if not entry:
             return None
@@ -140,6 +229,10 @@ class IOCCacheManager:
 
     @classmethod
     def set_context(cls, tenant_id: str, context_resp: ContextLoopStatusResponse):
+        """
+        Briefing:
+            Stores context loop telemetry in memory.
+        """
         cls._context_cache[tenant_id] = {
             "data": context_resp,
             "expires_at": datetime.now(timezone.utc) + timedelta(seconds=cls.CACHE_TTL_SECONDS),
@@ -147,7 +240,14 @@ class IOCCacheManager:
 
     @classmethod
     def invalidate(cls, tenant_id: Optional[str] = None):
-        """Invalidates cache when a new sync event mutates state."""
+        """
+        Briefing:
+            Explicitly purges cached summaries.
+
+        Reason:
+            Invoked immediately whenever synchronization events, incident triages,
+            or task state transitions commit to the database, ensuring zero stale data.
+        """
         if tenant_id:
             cls._cache.pop(tenant_id, None)
             cls._context_cache.pop(tenant_id, None)
@@ -167,17 +267,34 @@ async def get_dashboard_summary(
     resilience_mgr: IResilienceManager = Depends(get_service(IResilienceManager)),
 ):
     """
-    Optimized Incident Operations Center (IOC) executive summary.
-    Employs memory-caching to sustain 1,000+ requests/second during mass-casualty surges.
+    Briefing:
+        Produces the high-performance Incident Operations Center (IOC) executive summary.
+
+    Reason:
+        1. Checks in-memory cache via `IOCCacheManager.get(tenant_id)`. If valid, returns in sub-millisecond time.
+        2. Aggregates incident volumes (total, open, resolved, critical).
+        3. Tallies active dispatched tasks.
+        4. Counts open conflict cases and active safety freezes.
+        5. Computes the Resource Saturation Index: `(active_tasks / max(active_responders, 1))`.
+        6. Queries `IResilienceManager` via IoC container to verify core database circuit breaker health.
+        7. Populates cache and returns `DashboardSummary`.
+
+    Parameters:
+        db: Database session.
+        current_user: Authenticated JWT claims.
+        resilience_mgr: Injected `IResilienceManager` service.
+
+    Returns:
+        `DashboardSummary` object.
     """
     tenant_id = current_user.tenant_id
 
-    # Check Cache
+    # Explanation: Check In-Memory Cache first for high-concurrency surge absorption
     cached_summary = IOCCacheManager.get(tenant_id)
     if cached_summary:
         return cached_summary
 
-    # 1. Incident Statistics
+    # Explanation: Step 1 - Incident Statistics Aggregation
     inc_res = await db.execute(
         select(Incident.status, Incident.severity, Incident.priority_score)
         .where(Incident.tenant_id == tenant_id)
@@ -188,7 +305,7 @@ async def get_dashboard_summary(
     open_inc = total_inc - resolved_inc
     critical_inc = sum(1 for row in inc_rows if row.priority_score >= 75.0 or row.severity == "CRITICAL")
 
-    # 2. Active Tasks
+    # Explanation: Step 2 - Active Tasks Count
     t_res = await db.execute(
         select(func.count(Task.id)).where(
             Task.tenant_id == tenant_id,
@@ -197,7 +314,7 @@ async def get_dashboard_summary(
     )
     active_tasks = t_res.scalar() or 0
 
-    # 3. Open Conflicts & Safety Freezes
+    # Explanation: Step 3 - Open Conflicts & Safety Freezes Count
     c_res = await db.execute(
         select(func.count(ConflictCase.id)).where(
             ConflictCase.tenant_id == tenant_id,
@@ -206,7 +323,7 @@ async def get_dashboard_summary(
     )
     open_conflicts = c_res.scalar() or 0
 
-    # 4. Active Responders (all active operational field personnel)
+    # Explanation: Step 4 - Active Responders (operational field personnel)
     u_res = await db.execute(
         select(func.count(User.id)).where(
             User.tenant_id == tenant_id,
@@ -216,7 +333,7 @@ async def get_dashboard_summary(
     )
     active_responders = u_res.scalar() or 0
 
-    # 5. Available Physical Assets
+    # Explanation: Step 5 - Available Physical Equipment Assets
     a_res = await db.execute(
         select(func.count(PhysicalAsset.id)).where(
             PhysicalAsset.tenant_id == tenant_id,
@@ -225,10 +342,10 @@ async def get_dashboard_summary(
     )
     available_assets = a_res.scalar() or 0
 
-    # 6. Resource Saturation Index Calculation
+    # Explanation: Step 6 - Resource Saturation Index Calculation
     saturation_index = round(float(active_tasks) / max(float(active_responders), 1.0), 2)
 
-    # 7. Check System Circuit State
+    # Explanation: Step 7 - Query Circuit Breaker state from injected Resilience Service
     circuit_state = resilience_mgr.get_circuit_state("core_database")
     sync_status = "DEGRADED" if circuit_state == "OPEN" else "HEALTHY"
 
@@ -248,7 +365,7 @@ async def get_dashboard_summary(
         generated_at=datetime.now(timezone.utc).isoformat(),
     )
 
-    # Store in Cache
+    # Explanation: Store computed summary in memory for subsequent requests
     IOCCacheManager.set(tenant_id, summary)
 
     return summary
@@ -264,13 +381,29 @@ async def get_map_geojson(
     current_user: TokenPayload = Depends(get_current_user_token),
 ):
     """
-    Optimized Spatial GeoJSON Endpoint with Bounding Box Viewport Clipping.
-    Reduces JSON serialization overhead on low-bandwidth mobile and field dispatch maps.
+    Briefing:
+        Retrieves incident locations formatted as a standard GeoJSON FeatureCollection.
+
+    Reason:
+        Supports spatial bounding box (`bbox`) clipping: clients provide `min_lon,min_lat,max_lon,max_lat`.
+        The server applies SQL spatial ranges (`longitude BETWEEN min_lon AND max_lon`), drastically
+        reducing JSON payload sizes on mobile screens viewing zoomed-in sectors.
+
+    Parameters:
+        bbox: Optional bounding box string.
+        db: Database session.
+        current_user: Authenticated JWT claims.
+
+    Returns:
+        `GeoJSONFeatureCollection` with incident geometry points.
+
+    Raises:
+        HTTPException(400): If bbox string is malformed.
     """
     query = select(Incident).where(Incident.tenant_id == current_user.tenant_id)
     is_filtered = False
 
-    # Apply Spatial Bounding Box Filter if requested
+    # Explanation: Apply spatial bounding box filter if requested by the map client
     if bbox:
         try:
             coords = [float(c.strip()) for c in bbox.split(",")]
@@ -324,7 +457,13 @@ async def get_map_geojson(
 async def invalidate_dashboard_cache(
     current_user: TokenPayload = Depends(get_current_user_token),
 ):
-    """Explicitly invalidates IOC cache for current tenant upon large batch imports."""
+    """
+    Briefing:
+        Explicitly invalidates the IOC in-memory summary cache for the caller's tenant.
+
+    Reason:
+        Used by automated testing suites, administrative tools, or bulk synchronization pipelines.
+    """
     IOCCacheManager.invalidate(current_user.tenant_id)
     return {"status": "SUCCESS", "message": f"IOC Cache invalidated for tenant {current_user.tenant_id}"}
 
@@ -335,18 +474,29 @@ async def get_context_loop_telemetry(
     current_user: TokenPayload = Depends(get_current_user_token),
 ):
     """
-    Live Operational Monitor for the 14-Phase Continuous Verified Context Loop.
-    Validates that the output of each phase feeds the next, with audit and reconciliation
-    closing the loop back into operational sensing.
+    Briefing:
+        Live operational monitor for the 14-Phase Continuous Verified Context Loop.
+
+    Reason:
+        Validates the fundamental ShiVi architectural loop: sensing (edge capture),
+        triage (prioritization, planning), execution (human auth, field actions),
+        and consensus (multi-bearer sync, causal conflict freeze, and immutable audit).
+
+    Parameters:
+        db: Database session.
+        current_user: Authenticated JWT claims.
+
+    Returns:
+        `ContextLoopStatusResponse` detailing all 14 phase telemetry metrics.
     """
     tenant_id = current_user.tenant_id
 
-    # Check In-Memory Context-Loop Cache
+    # Explanation: Check In-Memory Context-Loop Cache
     cached_loop = IOCCacheManager.get_context(tenant_id)
     if cached_loop:
         return cached_loop
 
-    # Query operational metrics
+    # Explanation: Query real-time operational record counts
     inc_count = (await db.execute(select(func.count(Incident.id)).where(Incident.tenant_id == tenant_id))).scalar() or 0
     task_count = (await db.execute(select(func.count(Task.id)).where(Task.tenant_id == tenant_id))).scalar() or 0
     conflict_count = (await db.execute(select(func.count(ConflictCase.id)).where(ConflictCase.tenant_id == tenant_id))).scalar() or 0
@@ -545,16 +695,24 @@ async def get_tactical_map_layers(
     current_user: TokenPayload = Depends(get_current_user_token),
 ):
     """
-    Returns structured tactical geospatial layers for the Command Center COP radar map:
-    - River flood surge inundation polygon
-    - Route transit corridors (including real-time Safety Freeze on Route-88)
-    - Critical infrastructure facilities (Hospitals, Relief Camps, Boat Ramps)
-    - Active responder squad GPS coordinates and telemetry
-    """
-    from app.modules.incidents.models import RouteObservation
-    from app.modules.conflicts.models import ConflictCase
+    Briefing:
+        Returns structured tactical geospatial layers for the Command Center radar map.
 
-    # Check live Route-88 status from database
+    Reason:
+        Supplies:
+        - Inundation polygon for river flood surge areas.
+        - Transit corridor polylines with real-time Safety Freeze status (e.g. Route-88).
+        - Critical infrastructure facilities (GMCH hospital, North Guwahati relief camp, boat ramps).
+        - Active responder squad GPS coordinates, headings, and assigned mission telemetry.
+
+    Parameters:
+        db: Database session.
+        current_user: Authenticated JWT claims.
+
+    Returns:
+        Structured dictionary containing zone telemetry, inundation polygon, corridors, and units.
+    """
+    # Explanation: Check live Route-88 status directly from database
     route_status = "SAFETY_FREEZE"
     active_conflict_id = None
     r_res = await db.execute(
@@ -706,4 +864,3 @@ async def get_tactical_map_layers(
             },
         ],
     }
-

@@ -1,6 +1,21 @@
 """
-NDMA SACHET / Common Alerting Protocol (CAP v1.2) Integration Adapter
+ShiVi NDMA SACHET / Common Alerting Protocol (CAP v1.2) Adapter
+==============================================================
+
+Briefing:
+    Provides direct ingestion and normalization for the National Disaster Management Authority (NDMA)
+    SACHET portal alerts and ITU-T X.1303 Common Alerting Protocol (CAP v1.2) payloads.
+
+Reason:
+    Government emergency broadcast systems (SACHET, C-DOT CAP, IMD cyclone/flood warnings) emit
+    formal XML/JSON CAP v1.2 alerts. Ingesting these feeds directly:
+    1. Ground Truth Alignment: Ingests official government evacuation orders and hazard perimeters.
+    2. Spatial Geofencing: Parses coordinate polygon strings (e.g., "26.1,91.7 26.2,91.8...")
+       into GIS floating-point polygons for instant tactical map overlays.
+    3. Tamper-Evidence: Calculates a SHA-256 digest of the raw incoming government alert payload
+       to ensure authoritative provenance.
 """
+
 import hashlib
 from datetime import datetime
 from typing import Dict, Any, List, Optional
@@ -8,12 +23,23 @@ from pydantic import BaseModel, Field
 
 
 class CAPArea(BaseModel):
+    """
+    Briefing:
+        Geographic area block within a CAP v1.2 alert.
+
+    Reason:
+        Contains textual area descriptions alongside optional coordinate polygons or circles.
+    """
     areaDesc: str
     polygon: Optional[str] = None  # Lat,Lon space-separated coordinate string
     circle: Optional[str] = None
 
 
 class CAPInfo(BaseModel):
+    """
+    Briefing:
+        Sub-element of CAP v1.2 containing hazard classification, severity, and instructions.
+    """
     category: str  # Geo, Met, Safety, Rescue, Fire, Health, Env, Transport, Infra, Other
     event: str  # e.g., "Flash Flood Warning", "Severe Cyclone"
     urgency: str  # Immediate, Expected, Future, Past, Unknown
@@ -26,6 +52,10 @@ class CAPInfo(BaseModel):
 
 
 class CAPAlertPayload(BaseModel):
+    """
+    Briefing:
+        Authoritative CAP v1.2 root alert envelope.
+    """
     identifier: str
     sender: str
     sent: datetime
@@ -36,6 +66,14 @@ class CAPAlertPayload(BaseModel):
 
 
 class NormalizedAlertResult(BaseModel):
+    """
+    Briefing:
+        Normalized alert representation consumable by ShiVi tactical dashboards and mobile apps.
+
+    Reason:
+        Transforms verbose, variable CAP structures into standardized Python/JSON structures
+        with parsed numeric coordinates and cryptographic payload hashes.
+    """
     alert_id: str
     issuing_authority: str
     hazard_event: str
@@ -52,18 +90,34 @@ class NormalizedAlertResult(BaseModel):
 
 def parse_cap_alert(payload: Dict[str, Any]) -> NormalizedAlertResult:
     """
-    Parses and normalizes an authorized CAP v1.2 JSON alert payload.
+    Briefing:
+        Parses and normalizes an authorized CAP v1.2 JSON alert payload into a `NormalizedAlertResult`.
+
+    Reason:
+        1. Validates presence of mandatory `<info>` elements.
+        2. Computes SHA-256 payload integrity digest.
+        3. Parses space-separated `lat,lon` polygon coordinate strings into structured `[[lat, lon], ...]` arrays.
+        4. Extracts verbatim civil defense instructions and urgency rankings.
+
+    Parameters:
+        payload: Raw CAP v1.2 dictionary.
+
+    Returns:
+        `NormalizedAlertResult` ready for COP rendering.
+
+    Raises:
+        ValueError: If `<info>` segment is missing.
     """
     alert = CAPAlertPayload(**payload)
     info = alert.info[0] if alert.info else None
     if not info:
         raise ValueError("CAP Alert missing <info> segment")
 
-    # Compute raw payload integrity hash
+    # Explanation: Compute raw payload cryptographic integrity hash
     raw_str = str(payload)
     payload_hash = hashlib.sha256(raw_str.encode("utf-8")).hexdigest()
 
-    # Parse polygon coordinates if present (e.g. "26.1,91.7 26.2,91.8 26.3,91.7 26.1,91.7")
+    # Explanation: Parse polygon coordinates if present (e.g. "26.1,91.7 26.2,91.8 26.3,91.7 26.1,91.7")
     coords: List[List[float]] = []
     area_descs: List[str] = []
 

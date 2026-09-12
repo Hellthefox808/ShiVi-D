@@ -1,10 +1,12 @@
 """
-ShiVi Cryptographic Security & Anti-Replay Engine
-Guarantees offline authenticity, role authorization, and anti-replay protection:
-1. Hardware-Bound Monotonic Hash Chains: Verifies device sequence and prev_event_hash.
-2. Cryptographic Signature Validation: Validates device Ed25519/HMAC authenticity.
-3. Offline Capability Attestation: Enforces role permissions against historical grants.
-4. Anti-Replay & Time Skew Clamping: Eliminates replayed nonces and synthetic clocks.
+Briefing: ShiVi Cryptographic Security, Monotonic Hash Chains, and Anti-Replay Engine.
+Reason: In distributed mesh networks where devices are disconnected for hours or days, adversaries
+or malfunctioning radios could replay old messages, tamper with sequence numbers, or forge identities.
+This engine verifies offline authenticity through:
+1. Hardware-Bound Monotonic Hash Chains (verifies prev_event_hash linking).
+2. Cryptographic HMAC Signatures.
+3. Offline Capability Attestation (blocks role privilege escalation).
+4. Anti-Replay and Clock Drift Clamping (rejects future timestamps > 120s).
 """
 import hashlib
 import hmac
@@ -16,6 +18,10 @@ from dataclasses import dataclass
 
 @dataclass
 class EventSecurityValidationResult:
+    """
+    Briefing: Verification result container for an incoming offline event envelope.
+    Reason: Conveys validation status, specific security violation codes, and sanitized payload.
+    """
     is_valid: bool
     status_code: str  # VALID, REPLAY_DETECTED, HASH_CHAIN_BROKEN, UNAUTHORIZED_ROLE, TIME_SKEW_EXCEEDED, SIGNATURE_INVALID
     error_message: Optional[str]
@@ -23,13 +29,18 @@ class EventSecurityValidationResult:
 
 
 class DeviceSecurityRegistry:
-    """In-memory & DB registry of trusted device public keys and sequence counters."""
+    """
+    Briefing: In-memory and persistent registry of trusted device cryptographic keys and sequence counters.
+    Reason: Maintains the authoritative record of each hardware node's last sequence number and state hash
+    to detect packet loss, duplicate retransmissions, or unauthorized device impersonation.
+    """
     
     # device_id -> {"last_sequence": int, "last_hash": str, "secret_key": str, "authorized_roles": list}
     _device_state: Dict[str, Dict[str, Any]] = {}
 
     @classmethod
     def register_device(cls, device_id: str, secret_key: str, authorized_roles: List[str]):
+        """Briefing: Enrolls a new authorized hardware device into the trust store."""
         cls._device_state[device_id] = {
             "last_sequence": 0,
             "last_hash": "GENESIS_ROOT_HASH_0000000000000000000000000000000000000000000000000000",
@@ -40,16 +51,20 @@ class DeviceSecurityRegistry:
 
     @classmethod
     def get_device(cls, device_id: str) -> Optional[Dict[str, Any]]:
+        """Briefing: Fetches stored cryptographic state for a hardware device ID."""
         return cls._device_state.get(device_id)
 
     @classmethod
     def reset(cls):
+        """Briefing: Clears in-memory device state (used during test suites)."""
         cls._device_state.clear()
 
 
 class OfflineSecurityValidator:
     """
-    Validates offline-generated events before admitting them into the central operational ledger.
+    Briefing: Offline security policy enforcement gatekeeper.
+    Reason: Validates incoming offline event envelopes against anti-replay rules, capability matrices,
+    monotonic hash chains, and temporal drift boundaries before reconciliation.
     """
 
     MAX_ALLOWABLE_FUTURE_SKEW_SECONDS = 120  # 2 minutes maximum clock drift allowed

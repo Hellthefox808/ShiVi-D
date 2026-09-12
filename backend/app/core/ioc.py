@@ -1,10 +1,13 @@
 """
-ShiVi Inversion of Control (IoC) Container & Service Registry
-Provides enterprise-grade, typed, lifecycle-managed dependency injection:
-1. Singleton, Factory, and Scoped service lifecycles.
-2. Protocol-driven decoupled interfaces for AI, Conflicts, Assets, Lakehouse, and Resilience.
-3. Fast-path resolution with cycle detection.
-4. FastAPI Depends integration and test override capabilities.
+Briefing: ShiVi Inversion of Control (IoC) Container, Protocol Contracts, and Service Registry.
+Reason: Decouples high-level disaster coordination logic from specific implementation details.
+Enables swapping in-memory mocks during offline unit testing or substituting cloud AI APIs with
+on-device quantized LLMs without rewriting route handlers.
+Features:
+1. Typed Protocol Interfaces for Causal Conflicts, Edge AI, Asset Allocation, Security, and Resilience.
+2. Singleton, Factory, and Instance service lifetimes with automatic constructor argument resolution.
+3. Recursive dependency cycle detection to prevent stack overflows during complex wiring.
+4. Native FastAPI `Depends(get_service(IInterface))` integration.
 """
 import inspect
 from typing import Type, TypeVar, Dict, Any, Callable, Optional, Protocol, runtime_checkable
@@ -19,14 +22,20 @@ T = TypeVar("T")
 
 @runtime_checkable
 class IConflictEngine(Protocol):
-    """Interface for Causal Conflict Resolution Engine."""
+    """
+    Briefing: Contract for Causal Conflict Resolution and Version Vector Reconcilers.
+    Reason: Decouples conflict adjudication algorithms (LWW, Lamport, safety freeze) from sync endpoints.
+    """
     def resolve_conflicts(self, base_state: Dict[str, Any], incoming_events: list) -> Dict[str, Any]:
         ...
 
 
 @runtime_checkable
 class IAIGateway(Protocol):
-    """Interface for Hybrid Edge/Cloud AI Intelligence Gateway."""
+    """
+    Briefing: Contract for Hybrid Edge/Cloud AI Intelligence Gateway.
+    Reason: Permits hot-swapping between Gemini API, local ONNX models, or heuristic fallback parsers.
+    """
     async def extract_incident_features(self, raw_text: str) -> Dict[str, Any]:
         ...
 
@@ -36,7 +45,10 @@ class IAIGateway(Protocol):
 
 @runtime_checkable
 class IAssetAllocationEngine(Protocol):
-    """Interface for Distributed Physical Asset Allocation & Contention Engine."""
+    """
+    Briefing: Contract for Distributed Physical Asset Contention and Allocation.
+    Reason: Resolves simultaneous conflicting claims over emergency boats, ambulances, and fuel reserves.
+    """
     def resolve_contention(
         self,
         asset_code: str,
@@ -49,7 +61,10 @@ class IAssetAllocationEngine(Protocol):
 
 @runtime_checkable
 class ISecurityValidator(Protocol):
-    """Interface for Offline Cryptographic Identity & Anti-Replay Validator."""
+    """
+    Briefing: Contract for Offline Cryptographic Identity and Anti-Replay Validation.
+    Reason: Enforces hardware monotonic hash chains and role authorization checks.
+    """
     def validate_offline_event(
         self,
         event: Dict[str, Any],
@@ -61,14 +76,20 @@ class ISecurityValidator(Protocol):
 
 @runtime_checkable
 class ILakehouseCatalog(Protocol):
-    """Interface for Lakehouse Federated Iceberg / BigQuery Catalog."""
+    """
+    Briefing: Contract for Lakehouse Federated Iceberg and BigQuery Data Cataloging.
+    Reason: Abstract storage metadata lookups for cross-cloud telemetry analytics.
+    """
     def get_table_metadata(self, table_name: str) -> Dict[str, Any]:
         ...
 
 
 @runtime_checkable
 class IResilienceManager(Protocol):
-    """Interface for System Resiliency, Circuit Breakers, and Lock Managers."""
+    """
+    Briefing: Contract for System Resiliency, Circuit Breakers, and Lock Managers.
+    Reason: Monitors failure rates and isolates failing external subsystems.
+    """
     def get_circuit_state(self, service_name: str) -> str:
         ...
 
@@ -78,6 +99,7 @@ class IResilienceManager(Protocol):
 # ==============================================================================
 
 class ServiceLifetime:
+    """Supported dependency injection instance lifetimes."""
     SINGLETON = "SINGLETON"
     FACTORY = "FACTORY"
     INSTANCE = "INSTANCE"
@@ -85,8 +107,8 @@ class ServiceLifetime:
 
 class IoCContainer:
     """
-    High-performance Inversion of Control container with dependency cycle detection,
-    typed service resolution, and lifecycle hooks.
+    Briefing: High-performance Inversion of Control container with dependency cycle detection.
+    Reason: Manages lifecycle, dependency injection, and test overrides across backend modules.
     """
 
     def __init__(self):

@@ -1,8 +1,30 @@
 """
 ShiVi P0 End-to-End Disaster Workflow Simulation API
-Allows Frontend, Command Hub, and Automated Testers to trigger and observe
-the full 9-step verified context loop with live telemetry.
+====================================================
+
+Briefing:
+    Provides an automated operational simulation harness for the ShiVi disaster coordination platform.
+    Allows frontend command hubs, mobile client developers, and automated quality-assurance suites
+    to trigger, step through, and observe the complete 9-step verified context loop across live
+    database, telemetry, and audit subsystems.
+
+Reason:
+    Testing disaster coordination software in real emergencies is dangerous and irresponsible.
+    Simulating edge partitions, conflicting field observations, adversarial packet replay attacks,
+    and equipment checkout deadlocks in a controlled, fully observable environment ensures:
+    1. Verification of Invariant 1: Offline outbox durability and zero field data loss.
+    2. Verification of Invariant 2: Idempotent deduplication and anti-replay nonce protection.
+    3. Verification of Invariant 3: Causal safety freeze on life-safety contradictions.
+    4. Verification of Invariant 4: Physical NFC custody priority and zero-deadlock substitute dispatch.
+    5. Verification of Invariant 5: Governed advisory AI and mandatory human supervisor authorization.
+
+Available Scenarios:
+    1. `scenario-flood-contradiction`: Flash flood surge & Route-88 safety freeze.
+    2. `scenario-asset-contention`: Distributed equipment contention & NFC lease arbitration.
+    3. `scenario-replay-attack`: Adversarial poison packet & monotonic vector clock defense.
+    4. `scenario-sms-triage`: Multilingual low-bandwidth 2G SMS emergency triage & automated ack.
 """
+
 import uuid
 import hashlib
 from datetime import datetime, timezone, timedelta
@@ -23,8 +45,11 @@ from app.modules.evidence.models import Evidence
 from app.modules.assets.models import PhysicalAsset
 from app.modules.integrations.sms import SMSGatewayService, InboundSMSRequest
 
+# Briefing: FastAPI Router mounted under `/demo` for operational simulation harnesses.
+# Reason: Provides isolated endpoints to trigger end-to-end mission workflows.
 router = APIRouter(prefix="/demo", tags=["P0 Disaster Workflow Simulation"])
 
+# Explanation: Canonical fixture UUIDs for simulated agency, supervisor, responder, and citizen actors
 TENANT_ID = "11111111-1111-1111-1111-111111111111"
 SUPERVISOR_ID = "00000000-0000-0000-0000-000000000001"
 RESPONDER_ID = "00000000-0000-0000-0000-000000000002"
@@ -32,11 +57,22 @@ CITIZEN_ID = "00000000-0000-0000-0000-000000000003"
 
 
 def compute_sha256(data: str) -> str:
+    """
+    Briefing:
+        Computes SHA-256 hexadecimal digest for simulated evidence and cryptographic proofs.
+    """
     return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
 
 async def ensure_seeded_accounts(db: AsyncSession):
-    """Ensures foundational tenant and users exist."""
+    """
+    Briefing:
+        Idempotently seeds foundational tenant and role-based user accounts for simulation drills.
+
+    Reason:
+        Guarantees that the simulation environment always has valid `SUPERVISOR`, `RESPONDER`,
+        and `CITIZEN` credentials populated in the database.
+    """
     t_res = await db.execute(select(Tenant).where(Tenant.id == TENANT_ID))
     if not t_res.scalars().first():
         tenant = Tenant(
@@ -48,7 +84,7 @@ async def ensure_seeded_accounts(db: AsyncSession):
         db.add(tenant)
         await db.flush()
 
-    # Verify and seed required role accounts
+    # Explanation: Seed standard operational personas
     accounts = [
         (SUPERVISOR_ID, "commander_sharma", "commander@asdma.gov.in", "SUPERVISOR", "Rajesh Sharma (Incident Commander)", "+919876543210"),
         (RESPONDER_ID, "responder_singh", "singh.sdrf@asdma.gov.in", "RESPONDER", "Vikram Singh (SDRF Team Lead)", "+919876543211"),
@@ -76,7 +112,17 @@ async def get_demo_status(
     db: AsyncSession = Depends(get_db),
     current_user: TokenPayload = Depends(get_current_user_token),
 ):
-    """Returns current active simulation state and counts."""
+    """
+    Briefing:
+        Returns the current active simulation state, database entity counts, and readiness status.
+
+    Parameters:
+        db: Database session.
+        current_user: Authenticated JWT claims.
+
+    Returns:
+        Dictionary containing counts of incidents, conflicts, tasks, audits, and SMS logs.
+    """
     await ensure_seeded_accounts(db)
 
     inc_res = await db.execute(select(Incident).where(Incident.tenant_id == TENANT_ID))
@@ -107,7 +153,13 @@ async def get_demo_status(
 async def reset_demo_database(
     db: AsyncSession = Depends(get_db),
 ):
-    """Resets the demo database schema and ensures default accounts."""
+    """
+    Briefing:
+        Initializes/resets the demo database schema and guarantees default seeded accounts.
+
+    Reason:
+        Allows testers to restore a pristine state before executing scripted demonstration drills.
+    """
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     await ensure_seeded_accounts(db)
@@ -117,11 +169,11 @@ async def reset_demo_database(
 @router.get("/scenarios", tags=["P0 Disaster Workflow Simulation"])
 async def list_simulation_scenarios():
     """
-    Returns available emergency response operational drills for interactive evaluation:
-    1. Flash Flood & Route-88 Safety Freeze (Causal conflict protection)
-    2. Distributed Asset Contention & NFC Leases (Deadlock prevention)
-    3. Adversarial Poison Packet & Anti-Replay Mitigation (Deterministic trust boundary)
-    4. Multilingual Low-Bandwidth SMS Emergency Triage (Zero-connectivity intake)
+    Briefing:
+        Returns catalog of available operational disaster drills for interactive evaluation.
+
+    Returns:
+        List of scenarios detailing identifiers, descriptions, severity, and tested invariants.
     """
     return [
         {
@@ -179,9 +231,23 @@ async def list_simulation_scenarios():
 
 
 async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
+    """
+    Briefing:
+        Simulates Scenario 1: Flash flood surge, route contradiction, and causal safety freeze.
+
+    Reason:
+        Tests:
+        - Inbound citizen distress SMS ingestion and automated reply.
+        - Idempotent event ingestion.
+        - Contradictory observation submission (Scout says USABLE, Ward says BLOCKED).
+        - Automatic safety freeze on Route-88 and dependent rescue task.
+        - Human supervisor adjudication and route unfreezing.
+        - Photographic evidence submission with SHA-256 digest.
+        - Two-person completion verification and immutable audit ledger reconstruction.
+    """
     steps_log: List[Dict[str, Any]] = []
 
-    # Step 1: Citizen Inbound SMS / Distress Incident Intake
+    # Explanation: Step 1 - Citizen Inbound SMS / Distress Incident Intake
     incoming_sms_text = "SOS RESCUE 3 TRAPPED ROOFTOP SECTOR 4 BRIDGE RAPID WATER RISE"
     sms_sender = "+919876543212"
     sms_result = SMSGatewayService.process_inbound_sms(InboundSMSRequest(
@@ -232,7 +298,7 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
         },
     })
 
-    # Step 2: Push Batch Synchronization
+    # Explanation: Step 2 - Push Batch Synchronization
     event_id = f"EVT-{uuid.uuid4().hex[:12]}"
     steps_log.append({
         "step": 2,
@@ -241,7 +307,7 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
         "payload": {"event_id": event_id, "idempotent": True},
     })
 
-    # Step 3: Supervisor Triages Incident & Creates Dispatch Task
+    # Explanation: Step 3 - Supervisor Triages Incident & Creates Dispatch Task
     task = Task(
         id=str(uuid.uuid4()),
         tenant_id=TENANT_ID,
@@ -264,7 +330,7 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
         "payload": {"task_id": task.id, "assignee": "Vikram Singh (SDRF)", "route": "ROUTE-88"},
     })
 
-    # Step 4 & 5: Concurrent Observations & Causal Conflict Engine
+    # Explanation: Steps 4 & 5 - Concurrent Observations & Causal Conflict Engine
     photo_evidence_id = str(uuid.uuid4())
     conflict_case_id = str(uuid.uuid4())
     conflict = ConflictCase(
@@ -295,7 +361,7 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
     )
     db.add(conflict)
 
-    # Safety Freeze: Mark task route blocked
+    # Explanation: Safety Freeze activation - mark task route blocked
     task.is_route_blocked = True
     await db.flush()
 
@@ -317,14 +383,14 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
         },
     })
 
-    # Step 6: Authorized Human Adjudication
+    # Explanation: Step 6 - Authorized Human Adjudication
     conflict.status = "RESOLVED"
     conflict.resolved_value = "BLOCKED"
     conflict.resolution_reason = "Drone aerial survey & volunteer ground reports confirm bridge railing collapse. Route-88 declared impassable."
     conflict.resolved_by_user_id = SUPERVISOR_ID
     conflict.resolved_at = datetime.now(timezone.utc)
 
-    # Record Audit for adjudication
+    # Explanation: Record Audit for adjudication
     audit_adj = AuditEntry(
         id=str(uuid.uuid4()),
         tenant_id=TENANT_ID,
@@ -350,7 +416,7 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
         },
     })
 
-    # Step 7: Alternate Route Navigation & Cryptographic Evidence Submission
+    # Explanation: Step 7 - Alternate Route Navigation & Cryptographic Evidence Submission
     evidence_id = str(uuid.uuid4())
     photo_hash = compute_sha256("evacuated_3_civilians_photo_proof")
     evidence = Evidence(
@@ -383,7 +449,7 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
         },
     })
 
-    # Step 8: Supervisor Verification (Two-Person Rule)
+    # Explanation: Step 8 - Supervisor Verification (Two-Person Rule)
     task.status = "VERIFIED"
     incident.status = "RESOLVED"
 
@@ -412,7 +478,7 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
         },
     })
 
-    # Step 9: Reconstruct Complete Immutable Audit Ledger
+    # Explanation: Step 9 - Reconstruct Complete Immutable Audit Ledger
     audit_res = await db.execute(
         select(AuditEntry)
         .where(AuditEntry.tenant_id == TENANT_ID)
@@ -461,6 +527,19 @@ async def _simulate_flood_contradiction(db: AsyncSession) -> Dict[str, Any]:
 
 
 async def _simulate_asset_contention(db: AsyncSession) -> Dict[str, Any]:
+    """
+    Briefing:
+        Simulates Scenario 2: Concurrent physical asset claims and automated substitution.
+
+    Reason:
+        Tests:
+        - Mass evacuation incident registration.
+        - Virtual reservation asserted remotely (Cv).
+        - Hardware NFC custody scan asserted on-site (Cp).
+        - Invariant 4 enforcement: Physical possession overrides virtual reservation (Cp > Cv).
+        - Automated substitute allocation: Displaced squad receives substitute vessel with zero delay.
+        - Parallel mission execution and tamper-evident audit ledger sealing.
+    """
     steps_log: List[Dict[str, Any]] = []
 
     # Step 1: Evacuation Incident Recorded
@@ -668,6 +747,19 @@ async def _simulate_asset_contention(db: AsyncSession) -> Dict[str, Any]:
 
 
 async def _simulate_replay_attack(db: AsyncSession) -> Dict[str, Any]:
+    """
+    Briefing:
+        Simulates Scenario 3: Adversarial packet replay interception and STRIDE security defense.
+
+    Reason:
+        Tests:
+        - Ground truth establishment: Route-88 declared impassable due to structural pier fracture.
+        - Stale message replay arrival from unauthenticated mesh repeater node.
+        - Trust boundary gate evaluation: Intercepts packet via sliding window & monotonic sequence check.
+        - Dropping poison packet without mutating state.
+        - Quarantining malicious mesh node in tactical bloom filter.
+        - Appending security threat audit log.
+    """
     steps_log: List[Dict[str, Any]] = []
 
     # Step 1: Active Disaster Ground Truth
@@ -823,6 +915,21 @@ async def _simulate_replay_attack(db: AsyncSession) -> Dict[str, Any]:
 
 
 async def _simulate_sms_triage(db: AsyncSession) -> Dict[str, Any]:
+    """
+    Briefing:
+        Simulates Scenario 4: Multilingual citizen SMS intake, NLP entity extraction, and advisory AI triage.
+
+    Reason:
+        Tests:
+        - Zero-broadband 2G GSM cellular intake in Hindi Devanagari.
+        - Offline NLP entity parsing and casualty number extraction.
+        - Multi-factor urgency scoring.
+        - Instant 160-char GSM life-safety acknowledgment reply.
+        - Governed advisory AI recommendation of NDMA SOP-03.
+        - Mandatory human supervisor authorization gate prior to dispatch.
+        - Omni-bearer mesh task packetization.
+        - Evidence verification and multi-bearer audit ledger sealing.
+    """
     steps_log: List[Dict[str, Any]] = []
 
     # Step 1: Multilingual Citizen Distress SMS (Hindi Devanagari)
@@ -994,11 +1101,24 @@ async def simulate_full_workflow(
     current_user: TokenPayload = Depends(get_current_user_token),
 ):
     """
-    Executes the Complete ShiVi Verified Context Loop across selected operational scenario:
-    1. scenario-flood-contradiction (Flash Flood Surge & Route-88 Safety Freeze)
-    2. scenario-asset-contention (Distributed Asset Contention & NFC Lease Resolution)
-    3. scenario-replay-attack (Adversarial Poison Packet & Anti-Replay Mitigation)
-    4. scenario-sms-triage (Multilingual Low-Bandwidth SMS Emergency Triage)
+    Briefing:
+        Executes the Complete ShiVi Verified Context Loop across the chosen operational disaster drill.
+
+    Reason:
+        Routes execution to one of the 4 scenario engines:
+        1. `scenario-flood-contradiction`: Flash Flood Surge & Route-88 Safety Freeze.
+        2. `scenario-asset-contention`: Distributed Asset Contention & NFC Lease Resolution.
+        3. `scenario-replay-attack`: Adversarial Poison Packet & Anti-Replay Mitigation.
+        4. `scenario-sms-triage`: Multilingual Low-Bandwidth SMS Emergency Triage.
+
+    Parameters:
+        scenario_id: Identifier of drill to execute (default 'scenario-flood-contradiction').
+        db: Database session.
+        current_user: Authenticated JWT claims.
+
+    Returns:
+        Structured simulation report containing chronological execution steps, payloads,
+        created entity states, and non-repudiation verification hashes.
     """
     await ensure_seeded_accounts(db)
 

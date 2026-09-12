@@ -1,6 +1,19 @@
 """
-Integrations Router - SACHET CAP Ingestion, Weather Telemetry, Lakehouse Catalogs & Disaster SMS Gateway
+ShiVi Integrations & Telemetry API Router
+=========================================
+
+Briefing:
+    Unified integrations router bridging the ShiVi platform with external civil defense systems,
+    analytical cloud lakehouses, weather networks, and resilient disaster messaging relays.
+
+Integrated Systems:
+    1. NDMA SACHET / Common Alerting Protocol (CAP v1.2): Ingests government civil alerts.
+    2. Meteorological Telemetry: Live hydro-weather telemetry (IMD, rainfall rates, flood alerts).
+    3. BigLake Apache Iceberg Catalogs: Cross-cloud metadata federation (Databricks Unity / AWS Glue).
+    4. Disaster SMS & Satellite Burst Gateway: 2G SMS intake, 160-char broadcasts, and 140-byte
+       compact satellite burst packetization with CRC-32 checksums.
 """
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import Dict, Any, List, Optional
 from app.core.security import get_current_user
@@ -24,6 +37,8 @@ from app.modules.integrations.sms import (
     SMSLogEntry,
 )
 
+# Briefing: FastAPI Router mounted under `/integrations` for multi-agency external protocols.
+# Reason: Centralizes adapters for external telemetry, messaging, and analytical lakehouses.
 router = APIRouter(prefix="/integrations", tags=["Integrations & SMS Gateway"])
 
 
@@ -37,7 +52,22 @@ async def ingest_cap_alert(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Ingest authorized NDMA SACHET / CAP v1.2 alert payload.
+    Briefing:
+        Ingests and normalizes an authorized NDMA SACHET / CAP v1.2 alert payload.
+
+    Reason:
+        Parses government hazard perimeters and evacuation instructions into GIS polygons
+        and calculates a SHA-256 payload integrity hash.
+
+    Parameters:
+        payload: Inbound CAP v1.2 JSON payload.
+        current_user: Authenticated user or service account.
+
+    Returns:
+        `NormalizedAlertResult` populated with parsed coordinates and hazard event details.
+
+    Raises:
+        HTTPException(422): If payload parsing fails.
     """
     try:
         result = parse_cap_alert(payload)
@@ -57,7 +87,21 @@ async def get_weather_telemetry(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Fetch normalized hydro-meteorological weather telemetry.
+    Briefing:
+        Retrieves real-time hydro-meteorological weather telemetry for tactical coordinates.
+
+    Reason:
+        Provides rainfall rate (mm/hr), wind velocity, and hazard warning levels to dispatchers
+        and priority calculation algorithms.
+
+    Parameters:
+        lat: WGS84 Latitude.
+        lon: WGS84 Longitude.
+        location_name: Geographic sector headline.
+        current_user: Authenticated user.
+
+    Returns:
+        `NormalizedWeatherData` object.
     """
     data = await WeatherService.get_current_conditions(lat, lon, location_name)
     return data
@@ -68,7 +112,14 @@ async def list_federated_catalogs(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    List connected BigLake Iceberg Federated Catalogs (Databricks Unity / AWS Glue).
+    Briefing:
+        Lists all connected BigLake Apache Iceberg federated catalogs (Databricks Unity / AWS Glue).
+
+    Reason:
+        Enables analytical dashboards to inspect which cross-cloud lakehouses are synchronized.
+
+    Returns:
+        List of `FederatedCatalogConfig` models.
     """
     return LakehouseFederationService.get_registered_catalogs()
 
@@ -79,7 +130,14 @@ async def list_federated_tables(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Inspect discovered Iceberg tables in the specified federated catalog.
+    Briefing:
+        Inspects discovered Iceberg table schemas in the specified federated catalog.
+
+    Parameters:
+        catalog_name: Name of target catalog.
+
+    Returns:
+        List of `FederatedTableMetadata` records.
     """
     return LakehouseFederationService.inspect_sample_tables(catalog_name)
 
@@ -93,9 +151,18 @@ async def process_inbound_emergency_sms(
     payload: InboundSMSRequest,
 ):
     """
-    Ingest citizen/responder inbound SMS over cellular GSM or webhook.
-    Extracts distress entities, calculates priority, logs incident,
-    and returns immediate automated life-safety acknowledgment.
+    Briefing:
+        Ingests inbound emergency SMS from citizens or responders over GSM or satellite relays.
+
+    Reason:
+        Extracts distress parameters using multilingual NLP, computes explainable priority,
+        registers an incident, and returns an immediate automated life-safety acknowledgment reply.
+
+    Parameters:
+        payload: `InboundSMSRequest` with sender number and text.
+
+    Returns:
+        `InboundSMSResult` detailing incident reference and auto-reply text.
     """
     try:
         result = SMSGatewayService.process_inbound_sms(payload)
@@ -113,8 +180,17 @@ async def broadcast_sector_alert(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Incident Commander tool to broadcast geo-targeted emergency alerts.
-    Enforces GSM 160-character budget and multi-recipient queuing.
+    Briefing:
+        Broadcasts a geo-targeted emergency alert to civilian phones in an endangered sector.
+
+    Reason:
+        Enforces standard GSM single-segment 160-character budgets to guarantee delivery.
+
+    Parameters:
+        payload: `BroadcastSMSRequest` specifying sector, hazard, and instructions.
+
+    Returns:
+        `BroadcastSMSResult` detailing queued recipient counts and transmission status.
     """
     try:
         result = SMSGatewayService.broadcast_sector_alert(payload)
@@ -132,8 +208,17 @@ async def encode_satellite_sms_burst(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Compress an incident event envelope into a <= 140-byte satellite SMS burst
-    packet with IEEE 802.3 CRC-32 integrity validation.
+    Briefing:
+        Compresses an incident event into a <= 140-byte satellite SMS burst packet with CRC-32 integrity.
+
+    Reason:
+        Complies with low-bandwidth satellite transceiver limits (Iridium SBD, Inmarsat).
+
+    Parameters:
+        payload: `CompactSMSBurstEncodeRequest`.
+
+    Returns:
+        `CompactSMSBurstResult` containing encoded burst string.
     """
     return SMSGatewayService.encode_compact_burst(payload)
 
@@ -144,8 +229,14 @@ async def decode_satellite_sms_burst(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Decode and validate a 140-byte satellite SMS burst string into structured
-    event fields, checking CRC-32 checksum.
+    Briefing:
+        Decodes and validates a raw satellite SMS burst string, verifying CRC-32 checksums.
+
+    Parameters:
+        payload: `CompactSMSBurstDecodeRequest`.
+
+    Returns:
+        `DecodedSatelliteEvent` with verified coordinates and categories.
     """
     try:
         return SMSGatewayService.decode_compact_burst(payload.burst_string)
@@ -162,6 +253,13 @@ async def get_sms_transmission_logs(
     current_user: Dict[str, Any] = Depends(get_current_user),
 ):
     """
-    Retrieve audit transmission history for inbound and outbound SMS/Satellite bursts.
+    Briefing:
+        Retrieves transmission history for inbound, outbound, and broadcast SMS/satellite messages.
+
+    Parameters:
+        limit: Number of log records to return (default 50).
+
+    Returns:
+        List of `SMSLogEntry` records.
     """
     return SMSGatewayService.get_logs(limit=limit)

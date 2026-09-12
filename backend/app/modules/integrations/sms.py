@@ -1,11 +1,28 @@
 """
 ShiVi Emergency Disaster SMS Gateway & Satellite Messaging Service
-Provides resilient emergency communication under zero broadband/cellular data conditions:
-1. Inbound SMS Ingestion & NLP Parsing (Structured & Unstructured Multilingual)
-2. Automated Life-Safety Acknowledgment & Priority Triage
-3. Outbound Sector Emergency Alert Broadcasting (160-char GSM Compliant)
-4. Compact 140-Byte Satellite SMS Burst Encoding/Decoding with CRC-32 Checksums
+==================================================================
+
+Briefing:
+    Provides resilient emergency messaging infrastructure when high-speed cellular data,
+    fiber backhauls, and broadband internet are completely knocked out.
+    Enables bidirectional emergency communication over legacy 2G GSM cellular networks
+    and bandwidth-constrained L-band satellite burst links (Iridium, Inmarsat, C-DOT).
+
+Key Capabilities:
+    1. Inbound SMS Ingestion & NLP Parsing:
+       Accepts raw SMS messages from citizens or responders, extracts emergency categories,
+       severity, and victim counts across English and Hindi, geocodes sector names,
+       computes triage priority, and generates an automated 160-char life-safety acknowledgment.
+    2. Outbound Sector Emergency Alert Broadcasting:
+       Enables incident commanders to broadcast geo-targeted emergency alerts strictly formatted
+       within the single GSM 7-bit 160-character budget to prevent multi-part message loss.
+    3. Compact 140-Byte Satellite SMS Burst Encoding/Decoding:
+       Encodes incident event envelopes into ultra-compact <= 140-byte ASCII frames with
+       IEEE 802.3 CRC-32 checksums: `SHV:1:<EVT_ID>:<CAT>:<SEV>:<PEOPLE>:<LAT>,<LON>:<DESC>:<CRC32>`.
+    4. Audit Transmission Logging:
+       Maintains full bidirectional telemetry logging for all inbound, outbound, and broadcast SMS.
 """
+
 import re
 import uuid
 import zlib
@@ -19,6 +36,10 @@ from app.modules.incidents.priority import calculate_incident_priority
 
 
 class InboundSMSRequest(BaseModel):
+    """
+    Briefing:
+        Request model representing an inbound SMS message from a cellular modem or webhook.
+    """
     sender_phone: str
     message_text: str
     received_at: Optional[datetime] = None
@@ -26,6 +47,10 @@ class InboundSMSRequest(BaseModel):
 
 
 class InboundSMSResult(BaseModel):
+    """
+    Briefing:
+        Structured result returned after processing an emergency inbound SMS message.
+    """
     incident_id: str
     local_reference: str
     sender_phone: str
@@ -43,6 +68,10 @@ class InboundSMSResult(BaseModel):
 
 
 class BroadcastSMSRequest(BaseModel):
+    """
+    Briefing:
+        Command payload for transmitting an emergency SMS broadcast to civilians in a sector.
+    """
     sector_name: str
     hazard_type: str
     severity: str = "CRITICAL"
@@ -52,6 +81,10 @@ class BroadcastSMSRequest(BaseModel):
 
 
 class BroadcastSMSResult(BaseModel):
+    """
+    Briefing:
+        Result summary of a transmitted emergency broadcast.
+    """
     broadcast_id: str
     sector_name: str
     primary_sms_text: str
@@ -63,6 +96,10 @@ class BroadcastSMSResult(BaseModel):
 
 
 class CompactSMSBurstEncodeRequest(BaseModel):
+    """
+    Briefing:
+        Request to encode an operational incident into a 140-byte satellite burst packet.
+    """
     event_id: str
     category: str
     severity: str
@@ -73,6 +110,10 @@ class CompactSMSBurstEncodeRequest(BaseModel):
 
 
 class CompactSMSBurstResult(BaseModel):
+    """
+    Briefing:
+        Encoded satellite burst string with byte length and CRC-32 checksum.
+    """
     burst_string: str
     byte_length: int
     fits_140_byte_satellite_limit: bool
@@ -80,10 +121,18 @@ class CompactSMSBurstResult(BaseModel):
 
 
 class CompactSMSBurstDecodeRequest(BaseModel):
+    """
+    Briefing:
+        Request to decode a raw satellite burst string into structured event parameters.
+    """
     burst_string: str
 
 
 class DecodedSatelliteEvent(BaseModel):
+    """
+    Briefing:
+        Parsed and CRC-validated incident event decoded from a satellite burst packet.
+    """
     protocol_version: int
     event_id: str
     category: str
@@ -96,6 +145,10 @@ class DecodedSatelliteEvent(BaseModel):
 
 
 class SMSLogEntry(BaseModel):
+    """
+    Briefing:
+        Audit record representing a single transmitted or received SMS/satellite burst.
+    """
     id: str
     direction: str  # INBOUND, OUTBOUND, BROADCAST
     sender_or_recipient: str
@@ -105,7 +158,7 @@ class SMSLogEntry(BaseModel):
     related_ref: Optional[str] = None
 
 
-# Known Geographic Sector Mapping for Disconnected Environments
+# Explanation: Offline dictionary mapping localized Hindi and English sector names to GPS coordinates
 SECTOR_GEODATA: Dict[str, Dict[str, Any]] = {
     "sector 4": {"name": "Sector 4 - Guwahati Basin", "lat": 26.1856, "lon": 91.7483},
     "सेक्टर 4": {"name": "Sector 4 - Guwahati Basin", "lat": 26.1856, "lon": 91.7483},
@@ -123,18 +176,37 @@ SECTOR_GEODATA: Dict[str, Dict[str, Any]] = {
 
 
 class SMSGatewayService:
+    """
+    Briefing:
+        Central service managing disaster SMS intake, satellite burst compression, and broadcasts.
+    """
+    # Explanation: In-memory transmission audit log for tracking recent SMS message flows
     _transmission_logs: List[SMSLogEntry] = []
 
     @classmethod
     def process_inbound_sms(cls, req: InboundSMSRequest) -> InboundSMSResult:
         """
-        Parses an incoming SMS, extracts entities, calculates triage priority,
-        registers an incident reference, and returns an automated emergency acknowledgment.
+        Briefing:
+            Parses an incoming SMS, extracts entities, calculates priority, logs an incident,
+            and returns an automated life-safety acknowledgment reply.
+
+        Reason:
+            1. Multilingual Extraction: Invokes `IntelligenceGateway` to extract category and hazards.
+            2. Offline Geocoding: Matches sector names (e.g. "Sector 4", "दिसपुर") or embedded GPS coordinates.
+            3. Algorithmic Priority: Runs `calculate_incident_priority()` to derive an objective score.
+            4. Instant Automated Feedback: Formulates a concise <= 160-char GSM reply confirming
+               receipt and advising citizens to seek high ground while teams mobilize.
+
+        Parameters:
+            req: `InboundSMSRequest` with sender phone and message text.
+
+        Returns:
+            `InboundSMSResult` containing incident reference and auto-reply text.
         """
         raw_text = req.message_text.strip()
         text_lower = raw_text.lower()
 
-        # 1. Check for Structured Syntax: e.g. "SOS RESCUE 6 SECTOR 4 TRAPPED"
+        # Explanation: Defaults
         category = "RESCUE"
         severity = "HIGH"
         people_at_risk = 1
@@ -143,14 +215,14 @@ class SMSGatewayService:
         lon = 91.7483
         hazards = ["FLOOD_INUNDATION"]
 
-        # Multilingual & Entity Extraction via Advisory Intelligence Engine
+        # Explanation: Multilingual extraction via deterministic NLP rules
         extracted = IntelligenceGateway.extract_structured_incident(raw_text)
         category = extracted.category
         severity = extracted.severity
         people_at_risk = extracted.estimated_people
         hazards = extracted.extracted_hazards
 
-        # Check explicit sector names
+        # Explanation: Offline sector dictionary matching
         for sec_key, sec_data in SECTOR_GEODATA.items():
             if sec_key in text_lower:
                 location_name = sec_data["name"]
@@ -158,7 +230,7 @@ class SMSGatewayService:
                 lon = sec_data["lon"]
                 break
 
-        # Check explicit GPS coordinate format in SMS: e.g. "GPS 26.1856, 91.7483" or "26.18,91.74"
+        # Explanation: Check for explicit GPS coordinates (e.g. "GPS 26.1856, 91.7483")
         coord_match = re.search(r"(\d{2}\.\d{2,6})[,\s]+(\d{2}\.\d{2,6})", raw_text)
         if coord_match:
             try:
@@ -171,7 +243,7 @@ class SMSGatewayService:
             except Exception:
                 pass
 
-        # 2. Deterministic Priority Calculation
+        # Explanation: Calculate explainable priority score
         urgency = "IMMEDIATE" if severity == "CRITICAL" else "HIGH"
         score, _ = calculate_incident_priority(
             severity=severity,
@@ -185,8 +257,7 @@ class SMSGatewayService:
         incident_id = str(uuid.uuid4())
         local_ref = f"SMS-REF-{incident_id[:6].upper()}"
 
-        # 3. Generate Automated Life-Safety Acknowledgment Reply
-        # Fits standard single GSM SMS (<= 160 characters)
+        # Explanation: Formulate concise GSM 160-char acknowledgment reply
         auto_reply = (
             f"SHIVI ALERT: SOS {local_ref} logged. Priority P{score:.0f}. "
             f"Rescue team notified for {location_name.split(' - ')[0]}. "
@@ -197,7 +268,7 @@ class SMSGatewayService:
 
         now = req.received_at or datetime.now(timezone.utc)
 
-        # Log inbound message & outbound reply
+        # Explanation: Record inbound and outbound entries into audit transmission log
         cls._transmission_logs.insert(0, SMSLogEntry(
             id=str(uuid.uuid4()),
             direction="INBOUND",
@@ -238,12 +309,21 @@ class SMSGatewayService:
     @classmethod
     def broadcast_sector_alert(cls, req: BroadcastSMSRequest) -> BroadcastSMSResult:
         """
-        Formats and broadcasts a geo-targeted emergency alert.
-        Enforces standard GSM 160-character budget.
+        Briefing:
+            Formats and broadcasts a geo-targeted emergency alert to civilian phones in a sector.
+
+        Reason:
+            Enforces strict GSM single-segment length limits (<= 160 characters) to ensure that
+            recipients receive the complete instruction without dropped multi-part segments.
+
+        Parameters:
+            req: `BroadcastSMSRequest` specifying sector, hazard, and instructions.
+
+        Returns:
+            `BroadcastSMSResult` detailing queued recipients and formatted text.
         """
         broadcast_id = f"BC-{uuid.uuid4().hex[:8].upper()}"
 
-        # Compile concise GSM 160-char alert text
         short_sector = req.sector_name.split(" - ")[0]
         alert_body = (
             f"SHIVI ALERT [{short_sector}]: {req.hazard_type.upper()}. "
@@ -286,16 +366,25 @@ class SMSGatewayService:
     @classmethod
     def encode_compact_burst(cls, req: CompactSMSBurstEncodeRequest) -> CompactSMSBurstResult:
         """
-        Encodes an incident event into an ultra-compact <= 140 character
-        satellite SMS burst packet with IEEE 802.3 CRC-32 integrity.
-        Wire Format:
-        SHV:1:<EVT_ID>:<CAT>:<SEV>:<PEOPLE>:<LAT>,<LON>:<DESC>:<CRC32>
+        Briefing:
+            Compresses an incident event envelope into a <= 140-byte satellite SMS burst.
+
+        Reason:
+            Satellite Short Burst Data (SBD) services (Iridium, Thuraya) impose hard 140-to-340 byte
+            payload limits per burst. This function creates a colon-delimited ASCII string with
+            IEEE 802.3 CRC-32 checksums:
+            `SHV:1:<EVT_ID>:<CAT>:<SEV>:<PEOPLE>:<LAT>,<LON>:<DESC>:<CRC32>`
+
+        Parameters:
+            req: `CompactSMSBurstEncodeRequest` containing event attributes.
+
+        Returns:
+            `CompactSMSBurstResult` with burst string and CRC checksum.
         """
         desc_clean = re.sub(r"[:\n\r]+", " ", req.short_desc or "SOS").strip()[:24]
-        # Core payload without CRC
         core = f"SHV:1:{req.event_id[:8]}:{req.category[:3].upper()}:{req.severity[:4].upper()}:{req.people_at_risk}:{req.latitude:.3f},{req.longitude:.3f}:{desc_clean}"
 
-        # Compute CRC-32 checksum of the core string
+        # Explanation: Compute CRC-32 checksum of the core ASCII payload
         crc_val = zlib.crc32(core.encode("utf-8")) & 0xFFFFFFFF
         crc_hex = f"{crc_val:08X}"
 
@@ -312,7 +401,21 @@ class SMSGatewayService:
     @classmethod
     def decode_compact_burst(cls, burst_string: str) -> DecodedSatelliteEvent:
         """
-        Decodes and validates a compact satellite SMS burst string.
+        Briefing:
+            Decodes and verifies a compact satellite SMS burst string into structured event fields.
+
+        Reason:
+            Validates framing format, computes expected CRC-32, verifies data integrity against
+            radio corruption, and expands abbreviated codes back to full domain enums.
+
+        Parameters:
+            burst_string: The received satellite burst string.
+
+        Returns:
+            `DecodedSatelliteEvent` with parsed coordinates, category, and CRC validity.
+
+        Raises:
+            ValueError: If framing is invalid or header missing.
         """
         parts = burst_string.strip().split(":")
         if len(parts) < 8 or parts[0] != "SHV" or parts[1] != "1":
@@ -326,12 +429,12 @@ class SMSGatewayService:
         short_desc = parts[7]
         crc_received = parts[8] if len(parts) > 8 else ""
 
-        # Verify CRC-32
+        # Explanation: Validate CRC-32 checksum
         core = ":".join(parts[:8])
         expected_crc = f"{zlib.crc32(core.encode('utf-8')) & 0xFFFFFFFF:08X}"
         crc_valid = (expected_crc.upper() == crc_received.upper())
 
-        # Expand abbreviations
+        # Explanation: Expand abbreviations to standard domain names
         cat_map = {"RES": "RESCUE", "MED": "MEDICAL", "HAZ": "HAZARD", "REL": "RELIEF"}
         sev_map = {"CRIT": "CRITICAL", "HIGH": "HIGH", "MEDI": "MEDIUM", "LOW": "LOW"}
 
@@ -358,4 +461,8 @@ class SMSGatewayService:
 
     @classmethod
     def get_logs(cls, limit: int = 50) -> List[SMSLogEntry]:
+        """
+        Briefing:
+            Returns the most recent SMS and satellite burst transmission log records.
+        """
         return cls._transmission_logs[:limit]

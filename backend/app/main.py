@@ -1,7 +1,19 @@
+"""
+Briefing: ShiVi Disaster Response Central Coordination FastAPI Service Entrypoint.
+Reason: Operates as the central command authority and synchronization hub for all field nodes,
+web dashboards, and tactical assets. Provides REST endpoints across the full 8-phase disaster
+lifecycle (Capture, Persist, Sync, Reconcile, Safety, Decide, Verify, Audit).
+"""
+
 import os
+import time
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+from starlette.middleware.gzip import GZipMiddleware
+from starlette.requests import Request
+from starlette.responses import Response
 
 from app.core.config import settings
 from app.core.database import engine, Base
@@ -23,13 +35,15 @@ from app.modules.demo.router import router as demo_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Auto-create tables for local/testing execution
+    """
+    Briefing: Application lifecycle manager managing startup and shutdown routines.
+    Reason: Automatically initializes SQLite/PostgreSQL database schemas during local development
+    or container startup before accepting incoming HTTP sync traffic.
+    """
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
 
-
-from starlette.middleware.gzip import GZipMiddleware
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -40,12 +54,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-import time
-from starlette.requests import Request
-from starlette.responses import Response
 
 @app.middleware("http")
 async def add_server_timing_and_process_time(request: Request, call_next):
+    """
+    Briefing: HTTP middleware recording sub-millisecond execution duration for every request.
+    Reason: In emergency operations, latency anomalies can degrade real-time dispatching.
+    Adds `X-Process-Time` and `Server-Timing` headers for telemetry and audit profiling.
+    """
     start_time = time.perf_counter()
     response: Response = await call_next(request)
     process_time = (time.perf_counter() - start_time) * 1000.0
@@ -53,10 +69,15 @@ async def add_server_timing_and_process_time(request: Request, call_next):
     response.headers["Server-Timing"] = f"app;dur={process_time:.2f}"
     return response
 
-# GZip compression for responses > 1KB (optimizes low-bandwidth mesh and satellite bursts)
+
+# Briefing: HTTP response GZip compression.
+# Reason: Reduces raw payload size by 60-80% for payloads > 1KB. Crucial for field responders
+# transmitting over satellite bursts or congested 2G/3G disaster backhauls.
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# CORS configuration supporting frontend ports (including port 3001 fallback) and configurable origins
+# Briefing: Cross-Origin Resource Sharing (CORS) security configuration.
+# Reason: Permits the React web dashboard (running on port 3000/3001) and mobile test devices
+# to communicate securely with the API without browser origin blocking.
 cors_origins_env = os.getenv(
     "CORS_ORIGINS",
     "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001,http://localhost:8000,*",
@@ -73,7 +94,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Attach routers
+# Briefing: Register modular domain routers representing each phase of disaster operations.
 app.include_router(identity_router, prefix=settings.API_V1_STR)
 app.include_router(incidents_router, prefix=settings.API_V1_STR)
 app.include_router(tasks_router, prefix=settings.API_V1_STR)
@@ -92,8 +113,13 @@ app.include_router(resilience_router)  # Includes /v1/resilience/health/liveness
 
 @app.get("/health", tags=["Health & Diagnostics"])
 async def health_check():
+    """
+    Briefing: Lightweight liveness probe endpoint.
+    Reason: Polled by load balancers, orchestrators, and mobile field clients to confirm service availability.
+    """
     return {
         "status": "healthy",
         "service": "ShiVi Operations Core API",
         "version": settings.VERSION,
     }
+
